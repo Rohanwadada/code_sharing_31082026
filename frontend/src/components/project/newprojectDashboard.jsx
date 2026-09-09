@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import classes from './newprojectDashboard.module.css';
 import { useRouter } from 'next/navigation';
-import { getAllProjects } from '@/service/project.service';
+import axios from '@/lib/axios';
+import { getOrgContext } from '@/lib/orgContext';
 
 export const PROJECT_TYPES = {
   assessment: 'skill_gap_assessment',
@@ -106,8 +107,13 @@ const NewProjectDashboard = () => {
     const fetchProjects = async () => {
       try {
         setLoading(true);
-        const data = await getAllProjects();
-        setProjects(Array.isArray(data) ? data : []);
+        const orgContext = getOrgContext();
+        let url = '/get-all-projects';
+        if (orgContext?.organizationId) {
+          url += `?organization_id=${orgContext.organizationId}`;
+        }
+        const response = await axios.get(url);
+        setProjects(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error('Failed to fetch projects:', error);
         setProjects([]);
