@@ -1,0 +1,49 @@
+.nm-main-ct {
+  display: inline-flex;
+  padding: 13px 17px 13px 20px;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 6px;
+  background: #f7f8f8;
+  width: 100%;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.nm-text {
+  color: #5f5f5f;
+
+  /* Body/Body H5 */
+  font-family: var(--font-dm-sans);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 18px; /* 128.571% */
+}
+
+.btn-ct {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nm-btn {
+  display: flex;
+  height: 32px;
+  padding: 10px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 4px;
+  background: var(--background-sidebar);
+
+  color: #ffffff;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 18px;
+  cursor: pointer;
+}
+
+.btn-ct svg {
+  cursor: pointer;
+}

@@ -1,0 +1,175 @@
+.input-form {
+  padding-right: 20px;
+  padding-bottom: 20px;
+  min-width: 60%;
+  max-width: 60%;
+  max-height: 200px;
+  height: fit-content;
+  border-radius: 10px;
+  border: 0.6px solid var(--background-grey-light);
+  background: var(--background-white);
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  /* flex-direction: column; */
+  /*transition: all 0.5s;*/
+  caret-color: var(--brand-primary);
+}
+
+.input-form:focus-within {
+  border: 0.6px solid var(--brand-primary);
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.25);
+}
+
+.query-input {
+  flex: 1;
+  padding: 20px;
+  color: #000000;
+  font-family: var(--font-dm-sans);
+  font-size: 16px;
+  font-weight: 400;
+  outline: none;
+  resize: none;
+  max-height: 160px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand-primary) var(--background-white);
+}
+
+.btn-ct {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.send-btn,
+.mic-btn {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  padding: 4px 3px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  aspect-ratio: 1/1;
+  border-radius: 4px;
+  background: var(--brand-primary);
+  color: var(--ink-mid);
+  cursor: pointer;
+}
+
+.send-btn:disabled,
+.mic-btn:disabled {
+  cursor: not-allowed;
+}
+
+.existing-chat {
+  min-width: 100%;
+}
+
+.voice-active {
+  padding: 0;
+  min-height: auto;
+  height: 72px;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  border-radius: 10px;
+}
+
+/* Mobile responsive */
+
+@media (max-width: 768px) {
+  .input-form {
+    /* edited by rohan */
+    min-width: 100%;
+    max-width: 100%;
+    min-height: 220px;
+    border: none;
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    padding: 16px;
+    border-radius: 16px;
+    flex-direction: column;
+  }
+
+  .input-form.existing-chat {
+    /* edited by rohan */
+    min-height: auto;
+    border: none;
+    background: #fff;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+    /* upward drop shadow */
+    padding: 8px 0;
+    border-radius: 0;
+    flex-direction: row;
+    align-items: center;
+    /* Keep textarea and button perfectly vertically centered */
+    /* // comment out by rohan 
+      align-items: center;
+      */
+  }
+
+  .input-form:focus-within {
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .input-form.existing-chat:focus-within {
+    border: none;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+    /* slightly deeper up-shadow on focus */
+  }
+
+  .query-input {
+    font-size: 14px;
+    padding: 12px 0;
+    background-color: transparent;
+    width: 100%;
+  }
+
+  .existing-chat .query-input {
+    padding: 12px 16px;
+  }
+
+  .send-btn,
+  .mic-btn {
+    width: 32px;
+    height: 32px;
+    margin-right: 0;
+    margin-bottom: 0;
+
+    border-radius: 6px;
+    background: var(--brand-primary);
+    align-self: flex-end;
+    /* Push to bottom right */
+  }
+  /* .send-btn svg {
+    transform: rotate(-45deg);
+  } */
+
+  .existing-chat .send-btn,
+  .existing-chat .min-icon {
+    margin-right: 16px;
+    /* Perfect left/right padding */
+    margin-bottom: 0px;
+    /* Removes awkward shift from Image 1 */
+    align-self: center;
+    /* Ensures it perfectly aligns with center of input */
+  }
+
+  .voice-active {
+    height: 64px;
+    min-height: auto;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+}

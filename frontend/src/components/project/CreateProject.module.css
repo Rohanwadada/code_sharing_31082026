@@ -1,0 +1,95 @@
+.container {
+  /*min-height: calc(100vh - 70px);*/
+  font-family: 'DM Sans', sans-serif;
+  box-sizing: border-box;
+}
+
+.pageTitle {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  font-weight: 400;
+  color: #1a1c23;
+  margin: 0 0 24px 0;
+}
+
+.contentCard {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 32px 40px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.questionTitle {
+  color: #000;
+  font-family: 'DM Serif Display';
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 26px; /* 144.444% */
+  margin: 0 0 8px 0;
+}
+
+.questionDesc {
+  color: #7a8099;
+  font-family: 'DM Sans';
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
+  margin: 0 0 24px 0;
+}
+
+.optionsContainer {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.optionCard {
+  flex: 1;
+  max-width: 320px;
+  border-radius: 9px;
+  border: 1px solid #7a8099;
+  background: #fff;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.optionCard:hover {
+  background-color: #fff3db;
+  border-color: #8a6a10;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.optionCard.selected {
+  border-color: #a47618;
+  background-color: #fcfbf9;
+}
+
+.optionTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1c23;
+  margin: 0 0 12px 0;
+}
+
+.optionDesc {
+  font-size: 13px;
+  color: #7d8292;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .optionsContainer {
+    flex-direction: column;
+  }
+
+  .optionCard {
+    max-width: 100%;
+  }
+
+  .container {
+    padding: 24px;
+  }
+}

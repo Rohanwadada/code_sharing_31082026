@@ -1,0 +1,2460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link
+    rel="icon"
+    href="{{ url_for('static', path='images/dakshTM.svg') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Daksh™</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <style>
+        /* Base Styles */
+        :root {
+            --sidebar-bg: #151518;
+            --sidebar-text: #a0a0a0;
+            --sidebar-active: #d6a848;
+            --main-bg: #FCFBF8;
+            --gold: #d6a848;
+            --text-dark: #111827;
+            --text-muted: #6B7280;
+            --border-color: #E5E7EB;
+            --table-header-bg: #F3EFE6;
+            --must-have: #c2410c;
+            --good-to-have: #b45309;
+            --icing: #6b7280;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-color: var(--main-bg);
+            color: var(--text-dark);
+        }
+
+        /* Icons */
+        .icon {
+            width: 18px;
+            height: 18px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #2a2a2a;
+        }
+        
+        .sidebar-logo {
+            padding: 24px;
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: var(--gold);
+            line-height: 1.2;
+        }
+        
+        .sidebar-logo span {
+            display: block;
+            font-family: 'Inter', sans-serif;
+            font-size: 9px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .menu-section {
+            margin-top: 24px;
+        }
+        .menu-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 24px;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .menu-item {
+            padding: 10px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .menu-item:hover {
+            color: white;
+        }
+        .menu-item.active {
+            color: var(--gold);
+            background-color: rgba(214, 168, 72, 0.1);
+            border-left: 3px solid var(--gold);
+        }
+        .menu-item.active-sub {
+            color: var(--gold);
+        }
+        
+        /* Disabled Menu Items Styling */
+        .menu-item.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .sub-menu {
+            padding-left: 48px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            font-size: 13px;
+            background-color: #1a1a1d;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 24px;
+            border-top: 1px solid #2a2a2a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--gold);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .user-info {
+            font-size: 13px;
+            color: white;
+        }
+        .user-info span {
+            display: block;
+            font-size: 11px;
+            color: #888;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* Top Nav */
+        .top-nav {
+            height: 64px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            background-color: #fff;
+        }
+        
+        .breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+        
+        .btn-confirm {
+            background-color: var(--gold);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Content Body */
+        .content-body {
+            padding: 32px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+        .page-title {
+            font-size: 32px;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        .page-title span {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold);
+            font-style: italic;
+        }
+        .page-meta {
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .page-meta strong {
+            color: var(--text-dark);
+        }
+        
+        /* Edit Card */
+        .edit-card {
+            background-color: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .edit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+        .edit-title-group {
+            display: flex;
+            gap: 16px;
+        }
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            background-color: rgba(214, 168, 72, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+        }
+        .edit-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-family: 'Playfair Display', serif;
+        }
+        .edit-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        /* Upload Button styling */
+        .file-upload-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .btn-outline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-outline:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        /* Stat Cards */
+        .stat-cards {
+            display: flex;
+            gap: 16px;
+        }
+        .stat-card {
+            flex: 1;
+            background-color: var(--main-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+            background-color: rgba(214, 168, 72, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+        }
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-dark);
+            margin-top: 4px;
+        }
+        .stat-sub {
+            font-size: 11px;
+            color: var(--gold);
+            margin-top: 2px;
+        }
+
+        /* Table */
+        .table-container {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        th {
+            background-color: var(--table-header-bg);
+            text-align: left;
+            padding: 16px 24px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        th:first-child {
+            border-top-left-radius: 11px;
+        }
+        th:last-child {
+            border-top-right-radius: 11px;
+        }
+        
+        /* Column specific colors */
+        th.col-must-have { color: var(--must-have); text-align: center; }
+        th.col-good-have { color: var(--good-to-have); text-align: center; }
+        th.col-icing { color: var(--icing); text-align: center; }
+        
+        td {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        td.radio-cell {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        /* Custom Radio */
+        input[type="radio"] {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #D1D5DB;
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            vertical-align: middle;
+        }
+        input[type="radio"]:checked {
+            border-color: var(--gold);
+        }
+        input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--gold);
+        }
+
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border: 1px solid #9CA3AF;
+            color: #9CA3AF;
+            border-radius: 50%;
+            font-size: 10px;
+            margin-left: 6px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .tooltip-box {
+            display: none;
+            position: absolute;
+            bottom: 140%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #1F2937;
+            color: #F9FAFB;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: normal;
+            width: 250px;
+            z-index: 50;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            text-transform: none;
+            font-weight: 400;
+            line-height: 1.4;
+            text-align: left;
+            cursor: default;
+        }
+
+        .tooltip-box::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: #1F2937 transparent transparent transparent;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 16px;
+            color: var(--text-muted);
+            display: none;
+        }
+
+        .menu-dots {
+            cursor: pointer;
+            color: #9CA3AF;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .generated-section {
+            display: none;
+            margin-top: 28px;
+        }
+        .generated-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+        .generated-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .generated-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .generation-summary {
+            display: none;
+            grid-template-columns: repeat(3, minmax(160px, 1fr));
+            gap: 16px;
+            border: 1px solid #E7DED0;
+            background: #fff;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 6px 18px rgba(17, 24, 39, 0.04);
+        }
+        .summary-card {
+            border: 1px solid #E8E0D4;
+            background: #FCFBF8;
+            border-radius: 10px;
+            padding: 16px;
+        }
+        .summary-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: #111827;
+            line-height: 1;
+        }
+        .summary-label {
+            margin-top: 7px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #6B7280;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .notice {
+            border: 1px solid #F3D9A4;
+            background: #FFF9EA;
+            color: #9A5E00;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 28px;
+            font-size: 15px;
+        }
+        .question-cell {
+            line-height: 1.55;
+            min-width: 420px;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #E8C878;
+            background: #FFF6D9;
+            color: #8A6200;
+            border-radius: 5px;
+            padding: 4px 9px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .level-badge {
+            background: #FFF4E8;
+            color: #B45309;
+            border: none;
+        }
+        .row-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .icon-button {
+            width: 42px;
+            height: 30px;
+            border: 1px solid #D8D1C2;
+            border-radius: 6px;
+            background: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .icon-button svg {
+            width: 15px;
+            height: 15px;
+        }
+        .icon-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.42;
+            background: #F3F4F6;
+        }
+        .icon-button:disabled svg {
+            stroke: #9CA3AF;
+        }
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(17, 24, 39, 0.42);
+            z-index: 100;
+        }
+        .modal-backdrop.is-open {
+            display: flex;
+        }
+        .regenerate-modal {
+            width: min(620px, 100%);
+            background: #fff;
+            border: 1px solid #E7DED0;
+            border-radius: 12px;
+            box-shadow: 0 24px 70px rgba(17, 24, 39, 0.24);
+            overflow: hidden;
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 18px 20px;
+            border-bottom: 1px solid #ECE2D4;
+            background: #FCFBF8;
+        }
+        .modal-title {
+            font-size: 17px;
+            font-weight: 750;
+        }
+        .modal-close {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #D8D1C2;
+            border-radius: 6px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 1;
+        }
+        .modal-body {
+            padding: 20px;
+            display: grid;
+            gap: 16px;
+        }
+        .modal-section {
+            border: 1px solid #E8E0D4;
+            border-radius: 10px;
+            padding: 16px;
+            background: #fff;
+        }
+        .modal-section-title {
+            font-size: 13px;
+            font-weight: 750;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+        .feedback-input {
+            width: 100%;
+            min-height: 112px;
+            resize: vertical;
+            border: 1px solid #D8D1C2;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.45;
+            color: #111827;
+            margin-bottom: 12px;
+        }
+        .feedback-input:focus {
+            outline: 2px solid rgba(214, 168, 72, 0.32);
+            border-color: #D6A848;
+        }
+        .modal-action-row {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .stream-status {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        .generation-panel {
+            background: #fff;
+            border: 1px solid #E7DED0;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 26px rgba(17, 24, 39, 0.06);
+        }
+        .generation-panel-header {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 16px;
+            padding: 20px 22px;
+            background: linear-gradient(135deg, #FFF7DE 0%, #F7FBFF 48%, #F2F7EA 100%);
+            border-bottom: 1px solid #ECE2D4;
+        }
+        .generation-kicker {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #8A6200;
+            letter-spacing: 0.08em;
+            margin-bottom: 7px;
+        }
+        .generation-focus {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.35;
+        }
+        .generation-detail {
+            margin-top: 6px;
+            color: #5B6472;
+            font-size: 13px;
+        }
+        .generation-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(108px, 1fr));
+            gap: 10px;
+            min-width: 240px;
+        }
+        .generation-header-side {
+            display: grid;
+            gap: 12px;
+            justify-items: end;
+        }
+        .generation-metric {
+            background: rgba(255, 255, 255, 0.76);
+            border: 1px solid rgba(214, 168, 72, 0.26);
+            border-radius: 8px;
+            padding: 11px 12px;
+        }
+        .metric-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: #111827;
+            line-height: 1;
+        }
+        .metric-label {
+            color: #6B7280;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+        .stream-stop-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 152px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #E7B2A8;
+            background: #FFF6F4;
+            color: #A6321D;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+        }
+        .stream-stop-button:hover:not(:disabled) {
+            background: #FDEDE9;
+            border-color: #D86D5A;
+        }
+        .stream-stop-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.58;
+        }
+        .stream-stop-button.is-hidden {
+            display: none;
+        }
+        .generation-progress-wrap {
+            padding: 16px 22px 10px;
+        }
+        .generation-progress-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 12px;
+            color: #5B6472;
+            margin-bottom: 8px;
+        }
+        .generation-progress-track {
+            height: 10px;
+            background: #EEF1F5;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .generation-progress-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #D6A848, #22C55E, #3B82F6);
+            transition: width 0.35s ease;
+        }
+        .generation-body {
+            display: grid;
+            grid-template-columns: minmax(260px, 0.9fr) minmax(380px, 1.4fr);
+            gap: 22px;
+            padding: 16px 22px 22px;
+        }
+        .generation-now {
+            border: 1px solid #E8E0D4;
+            border-radius: 10px;
+            background: #FCFBF8;
+            padding: 16px;
+        }
+        .now-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #8A6200;
+            margin-bottom: 9px;
+        }
+        .now-message {
+            min-height: 52px;
+            font-size: 16px;
+            line-height: 1.45;
+            font-weight: 650;
+            color: #111827;
+        }
+        .now-subtext {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #6B7280;
+        }
+        .pulse-dots {
+            display: inline-flex;
+            gap: 4px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+        .pulse-dots span {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #D6A848;
+            animation: pulseDot 1s infinite ease-in-out;
+        }
+        .pulse-dots span:nth-child(2) {
+            animation-delay: 0.15s;
+            background: #22C55E;
+        }
+        .pulse-dots span:nth-child(3) {
+            animation-delay: 0.3s;
+            background: #3B82F6;
+        }
+        @keyframes pulseDot {
+            0%, 80%, 100% { transform: translateY(0); opacity: 0.45; }
+            40% { transform: translateY(-4px); opacity: 1; }
+        }
+        .node-timeline {
+            position: relative;
+            display: grid;
+            gap: 10px;
+        }
+        .node-step {
+            display: grid;
+            grid-template-columns: 34px minmax(0, 1fr);
+            gap: 12px;
+            align-items: start;
+            position: relative;
+        }
+        .node-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 34px;
+            width: 2px;
+            height: calc(100% - 18px);
+            background: #E5E7EB;
+        }
+        .node-dot {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 800;
+            color: #9CA3AF;
+            background: #F3F4F6;
+            border: 1px solid #E5E7EB;
+            z-index: 1;
+        }
+        .node-card {
+            border: 1px solid #E5E7EB;
+            border-radius: 9px;
+            padding: 10px 12px;
+            background: #fff;
+            min-height: 48px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+        .node-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #374151;
+        }
+        .node-caption {
+            margin-top: 3px;
+            font-size: 12px;
+            color: #8B95A1;
+        }
+        .node-step.done .node-dot {
+            background: #DCFCE7;
+            border-color: #86EFAC;
+            color: #15803D;
+        }
+        .node-step.done:not(:last-child)::after {
+            background: #86EFAC;
+        }
+        .node-step.active .node-dot {
+            color: #fff;
+            border-color: #D6A848;
+            background: linear-gradient(135deg, #D6A848, #3B82F6);
+            box-shadow: 0 0 0 6px rgba(214, 168, 72, 0.16);
+            animation: activeGlow 1.4s infinite ease-in-out;
+        }
+        .node-step.active .node-card {
+            border-color: #D6A848;
+            box-shadow: 0 8px 18px rgba(214, 168, 72, 0.15);
+            transform: translateX(2px);
+        }
+        .node-step.failed .node-dot {
+            background: #FEE2E2;
+            border-color: #FCA5A5;
+            color: #B91C1C;
+        }
+        .node-step.failed .node-card {
+            border-color: #FCA5A5;
+        }
+        @keyframes activeGlow {
+            0%, 100% { box-shadow: 0 0 0 5px rgba(214, 168, 72, 0.14); }
+            50% { box-shadow: 0 0 0 9px rgba(59, 130, 246, 0.13); }
+        }
+        @media (max-width: 980px) {
+            .generation-panel-header,
+            .generation-body {
+                grid-template-columns: 1fr;
+            }
+            .generation-metrics {
+                min-width: 0;
+            }
+            .generation-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            Daksh&trade;
+            <span>Precision Hiring<br>Intelligence</span>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-title">Main</div>
+            <div class="menu-item" onclick="window.location.href='{{ frontend_url }}'">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                Home
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-title">Projects</div>
+            <div class="menu-item" onclick="window.location.href='{{ frontend_url }}'">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                Projects
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-title">Applicant Filtering</div>
+            <div class="menu-item disabled">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Success DNA
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-title">Assessment</div>
+            <div class="menu-item active">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                Assessment
+            </div>
+            <div class="sub-menu">
+                <div class="menu-item" style="color:#a0a0a0; background:transparent; border:none; padding-left:12px;">
+                    <svg style="width:14px;height:14px;margin-right:8px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Curate Flow
+                </div>
+                <div class="menu-item active-sub">
+                    <svg style="width:14px;height:14px;margin-right:8px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    Question Curation
+                </div>
+                
+            </div>
+            <div class="menu-item">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                Reports
+            </div>
+        </div>
+
+        <div style="flex:1"></div>
+        <div class="menu-item disabled">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            Settings
+        </div>
+        <div class="menu-item disabled">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            Profile
+        </div>
+        <div class="menu-item disabled">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+            Billing
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-nav">
+            <div class="breadcrumbs">
+                <button class="btn-back" onclick="window.history.back()">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    Back
+                </button>
+                <span>Projects — {{ project_name }} • Assessment — MCQ AI Generate Process • Mid Senior</span>            </div>
+            <button class="btn-confirm" id="confirmGenerateBtn">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                Confirm & Generate Questions
+            </button>
+        </div>
+
+        <div class="content-body">
+            
+            <div class="page-header">
+                <h1 class="page-title">Competencies <span>Structure</span> <span class="info-icon" style="font-size:12px;width:18px;height:18px">i</span></h1>
+                <div class="page-meta">
+                Project: <strong style="border-bottom: 1px solid #ccc; padding-bottom: 2px;">{{ project_name }}</strong> &nbsp;&nbsp;&nbsp;
+                    Experience Level: <strong style="border: 1px solid var(--border-color); padding: 4px 10px; border-radius:4px; display:inline-flex; align-items:center; gap:6px; background:#fff">Mid Senior <svg style="width:14px;height:14px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></strong>
+                </div>
+            </div>
+
+            <div class="edit-card">
+                <div class="edit-header">
+                    <div class="edit-title-group">
+                        <div class="icon-box">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        </div>
+                        <div>
+                            <h2 class="edit-title">Edit Competencies Structure</h2>
+                            <p class="edit-desc">Confirm details before generating your assessment</p>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <div class="file-upload-wrapper">
+                            <button class="btn-outline">
+                                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                Upload my Competency Table
+                            </button>
+                            <input type="file" id="fileInput" accept=".csv, .xlsx, .xls">
+                        </div>
+                        
+                        <button class="btn-outline">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Sample Format
+                        </button>
+                    </div>
+                </div>
+
+                <div class="stat-cards">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="compCount">0</div>
+                            <div class="stat-label">Competencies</div>
+                            <div class="stat-sub">Selected by you</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="subCompCount">0</div>
+                            <div class="stat-label">Sub-competencies</div>
+                            <div class="stat-sub">Selected by you</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color:#6B7280; background:#F3F4F6">
+                            <span style="font-weight:bold; font-size:14px; font-family:serif">?</span>
+                        </div>
+                        <div>
+                            <div class="stat-value">0</div>
+                            <div class="stat-label">Total Questions</div>
+                            <div class="stat-sub" style="color:#6B7280">Auto-calculated</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color:#6B7280; background:#F3F4F6">
+                            <svg style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div>
+                            <div class="stat-value">0 <sub>Minutes</sub></div>
+                            <div class="stat-label">Estimated Duration</div>
+                            <div class="stat-sub" style="color:#6B7280">Auto-calculated</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loader" class="loading">Uploading and processing file...</div>
+            <div class="generation-panel" id="jdGenerationPanel" style="display:none;">
+                <div class="generation-panel-header">
+                    <div>
+                        <div class="generation-kicker" id="jdGenerationKicker">JD competency stream</div>
+                        <div class="generation-focus" id="jdGenerationFocus">Preparing competency generation</div>
+                        <div class="generation-detail" id="jdGenerationDetail">The workflow will appear here as the JD is converted into competency rows.</div>
+                    </div>
+                    <div class="generation-header-side">
+                        <div class="generation-metrics">
+                            <div class="generation-metric">
+                                <div class="metric-value" id="jdGenerationItemMetric">0/0</div>
+                                <div class="metric-label">Competencies</div>
+                            </div>
+                            <div class="generation-metric">
+                                <div class="metric-value" id="jdGenerationRowMetric">0</div>
+                                <div class="metric-label">Rows ready</div>
+                            </div>
+                        </div>
+                        <button class="stream-stop-button is-hidden" id="jdStopGenerationBtn" type="button">Stop Generation</button>
+                    </div>
+                </div>
+                <div class="generation-progress-wrap">
+                    <div class="generation-progress-top">
+                        <span id="jdGenerationProgressLabel">Preparing stream</span>
+                        <span id="jdGenerationPercent">0%</span>
+                    </div>
+                    <div class="generation-progress-track">
+                        <div class="generation-progress-fill" id="jdGenerationProgressFill"></div>
+                    </div>
+                </div>
+                <div class="generation-body">
+                    <div class="generation-now">
+                        <div class="now-label">Now running</div>
+                        <div class="now-message" id="jdGenerationNowMessage">
+                            Standing by<span class="pulse-dots"><span></span><span></span><span></span></span>
+                        </div>
+                        <div class="now-subtext" id="jdGenerationNowSubtext">Competency rows will appear when the JD graph finishes.</div>
+                    </div>
+                    <div class="node-timeline" id="jdNodeTimeline"></div>
+                </div>
+            </div>
+            <div class="table-container" id="tableWrapper" style="display:none;">
+                <table id="competencyTable">
+                    <thead>
+                        <tr>
+                            <th style="width:40px">#</th>
+                            <th style="position: relative;">COMPETENCY <span class="info-icon">i<span class="tooltip-box">A competency is a specific skill, knowledge, or ability required to perform a job effectively.</span></span></th>
+                            <th style="position: relative;">SUB-COMPETENCY <span class="info-icon">i<span class="tooltip-box">A sub-competency breaks down a broader competency into measurable, focused components or behaviors.</span></span></th>
+                            <th class="col-must-have">MUST HAVE</th>
+                            <th class="col-good-have">GOOD TO HAVE</th>
+                            <th class="col-icing">ICING ON CAKE</th>
+                            <th style="width:40px"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        </tbody>
+                </table>
+            </div>
+
+            <div class="generated-section" id="generatedSection">
+                <div class="generated-header">
+                    <div>
+                        <div class="generated-title">Generated Questions - MCQ</div>
+                        <div class="stream-status" id="streamStatus"></div>
+                    </div>
+                    <div class="generated-actions">
+                        <!-- <button class="btn-outline">Export CSV</button> -->
+                        <button class="btn-confirm">Save to Q-Bank -></button>
+                    </div>
+                </div>
+                <div class="generation-summary" id="generationSummary">
+                    <div class="summary-card">
+                        <div class="summary-value" id="summaryCompetencyCount">0</div>
+                        <div class="summary-label">Competencies</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" id="summarySubCompetencyCount">0</div>
+                        <div class="summary-label">Sub-competencies</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value" id="summaryQuestionCount">0</div>
+                        <div class="summary-label">Questions</div>
+                    </div>
+                </div>
+                <div class="notice">Once Generation Completes, Review, Edit, or Regenerate Questions</div>
+                <div class="generation-panel" id="generationPanel">
+                    <div class="generation-panel-header">
+                        <div>
+                            <div class="generation-kicker" id="generationKicker">Question generation stream</div>
+                            <div class="generation-focus" id="generationFocus">Waiting for the agent to begin</div>
+                            <div class="generation-detail" id="generationDetail">The workflow will appear here as each sub-competency moves through the graph.</div>
+                        </div>
+                        <div class="generation-header-side">
+                            <div class="generation-metrics">
+                                <div class="generation-metric">
+                                    <div class="metric-value" id="generationItemMetric">0/0</div>
+                                    <div class="metric-label">Sub-competencies</div>
+                                </div>
+                                <div class="generation-metric">
+                                    <div class="metric-value" id="generationQuestionMetric">0</div>
+                                    <div class="metric-label">Questions ready</div>
+                                </div>
+                            </div>
+                            <button class="stream-stop-button is-hidden" id="questionStopGenerationBtn" type="button">Stop Generation</button>
+                        </div>
+                    </div>
+                    <div class="generation-progress-wrap">
+                        <div class="generation-progress-top">
+                            <span id="generationProgressLabel">Preparing stream</span>
+                            <span id="generationPercent">0%</span>
+                        </div>
+                        <div class="generation-progress-track">
+                            <div class="generation-progress-fill" id="generationProgressFill"></div>
+                        </div>
+                    </div>
+                    <div class="generation-body">
+                        <div class="generation-now">
+                            <div class="now-label">Now running</div>
+                            <div class="now-message" id="generationNowMessage">
+                                Standing by<span class="pulse-dots"><span></span><span></span><span></span></span>
+                            </div>
+                            <div class="now-subtext" id="generationNowSubtext">Rows will appear below as soon as MCQs are ready.</div>
+                        </div>
+                        <div class="node-timeline" id="nodeTimeline"></div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:48px">#</th>
+                                <th>Question</th>
+                                <th>Competency</th>
+                                <th>Sub-comp.</th>
+                                <th>Level</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="generatedTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="regenerateModal" aria-hidden="true">
+        <div class="regenerate-modal" role="dialog" aria-modal="true" aria-labelledby="regenerateModalTitle">
+            <div class="modal-header">
+                <div class="modal-title" id="regenerateModalTitle">Regenerate question</div>
+                <button class="modal-close" id="regenerateModalClose" type="button" aria-label="Close regenerate dialog">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <div class="modal-section-title">With feedback</div>
+                    <textarea class="feedback-input" id="regenerateFeedbackInput" placeholder="Tell the system what should change in this question"></textarea>
+                    <div class="modal-action-row">
+                        <button class="btn-confirm" id="regenerateWithFeedbackBtn" type="button">Create Question</button>
+                    </div>
+                </div>
+                <div class="modal-section">
+                    <div class="modal-section-title">Without feedback</div>
+                    <div class="modal-action-row">
+                        <button class="btn-outline" id="regenerateWithoutFeedbackBtn" type="button">Generate a New Question</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <script>
+
+        const PROJECT_ID = "{{ project_id }}";
+        console.log("Running Assessment for Project:", PROJECT_ID);
+        const fileInput = document.getElementById('fileInput');
+        const loader = document.getElementById('loader');
+        const tableWrapper = document.getElementById('tableWrapper');
+        const tableBody = document.getElementById('tableBody');
+        const compCount = document.getElementById('compCount');
+        const subCompCount = document.getElementById('subCompCount');
+        const confirmGenerateBtn = document.getElementById('confirmGenerateBtn');
+        const generatedSection = document.getElementById('generatedSection');
+        const generationPanel = document.getElementById('generationPanel');
+        const generationSummary = document.getElementById('generationSummary');
+        const summaryCompetencyCount = document.getElementById('summaryCompetencyCount');
+        const summarySubCompetencyCount = document.getElementById('summarySubCompetencyCount');
+        const summaryQuestionCount = document.getElementById('summaryQuestionCount');
+        const generatedTableBody = document.getElementById('generatedTableBody');
+        const streamStatus = document.getElementById('streamStatus');
+        const generationKicker = document.getElementById('generationKicker');
+        const generationFocus = document.getElementById('generationFocus');
+        const generationDetail = document.getElementById('generationDetail');
+        const generationItemMetric = document.getElementById('generationItemMetric');
+        const generationQuestionMetric = document.getElementById('generationQuestionMetric');
+        const generationProgressLabel = document.getElementById('generationProgressLabel');
+        const generationPercent = document.getElementById('generationPercent');
+        const generationProgressFill = document.getElementById('generationProgressFill');
+        const generationNowMessage = document.getElementById('generationNowMessage');
+        const generationNowSubtext = document.getElementById('generationNowSubtext');
+        const nodeTimeline = document.getElementById('nodeTimeline');
+        const questionStopGenerationBtn = document.getElementById('questionStopGenerationBtn');
+        const jdGenerationPanel = document.getElementById('jdGenerationPanel');
+        const jdGenerationKicker = document.getElementById('jdGenerationKicker');
+        const jdGenerationFocus = document.getElementById('jdGenerationFocus');
+        const jdGenerationDetail = document.getElementById('jdGenerationDetail');
+        const jdGenerationItemMetric = document.getElementById('jdGenerationItemMetric');
+        const jdGenerationRowMetric = document.getElementById('jdGenerationRowMetric');
+        const jdGenerationProgressLabel = document.getElementById('jdGenerationProgressLabel');
+        const jdGenerationPercent = document.getElementById('jdGenerationPercent');
+        const jdGenerationProgressFill = document.getElementById('jdGenerationProgressFill');
+        const jdGenerationNowMessage = document.getElementById('jdGenerationNowMessage');
+        const jdGenerationNowSubtext = document.getElementById('jdGenerationNowSubtext');
+        const jdNodeTimeline = document.getElementById('jdNodeTimeline');
+        const jdStopGenerationBtn = document.getElementById('jdStopGenerationBtn');
+        const regenerateModal = document.getElementById('regenerateModal');
+        const regenerateModalClose = document.getElementById('regenerateModalClose');
+        const regenerateFeedbackInput = document.getElementById('regenerateFeedbackInput');
+        const regenerateWithFeedbackBtn = document.getElementById('regenerateWithFeedbackBtn');
+        const regenerateWithoutFeedbackBtn = document.getElementById('regenerateWithoutFeedbackBtn');
+        let uploadedItems = [];
+        let generatedRowsCount = 0;
+        let generationComplete = false;
+        let activeRegenerateQuestionId = null;
+        const generatedQuestionsById = new Map();
+        let generationState = {
+            currentItem: 0,
+            totalItems: 0,
+            activeNode: null,
+            completedNodes: new Set(),
+            failed: false,
+        };
+        let jdGenerationState = {
+            currentItem: 0,
+            totalItems: 0,
+            activeNode: null,
+            completedNodes: new Set(),
+            failed: false,
+        };
+        let questionGenerationJobId = null;
+        let questionGenerationSource = null;
+        let questionCancelPending = false;
+        let jdGenerationJobId = null;
+        let jdGenerationSource = null;
+        let jdCancelPending = false;
+
+        const generationSteps = [
+            {node: 'decide_question_type', title: 'Question Mix', caption: 'Choosing programming and scenario MCQ balance'},
+            {node: 'judge_decision', title: 'Decision Review', caption: 'Checking whether the split is aligned'},
+            {node: 'generate_business_scenarios', title: 'Business Scenarios', caption: 'Creating practical contexts for assessment'},
+            {node: 'validate_business_scenarios', title: 'Scenario Validation', caption: 'Scoring relevance before moving ahead'},
+            {node: 'generate_mcq_questions', title: 'MCQ Creation', caption: 'Writing final questions and answer choices'},
+        ];
+
+        const jdGenerationSteps = [
+            {node: 'extract_jd_competencies', title: 'JD Reading', caption: 'Extracting top-level competencies'},
+            {node: 'select_current_jd_competency', title: 'Select Competency', caption: 'Processing one competency at a time'},
+            {node: 'generate_jd_competency_combinations', title: 'Sub-competencies', caption: 'Creating measurable sub-competencies'},
+            {node: 'verify_jd_competency_compatibility', title: 'Compatibility', caption: 'Scoring alignment with the JD'},
+            {node: 'accept_jd_competency_combination', title: 'Accept Bundle', caption: 'Adding the best bundle to the list'},
+            {node: 'select_top_jd_competency_items', title: 'Final Rows', caption: 'Selecting the final competency table rows'},
+        ];
+
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            tableWrapper.style.display = 'none';
+            jdGenerationPanel.style.display = 'none';
+            loader.style.display = 'block';
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/api/v1/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+                
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || 'Upload failed');
+                }
+                
+                const data = await response.json();
+                uploadedItems = data.items || [];
+                renderTable(data.items);
+                
+            } catch (err) {
+                console.error(err);
+                alert(err.message || 'An unexpected error occurred.');
+            } finally {
+                loader.style.display = 'none';
+                fileInput.value = '';
+            }
+        });
+
+        function loadingDots() {
+            return '<span class="pulse-dots"><span></span><span></span><span></span></span>';
+        }
+
+        function jdNodeIndex(nodeName) {
+            return jdGenerationSteps.findIndex(step => step.node === nodeName);
+        }
+
+        function resetJDGenerationPanel() {
+            jdGenerationPanel.style.display = 'block';
+            tableWrapper.style.display = 'none';
+            loader.style.display = 'none';
+            jdGenerationJobId = null;
+            jdCancelPending = false;
+            jdGenerationState = {
+                currentItem: 0,
+                totalItems: 0,
+                activeNode: null,
+                completedNodes: new Set(),
+                failed: false,
+            };
+            jdGenerationKicker.textContent = 'JD competency stream';
+            jdGenerationFocus.textContent = 'Preparing the LangGraph workflow';
+            jdGenerationDetail.textContent = 'The agent will extract competencies, generate sub-competencies, validate them, and choose final rows.';
+            jdGenerationItemMetric.textContent = '0/0';
+            jdGenerationRowMetric.textContent = '0';
+            jdGenerationProgressLabel.textContent = 'Preparing stream';
+            jdGenerationPercent.textContent = '0%';
+            jdGenerationProgressFill.style.width = '0%';
+            jdGenerationNowMessage.innerHTML = `Starting JD competency generation${loadingDots()}`;
+            jdGenerationNowSubtext.textContent = 'Competency rows will appear when the JD graph finishes.';
+            jdStopGenerationBtn.disabled = false;
+            jdStopGenerationBtn.classList.remove('is-hidden');
+            jdStopGenerationBtn.textContent = 'Stop Generation';
+            renderJDNodeTimeline();
+        }
+
+        function closeJDGenerationSource() {
+            if (jdGenerationSource) {
+                jdGenerationSource.close();
+                jdGenerationSource = null;
+            }
+        }
+
+        function finalizeJDGenerationPanel({kicker, focus, detail, nowMessage, nowSubtext, failed = false, hideStopButton = true}) {
+            jdGenerationState.failed = failed;
+            jdGenerationState.activeNode = null;
+            jdGenerationKicker.textContent = kicker;
+            jdGenerationFocus.textContent = focus;
+            jdGenerationDetail.textContent = detail;
+            jdGenerationNowMessage.textContent = nowMessage;
+            jdGenerationNowSubtext.textContent = nowSubtext;
+            if (hideStopButton) {
+                jdStopGenerationBtn.classList.add('is-hidden');
+            } else {
+                jdStopGenerationBtn.classList.remove('is-hidden');
+            }
+            jdStopGenerationBtn.disabled = true;
+            renderJDNodeTimeline();
+        }
+
+        function updateJDProgress() {
+            const total = Math.max(jdGenerationState.totalItems, 1);
+            const activeIndex = Math.max(jdNodeIndex(jdGenerationState.activeNode), 0);
+            const stepFraction = jdGenerationState.activeNode ? activeIndex / jdGenerationSteps.length : 0;
+            const completedItems = Math.max(jdGenerationState.currentItem - 1, 0);
+            const percent = Math.min(100, Math.round(((completedItems + stepFraction) / total) * 100));
+            jdGenerationProgressFill.style.width = `${percent}%`;
+            jdGenerationPercent.textContent = `${percent}%`;
+        }
+
+        function renderJDNodeTimeline() {
+            jdNodeTimeline.innerHTML = jdGenerationSteps.map((step, index) => {
+                const isDone = jdGenerationState.completedNodes.has(step.node);
+                const isActive = jdGenerationState.activeNode === step.node && !jdGenerationState.failed;
+                const isFailed = jdGenerationState.activeNode === step.node && jdGenerationState.failed;
+                const classes = ['node-step'];
+                if (isDone) classes.push('done');
+                if (isActive) classes.push('active');
+                if (isFailed) classes.push('failed');
+                const symbol = isFailed ? '!' : isDone ? 'OK' : isActive ? '>' : index + 1;
+                const caption = isActive ? 'In progress right now' : isDone ? 'Completed' : step.caption;
+                return `
+                    <div class="${classes.join(' ')}" data-node="${step.node}">
+                        <div class="node-dot">${symbol}</div>
+                        <div class="node-card">
+                            <div class="node-title">${step.title}</div>
+                            <div class="node-caption">${caption}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function markActiveJDNode(data) {
+            const nodeName = data.node;
+            const activeIndex = jdNodeIndex(nodeName);
+            jdGenerationSteps.forEach((step, index) => {
+                if (activeIndex > index) {
+                    jdGenerationState.completedNodes.add(step.node);
+                }
+            });
+            jdGenerationState.activeNode = nodeName;
+            jdGenerationNowMessage.innerHTML = `${escapeHtml(data.message || nodeName)}${loadingDots()}`;
+            jdGenerationNowSubtext.textContent = data.detail || 'The JD graph is still working.';
+            if (data.total_items) {
+                jdGenerationState.totalItems = data.total_items;
+            }
+            if (data.item_index !== undefined) {
+                jdGenerationState.currentItem = data.item_index || jdGenerationState.currentItem;
+            }
+            jdGenerationItemMetric.textContent = `${jdGenerationState.currentItem || 0}/${jdGenerationState.totalItems || 0}`;
+            jdGenerationProgressLabel.textContent = data.competency || data.detail || data.message || 'Processing JD';
+            renderJDNodeTimeline();
+            updateJDProgress();
+        }
+
+        function startJDCompetencyItem(data) {
+            jdGenerationState.currentItem = data.item_index || jdGenerationState.currentItem;
+            jdGenerationState.totalItems = data.total_items || jdGenerationState.totalItems;
+            jdGenerationState.completedNodes = new Set(['extract_jd_competencies']);
+            jdGenerationState.activeNode = 'select_current_jd_competency';
+            jdGenerationState.failed = false;
+            jdGenerationKicker.textContent = `Generating ${jdGenerationState.currentItem} of ${jdGenerationState.totalItems}`;
+            jdGenerationFocus.textContent = data.competency || 'Competency';
+            jdGenerationDetail.textContent = data.detail || 'Generating sub-competencies for this competency.';
+            jdGenerationItemMetric.textContent = `${jdGenerationState.currentItem}/${jdGenerationState.totalItems}`;
+            jdGenerationProgressLabel.textContent = data.competency || 'Processing competency';
+            jdGenerationNowMessage.innerHTML = `Reading competency context${loadingDots()}`;
+            jdGenerationNowSubtext.textContent = data.detail || 'Starting this competency through the graph.';
+            renderJDNodeTimeline();
+            updateJDProgress();
+        }
+
+        async function startJDCompetencyGeneration() {
+            resetJDGenerationPanel();
+            confirmGenerateBtn.disabled = true;
+
+            try {
+                const response = await fetch(`/api/v1/competency/jd/generate/${PROJECT_ID}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || 'JD competency generation failed to start');
+                }
+
+                const data = await response.json();
+                openJDCompetencyStream(data.job_id);
+            } catch (err) {
+                console.error(err);
+                finalizeJDGenerationPanel({
+                    kicker: 'JD competency generation failed',
+                    focus: 'Unable to start generation',
+                    detail: 'The stream could not be started from the backend.',
+                    nowMessage: err.message || 'JD competency generation failed.',
+                    nowSubtext: 'Please retry after checking backend logs.',
+                    failed: true,
+                });
+                confirmGenerateBtn.disabled = false;
+            }
+        }
+
+        function openJDCompetencyStream(jobId) {
+            jdGenerationJobId = jobId;
+            jdCancelPending = false;
+            closeJDGenerationSource();
+            const source = new EventSource(`/api/v1/competency/jd/stream?job_id=${encodeURIComponent(jobId)}`);
+            jdGenerationSource = source;
+
+            source.addEventListener('started', (event) => {
+                const data = JSON.parse(event.data);
+                jdGenerationKicker.textContent = 'JD competency stream';
+                jdGenerationFocus.textContent = data.message || 'Starting JD competency generation';
+                jdGenerationNowMessage.innerHTML = `${escapeHtml(data.message || 'Starting')}${loadingDots()}`;
+                jdGenerationNowSubtext.textContent = 'The stream is live and the workflow is preparing the first competency.';
+                jdStopGenerationBtn.classList.remove('is-hidden');
+                jdStopGenerationBtn.disabled = false;
+                jdStopGenerationBtn.textContent = 'Stop Generation';
+            });
+
+            source.addEventListener('cancelling', (event) => {
+                const data = JSON.parse(event.data);
+                jdCancelPending = true;
+                jdGenerationKicker.textContent = 'Stopping generation';
+                jdGenerationFocus.textContent = 'Waiting for the current graph node to finish';
+                jdGenerationDetail.textContent = 'The backend has accepted the stop request and will stop after the active LangGraph node.';
+                jdGenerationNowMessage.innerHTML = `${escapeHtml(data.message || 'Cancellation requested')}${loadingDots()}`;
+                jdGenerationNowSubtext.textContent = data.reason || 'The current node must finish before the stream can stop.';
+                jdStopGenerationBtn.disabled = true;
+                jdStopGenerationBtn.textContent = 'Stopping...';
+            });
+
+            source.addEventListener('progress', (event) => {
+                startJDCompetencyItem(JSON.parse(event.data));
+            });
+
+            source.addEventListener('node', (event) => {
+                markActiveJDNode(JSON.parse(event.data));
+            });
+
+            source.addEventListener('complete', (event) => {
+                const data = JSON.parse(event.data);
+                uploadedItems = data.items || [];
+                renderTable(uploadedItems);
+                jdGenerationRowMetric.textContent = uploadedItems.length;
+                jdGenerationSteps.forEach(step => jdGenerationState.completedNodes.add(step.node));
+                jdGenerationState.activeNode = null;
+                jdGenerationProgressFill.style.width = '100%';
+                jdGenerationPercent.textContent = '100%';
+                renderJDNodeTimeline();
+                jdGenerationPanel.style.display = 'none';
+                confirmGenerateBtn.disabled = false;
+                jdGenerationJobId = null;
+                jdCancelPending = false;
+                closeJDGenerationSource();
+            });
+
+            source.addEventListener('cancelled', (event) => {
+                const data = JSON.parse(event.data);
+                jdCancelPending = false;
+                finalizeJDGenerationPanel({
+                    kicker: 'Generation stopped',
+                    focus: data.competency ? `Stopped on ${data.competency}` : 'JD competency generation stopped',
+                    detail: 'The backend stopped the workflow after the last completed LangGraph node.',
+                    nowMessage: 'Generation stopped.',
+                    nowSubtext: data.message || 'No new competency nodes will start for this run.',
+                });
+                if (data.total_items) {
+                    jdGenerationState.totalItems = data.total_items;
+                }
+                if (data.item_index !== undefined) {
+                    jdGenerationState.currentItem = data.item_index || jdGenerationState.currentItem;
+                }
+                jdGenerationProgressLabel.textContent = data.last_completed_node || 'Generation stopped';
+                confirmGenerateBtn.disabled = false;
+                jdGenerationJobId = null;
+                closeJDGenerationSource();
+            });
+
+            source.addEventListener('failed', (event) => {
+                const data = JSON.parse(event.data);
+                jdCancelPending = false;
+                finalizeJDGenerationPanel({
+                    kicker: 'JD competency generation failed',
+                    focus: 'Generation failed',
+                    detail: 'The backend reported a failure while building the competency table.',
+                    nowMessage: data.error || 'JD competency generation failed.',
+                    nowSubtext: 'Please retry after checking backend logs.',
+                    failed: true,
+                });
+                confirmGenerateBtn.disabled = false;
+                jdGenerationJobId = null;
+                closeJDGenerationSource();
+            });
+
+            source.onerror = () => {
+                if (jdGenerationSource !== source) {
+                    return;
+                }
+                if (jdCancelPending || source.readyState === EventSource.CLOSED) {
+                    closeJDGenerationSource();
+                    return;
+                }
+                finalizeJDGenerationPanel({
+                    kicker: 'JD stream disconnected',
+                    focus: 'Connection to the backend was lost',
+                    detail: 'The streaming connection closed before the workflow reported a final state.',
+                    nowMessage: 'The JD generation stream disconnected unexpectedly.',
+                    nowSubtext: 'Retry the generation if the backend is healthy.',
+                    failed: true,
+                });
+                confirmGenerateBtn.disabled = false;
+                jdGenerationJobId = null;
+                closeJDGenerationSource();
+            };
+        }
+
+        jdStopGenerationBtn.addEventListener('click', async () => {
+            if (!jdGenerationJobId || jdCancelPending) {
+                return;
+            }
+
+            jdCancelPending = true;
+            jdStopGenerationBtn.disabled = true;
+            jdStopGenerationBtn.textContent = 'Stopping...';
+            jdGenerationKicker.textContent = 'Stopping generation';
+            jdGenerationFocus.textContent = 'Sending stop request to the backend';
+            jdGenerationDetail.textContent = 'The workflow will stop after the current LangGraph node completes.';
+            jdGenerationNowMessage.innerHTML = `Requesting cancellation${loadingDots()}`;
+            jdGenerationNowSubtext.textContent = 'Waiting for the backend to acknowledge the stop request.';
+
+            try {
+                const response = await fetch(`/api/v1/jobs/${encodeURIComponent(jdGenerationJobId)}/cancel`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({reason: 'User requested cancellation from JD competency stream'}),
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || 'Cancellation request failed');
+                }
+
+                const data = await response.json();
+                jdGenerationNowSubtext.textContent = data.message || 'The backend accepted the stop request.';
+            } catch (err) {
+                console.error(err);
+                jdCancelPending = false;
+                jdStopGenerationBtn.disabled = false;
+                jdStopGenerationBtn.textContent = 'Stop Generation';
+                jdGenerationKicker.textContent = 'JD competency stream';
+                jdGenerationFocus.textContent = 'Cancellation request failed';
+                jdGenerationDetail.textContent = 'The current generation is still active because the backend did not accept the stop request.';
+                jdGenerationNowMessage.textContent = err.message || 'Cancellation request failed.';
+                jdGenerationNowSubtext.textContent = 'You can try the stop action again while the stream is still active.';
+            }
+        });
+
+        function resetGenerationPanel(totalItems) {
+            generationPanel.style.display = 'block';
+            generationSummary.style.display = 'none';
+            generationState = {
+                currentItem: 0,
+                totalItems,
+                activeNode: null,
+                completedNodes: new Set(),
+                failed: false,
+            };
+            questionGenerationJobId = null;
+            questionCancelPending = false;
+            generationKicker.textContent = 'Question generation stream';
+            generationFocus.textContent = 'Preparing the LangGraph workflow';
+            generationDetail.textContent = 'The agent will move each sub-competency through decision, scenario, validation, and MCQ creation.';
+            generationItemMetric.textContent = `0/${totalItems}`;
+            generationQuestionMetric.textContent = '0';
+            generationProgressLabel.textContent = 'Preparing stream';
+            generationPercent.textContent = '0%';
+            generationProgressFill.style.width = '0%';
+            generationNowMessage.innerHTML = `Starting generation${loadingDots()}`;
+            generationNowSubtext.textContent = 'Rows will appear below as soon as MCQs are ready.';
+            questionStopGenerationBtn.disabled = false;
+            questionStopGenerationBtn.classList.add('is-hidden');
+            questionStopGenerationBtn.textContent = 'Stop Generation';
+            renderNodeTimeline();
+        }
+
+        function closeQuestionGenerationSource() {
+            if (questionGenerationSource) {
+                questionGenerationSource.close();
+                questionGenerationSource = null;
+            }
+        }
+
+        function finalizeQuestionGenerationPanel({kicker, focus, detail, nowMessage, nowSubtext, failed = false, hideStopButton = true}) {
+            generationState.failed = failed;
+            generationState.activeNode = null;
+            generationKicker.textContent = kicker;
+            generationFocus.textContent = focus;
+            generationDetail.textContent = detail;
+            generationNowMessage.textContent = nowMessage;
+            generationNowSubtext.textContent = nowSubtext;
+            if (hideStopButton) {
+                questionStopGenerationBtn.classList.add('is-hidden');
+            } else {
+                questionStopGenerationBtn.classList.remove('is-hidden');
+            }
+            questionStopGenerationBtn.disabled = true;
+            renderNodeTimeline();
+        }
+
+        function nodeIndex(nodeName) {
+            return generationSteps.findIndex(step => step.node === nodeName);
+        }
+
+        function updateOverallProgress() {
+            const total = Math.max(generationState.totalItems, 1);
+            const activeIndex = Math.max(nodeIndex(generationState.activeNode), 0);
+            const stepFraction = generationState.activeNode ? activeIndex / generationSteps.length : 0;
+            const completedItems = Math.max(generationState.currentItem - 1, 0);
+            const percent = Math.min(100, Math.round(((completedItems + stepFraction) / total) * 100));
+            generationProgressFill.style.width = `${percent}%`;
+            generationPercent.textContent = `${percent}%`;
+        }
+
+        function renderNodeTimeline() {
+            nodeTimeline.innerHTML = generationSteps.map((step, index) => {
+                const isDone = generationState.completedNodes.has(step.node);
+                const isActive = generationState.activeNode === step.node && !generationState.failed;
+                const isFailed = generationState.activeNode === step.node && generationState.failed;
+                const classes = ['node-step'];
+                if (isDone) classes.push('done');
+                if (isActive) classes.push('active');
+                if (isFailed) classes.push('failed');
+                const symbol = isFailed ? '!' : isDone ? 'OK' : isActive ? '>' : index + 1;
+                const caption = isActive ? 'In progress right now' : isDone ? 'Completed' : step.caption;
+                return `
+                    <div class="${classes.join(' ')}" data-node="${step.node}">
+                        <div class="node-dot">${symbol}</div>
+                        <div class="node-card">
+                            <div class="node-title">${step.title}</div>
+                            <div class="node-caption">${caption}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function markActiveNode(nodeName, message) {
+            const activeIndex = nodeIndex(nodeName);
+            generationSteps.forEach((step, index) => {
+                if (activeIndex > index) {
+                    generationState.completedNodes.add(step.node);
+                }
+            });
+            generationState.activeNode = nodeName;
+            generationNowMessage.innerHTML = `${escapeHtml(message)}${loadingDots()}`;
+            generationNowSubtext.textContent = 'The final MCQ rows will stream into the table as soon as this sub-competency finishes.';
+            renderNodeTimeline();
+            updateOverallProgress();
+        }
+
+        function startGenerationItem(data) {
+            generationState.currentItem = data.item_index || 0;
+            generationState.totalItems = data.total_items || generationState.totalItems;
+            generationState.activeNode = null;
+            generationState.completedNodes = new Set();
+            generationState.failed = false;
+            generationKicker.textContent = `Generating ${generationState.currentItem} of ${generationState.totalItems}`;
+            generationFocus.textContent = data.sub_competency || 'Sub-competency';
+            generationDetail.textContent = data.competency || 'Competency';
+            generationItemMetric.textContent = `${generationState.currentItem}/${generationState.totalItems}`;
+            generationProgressLabel.textContent = `${data.competency || ''} - ${data.sub_competency || ''}`;
+            generationNowMessage.innerHTML = `Reading competency context${loadingDots()}`;
+            generationNowSubtext.textContent = 'Starting this sub-competency through the graph.';
+            renderNodeTimeline();
+            updateOverallProgress();
+        }
+
+        function finishCurrentItem() {
+            generationSteps.forEach(step => generationState.completedNodes.add(step.node));
+            generationState.activeNode = null;
+            generationNowMessage.textContent = 'MCQ rows added to the table';
+            generationNowSubtext.textContent = 'Moving to the next sub-competency when the graph emits progress.';
+            renderNodeTimeline();
+            const total = Math.max(generationState.totalItems, 1);
+            const percent = Math.min(100, Math.round((generationState.currentItem / total) * 100));
+            generationProgressFill.style.width = `${percent}%`;
+            generationPercent.textContent = `${percent}%`;
+        }
+
+        confirmGenerateBtn.addEventListener('click', async () => {
+            if (!uploadedItems.length) {
+                // Show denied toast notification
+                Toastify({
+                    text: "Generation Denied: Please upload a competency table first.",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: {
+                        background: "linear-gradient(to right, #ef4444, #f87171)",
+                    }
+                }).showToast();
+                return;
+            }
+
+            generatedSection.style.display = 'block';
+            
+            generatedSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            Toastify({
+                text: "Generation Started..!",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                style: {
+                background: "#ffffff",
+                color: "#111827",
+                borderRadius: "8px",
+                border: "1px solid #E5E7EB",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+            }
+            }).showToast();
+
+            generatedTableBody.innerHTML = '';
+            generatedQuestionsById.clear();
+            generatedRowsCount = 0;
+            generationComplete = false;
+            resetGenerationPanel(uploadedItems.length);
+            streamStatus.textContent = 'Starting generation...';
+            confirmGenerateBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/v1/generate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({items: uploadedItems}),
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || 'Generation failed to start');
+                }
+
+                const data = await response.json();
+                openGenerationStream(data.job_id);
+            } catch (err) {
+                console.error(err);
+                streamStatus.textContent = '';
+                confirmGenerateBtn.disabled = false;
+                
+                Toastify({
+                    text: err.message || 'An unexpected error occurred.',
+                    duration: 4000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: {
+                    background: "#ffffff",
+                    color: "#111827",
+                    borderRadius: "8px",
+                    border: "1px solid #F3F4F6",
+                    borderLeft: "4px solid #ef4444",
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+                }
+                }).showToast();
+            }
+        });
+
+
+        function openGenerationStream(jobId) {
+            questionGenerationJobId = jobId;
+            questionCancelPending = false;
+            closeQuestionGenerationSource();
+            const source = new EventSource(`/api/v1/stream?job_id=${encodeURIComponent(jobId)}`);
+            questionGenerationSource = source;
+
+            source.addEventListener('started', (event) => {
+                const data = JSON.parse(event.data);
+                streamStatus.textContent = `Generating questions for ${data.total_items} sub-competencies...`;
+                generationState.totalItems = data.total_items || generationState.totalItems;
+                generationItemMetric.textContent = `0/${generationState.totalItems}`;
+                generationDetail.textContent = 'Stream connected. The agent is preparing the first sub-competency.';
+                questionStopGenerationBtn.classList.remove('is-hidden');
+                questionStopGenerationBtn.disabled = false;
+                questionStopGenerationBtn.textContent = 'Stop Generation';
+            });
+
+            source.addEventListener('cancelling', (event) => {
+                const data = JSON.parse(event.data);
+                questionCancelPending = true;
+                streamStatus.textContent = data.message || 'Cancellation requested. Waiting for the current LangGraph node to finish.';
+                generationKicker.textContent = 'Stopping generation';
+                generationFocus.textContent = 'Waiting for the current graph node to finish';
+                generationDetail.textContent = 'The backend has accepted the stop request and will stop after the active LangGraph node.';
+                generationNowMessage.innerHTML = `${escapeHtml(data.message || 'Cancellation requested')}${loadingDots()}`;
+                generationNowSubtext.textContent = data.reason || 'The current node must finish before question generation can stop.';
+                questionStopGenerationBtn.disabled = true;
+                questionStopGenerationBtn.textContent = 'Stopping...';
+            });
+
+            source.addEventListener('progress', (event) => {
+                const data = JSON.parse(event.data);
+                streamStatus.textContent = `Processing ${data.item_index} of ${data.total_items}: ${data.sub_competency}`;
+                startGenerationItem(data);
+            });
+
+            source.addEventListener('node', (event) => {
+                const data = JSON.parse(event.data);
+                streamStatus.textContent = `${data.item_index}/${data.total_items} - ${data.sub_competency}: ${data.message}`;
+                markActiveNode(data.node, data.message);
+            });
+
+            source.addEventListener('row', (event) => {
+                renderGeneratedRow(JSON.parse(event.data));
+                generatedRowsCount += 1;
+                generationQuestionMetric.textContent = generatedRowsCount;
+                streamStatus.textContent = `${generatedRowsCount} questions generated so far...`;
+                finishCurrentItem();
+            });
+
+            source.addEventListener('complete', (event) => {
+                const data = JSON.parse(event.data);
+                streamStatus.textContent = `Generation complete. ${data.total_rows} questions generated.`;
+                finishCurrentItem();
+                updateGenerationSummary(data.total_rows);
+                generationComplete = true;
+                setGeneratedActionButtonsEnabled(true);
+                generationPanel.style.display = 'none';
+                confirmGenerateBtn.disabled = false;
+                questionGenerationJobId = null;
+                questionCancelPending = false;
+                closeQuestionGenerationSource();
+            });
+
+            source.addEventListener('cancelled', (event) => {
+                const data = JSON.parse(event.data);
+                questionCancelPending = false;
+                finalizeQuestionGenerationPanel({
+                    kicker: 'Generation stopped',
+                    focus: data.sub_competency ? `Stopped on ${data.sub_competency}` : 'Question generation stopped',
+                    detail: 'The backend stopped the workflow after the last completed LangGraph node.',
+                    nowMessage: 'Generation stopped.',
+                    nowSubtext: data.message || 'No new sub-competency nodes will start for this run.',
+                });
+                if (data.total_items) {
+                    generationState.totalItems = data.total_items;
+                }
+                if (data.item_index !== undefined) {
+                    generationState.currentItem = data.item_index || generationState.currentItem;
+                }
+                generationProgressLabel.textContent = data.last_completed_node || 'Generation stopped';
+                streamStatus.textContent = data.message || 'Question generation stopped.';
+                setGeneratedActionButtonsEnabled(true);
+                confirmGenerateBtn.disabled = false;
+                questionGenerationJobId = null;
+                closeQuestionGenerationSource();
+            });
+
+            source.addEventListener('failed', (event) => {
+                const data = JSON.parse(event.data);
+                streamStatus.textContent = data.error || 'Generation failed.';
+                questionCancelPending = false;
+                finalizeQuestionGenerationPanel({
+                    kicker: 'Generation failed',
+                    focus: 'Question generation failed',
+                    detail: 'The backend reported a failure while generating MCQs.',
+                    nowMessage: data.error || 'Generation failed.',
+                    nowSubtext: 'Please retry generation after checking the backend logs.',
+                    failed: true,
+                });
+                alert(data.error || 'Generation failed.');
+                confirmGenerateBtn.disabled = false;
+                questionGenerationJobId = null;
+                closeQuestionGenerationSource();
+            });
+
+            source.onerror = () => {
+                if (questionGenerationSource !== source) {
+                    return;
+                }
+                if (questionCancelPending || source.readyState === EventSource.CLOSED) {
+                    closeQuestionGenerationSource();
+                    return;
+                }
+                streamStatus.textContent = 'The question generation stream disconnected unexpectedly.';
+                finalizeQuestionGenerationPanel({
+                    kicker: 'Question stream disconnected',
+                    focus: 'Connection to the backend was lost',
+                    detail: 'The streaming connection closed before the workflow reported a final state.',
+                    nowMessage: 'The question generation stream disconnected unexpectedly.',
+                    nowSubtext: 'Retry the generation if the backend is healthy.',
+                    failed: true,
+                });
+                confirmGenerateBtn.disabled = false;
+                questionGenerationJobId = null;
+                closeQuestionGenerationSource();
+            };
+        }
+
+        questionStopGenerationBtn.addEventListener('click', async () => {
+            if (!questionGenerationJobId || questionCancelPending) {
+                return;
+            }
+
+            questionCancelPending = true;
+            questionStopGenerationBtn.disabled = true;
+            questionStopGenerationBtn.textContent = 'Stopping...';
+            generationKicker.textContent = 'Stopping generation';
+            generationFocus.textContent = 'Sending stop request to the backend';
+            generationDetail.textContent = 'The workflow will stop after the current LangGraph node completes.';
+            generationNowMessage.innerHTML = `Requesting cancellation${loadingDots()}`;
+            generationNowSubtext.textContent = 'Waiting for the backend to acknowledge the stop request.';
+            streamStatus.textContent = 'Requesting question generation cancellation...';
+
+            try {
+                const response = await fetch(`/api/v1/jobs/${encodeURIComponent(questionGenerationJobId)}/cancel`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({reason: 'User requested cancellation from question generation stream'}),
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || 'Cancellation request failed');
+                }
+
+                const data = await response.json();
+                generationNowSubtext.textContent = data.message || 'The backend accepted the stop request.';
+            } catch (err) {
+                console.error(err);
+                questionCancelPending = false;
+                questionStopGenerationBtn.disabled = false;
+                questionStopGenerationBtn.textContent = 'Stop Generation';
+                generationKicker.textContent = 'Question generation stream';
+                generationFocus.textContent = 'Cancellation request failed';
+                generationDetail.textContent = 'The current generation is still active because the backend did not accept the stop request.';
+                generationNowMessage.textContent = err.message || 'Cancellation request failed.';
+                generationNowSubtext.textContent = 'You can try the stop action again while the stream is still active.';
+                streamStatus.textContent = err.message || 'Cancellation request failed.';
+            }
+        });
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function normalizedKey(...values) {
+            return values.map(value => String(value || '').trim().toLowerCase()).join('::');
+        }
+
+        function updateGenerationSummary(totalRows) {
+            const competencies = new Set();
+            const subCompetencies = new Set();
+
+            uploadedItems.forEach(item => {
+                if (String(item.competency || '').trim()) {
+                    competencies.add(normalizedKey(item.competency));
+                }
+                if (String(item.sub_competency || '').trim()) {
+                    subCompetencies.add(normalizedKey(item.competency, item.sub_competency));
+                }
+            });
+
+            const parsedTotal = Number(totalRows);
+            const questionTotal = Number.isFinite(parsedTotal) ? parsedTotal : generatedRowsCount;
+
+            summaryCompetencyCount.textContent = competencies.size;
+            summarySubCompetencyCount.textContent = subCompetencies.size;
+            summaryQuestionCount.textContent = questionTotal;
+            generationSummary.style.display = 'grid';
+        }
+
+        function setGeneratedActionButtonsEnabled(enabled) {
+            generatedTableBody.querySelectorAll('.icon-button').forEach(button => {
+                button.disabled = !enabled;
+            });
+        }
+
+        function buildRegeneratePayload(row) {
+            return {
+                question_id: row.id,
+                row_number: row.row_number,
+                competency: row.competency,
+                sub_competency: row.sub_competency,
+                level: row.level || 'Medium',
+                question_type: row.question_type,
+                scenario_title: row.scenario_title,
+                business_scenario: row.business_scenario,
+                code_snippet: row.code_snippet || '',
+                current_question: row.question,
+                current_options: row.options,
+                current_correct_option: row.correct_option,
+                current_correct_answer: row.correct_answer,
+                current_correct_answer_explanation: row.correct_answer_explanation,
+                regeneration_scope: 'single_question',
+            };
+        }
+
+        function setRegenerateModalLoading(isLoading) {
+            regenerateWithFeedbackBtn.disabled = isLoading;
+            regenerateWithoutFeedbackBtn.disabled = isLoading;
+            regenerateFeedbackInput.disabled = isLoading;
+            regenerateModalClose.disabled = isLoading;
+        }
+
+        function openRegenerateModal(questionId) {
+            activeRegenerateQuestionId = questionId;
+            regenerateFeedbackInput.value = '';
+            setRegenerateModalLoading(false);
+            regenerateModal.classList.add('is-open');
+            regenerateModal.setAttribute('aria-hidden', 'false');
+            regenerateFeedbackInput.focus();
+        }
+
+        function closeRegenerateModal() {
+            activeRegenerateQuestionId = null;
+            regenerateModal.classList.remove('is-open');
+            regenerateModal.setAttribute('aria-hidden', 'true');
+            setRegenerateModalLoading(false);
+        }
+
+        function rowFromRegenerateResponse(data, previousRow) {
+            return {
+                ...previousRow,
+                id: data.question_id,
+                row_number: data.row_number,
+                competency: data.competency,
+                sub_competency: data.sub_competency,
+                level: data.level,
+                question_type: data.question_type,
+                scenario_title: data.scenario_title,
+                business_scenario: data.business_scenario,
+                code_snippet: data.code_snippet || '',
+                question: data.current_question,
+                options: data.current_options,
+                correct_option: data.current_correct_option,
+                correct_answer: data.current_correct_answer,
+                correct_answer_explanation: data.current_correct_answer_explanation,
+                feedback: data.feedback || previousRow.feedback,
+            };
+        }
+
+        async function submitRegeneration({withFeedback}) {
+            const questionId = activeRegenerateQuestionId;
+            const rowElement = questionId
+                ? generatedTableBody.querySelector(`tr[data-question-id="${CSS.escape(questionId)}"]`)
+                : null;
+            const row = generatedQuestionsById.get(questionId);
+
+            if (!row || !rowElement) {
+                alert('Question details are not available for regeneration.');
+                return;
+            }
+
+            const feedback = regenerateFeedbackInput.value.trim();
+            if (withFeedback && !feedback) {
+                alert('Please enter feedback before creating a question.');
+                regenerateFeedbackInput.focus();
+                return;
+            }
+
+            const rowButtons = rowElement.querySelectorAll('.icon-button');
+            rowButtons.forEach(actionButton => {
+                actionButton.disabled = true;
+            });
+            setRegenerateModalLoading(true);
+
+            try {
+                const payload = buildRegeneratePayload(row);
+                const response = await fetch(withFeedback ? '/api/v1/re-generate-feedback' : '/api/v1/re-generate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(withFeedback ? {...payload, feedback} : payload),
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.detail || 'Question regeneration failed');
+                }
+
+                const regeneratedRow = rowFromRegenerateResponse(await response.json(), row);
+                replaceGeneratedRow(regeneratedRow);
+                closeRegenerateModal();
+            } catch (err) {
+                console.error(err);
+                alert(err.message || 'Question regeneration failed.');
+                rowButtons.forEach(actionButton => {
+                    actionButton.disabled = false;
+                });
+                setRegenerateModalLoading(false);
+            }
+        }
+
+        generatedTableBody.addEventListener('click', (event) => {
+            const button = event.target.closest('.icon-button');
+            if (!button || button.disabled) return;
+
+            if (button.dataset.action === 'regenerate') {
+                const rowElement = button.closest('tr');
+                const questionId = rowElement?.dataset.questionId;
+                if (!generatedQuestionsById.has(questionId)) {
+                    alert('Question details are not available for regeneration.');
+                    return;
+                }
+                openRegenerateModal(questionId);
+            }
+        });
+
+        regenerateModalClose.addEventListener('click', closeRegenerateModal);
+
+        regenerateModal.addEventListener('click', (event) => {
+            if (event.target === regenerateModal) {
+                closeRegenerateModal();
+            }
+        });
+
+        regenerateWithFeedbackBtn.addEventListener('click', () => {
+            submitRegeneration({withFeedback: true});
+        });
+
+        regenerateWithoutFeedbackBtn.addEventListener('click', () => {
+            submitRegeneration({withFeedback: false});
+        });
+
+        function generatedRowCells(row) {
+            const actionDisabled = generationComplete ? '' : 'disabled';
+            return `
+                <td style="color: var(--text-muted);">${row.row_number}</td>
+                <td class="question-cell">${escapeHtml(row.question)}</td>
+                <td><span class="badge">${escapeHtml(row.competency)}</span></td>
+                <td style="color:#6B6F99">${escapeHtml(row.sub_competency)}</td>
+                <td><span class="badge level-badge">${escapeHtml(row.level || 'Medium')}</span></td>
+                <td>
+                    <div class="row-actions">
+                        <button class="icon-button" title="Edit" data-action="edit" ${actionDisabled}>
+                            <svg fill="none" stroke="#f97316" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button class="icon-button" title="Re-generate" data-action="regenerate" ${actionDisabled}>
+                            <svg fill="none" stroke="#3b82f6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v6h6M20 20v-6h-6M5 15a7 7 0 0011.9 3.2L20 15M19 9A7 7 0 007.1 5.8L4 9"/></svg>
+                        </button>
+                        <button class="icon-button" title="Delete" data-action="delete" ${actionDisabled}>
+                            <svg fill="none" stroke="#dc2626" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-8 0l1 13h8l1-13"/></svg>
+                        </button>
+                    </div>
+                </td>
+            `;
+        }
+
+        function replaceGeneratedRow(row) {
+            const existingRow = generatedTableBody.querySelector(`tr[data-question-id="${CSS.escape(row.id)}"]`);
+            if (!existingRow) return;
+
+            generatedQuestionsById.set(row.id, row);
+            existingRow.innerHTML = generatedRowCells(row);
+            setGeneratedActionButtonsEnabled(true);
+        }
+
+        function renderGeneratedRow(row) {
+            const tr = document.createElement('tr');
+            tr.dataset.questionId = row.id;
+            generatedQuestionsById.set(row.id, row);
+            tr.innerHTML = generatedRowCells(row);
+            generatedTableBody.appendChild(tr);
+        }
+
+        function renderTable(items) {
+            tableBody.innerHTML = '';
+            
+            if (!items || items.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No data found</td></tr>';
+                tableWrapper.style.display = 'block';
+                return;
+            }
+            
+            // Count unique competencies and total sub-comps
+            const comps = new Set();
+            items.forEach(item => comps.add(item.competency));
+            compCount.textContent = comps.size;
+            subCompCount.textContent = items.length;
+
+            items.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                
+                // #
+                const tdNum = document.createElement('td');
+                tdNum.style.color = 'var(--text-muted)';
+                tdNum.textContent = index + 1;
+                tr.appendChild(tdNum);
+
+                // Competency
+                const tdComp = document.createElement('td');
+                tdComp.style.position = 'relative';
+                tdComp.innerHTML = `${item.competency} <span class="info-icon">i<span class="tooltip-box">${item.competency_definition || 'Definition not provided.'}</span></span>`;
+                tr.appendChild(tdComp);
+                
+                // Sub-Competency
+                const tdSub = document.createElement('td');
+                tdSub.style.position = 'relative';
+                tdSub.innerHTML = `${item.sub_competency} <span class="info-icon">i<span class="tooltip-box">${item.sub_competency_definition || 'Definition not provided.'}</span></span>`;
+                tr.appendChild(tdSub);
+                
+                // Radios
+                ['Must Have', 'Good To Have', 'Icing on The Cake'].forEach(p => {
+                    const tdRadio = document.createElement('td');
+                    tdRadio.className = 'radio-cell';
+                    
+                    const input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = `row_${index}`;
+                    input.value = p;
+                    
+                    tdRadio.appendChild(input);
+                    tr.appendChild(tdRadio);
+                });
+
+                // Meatball Menu
+                const tdMenu = document.createElement('td');
+                tdMenu.className = 'radio-cell menu-dots';
+                tdMenu.innerHTML = '⋮';
+                tr.appendChild(tdMenu);
+
+                tableBody.appendChild(tr);
+            });
+            
+            tableWrapper.style.display = 'block';
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            startJDCompetencyGeneration();
+        });
+
+        // Handle tooltip toggling on click
+        document.addEventListener('click', function(e) {
+            const infoIcon = e.target.closest('.info-icon');
+            
+            // First, hide all tooltips
+            document.querySelectorAll('.tooltip-box').forEach(el => {
+                if (!infoIcon || !infoIcon.contains(el)) {
+                    el.style.display = 'none';
+                }
+            });
+            
+            if (infoIcon) {
+                const tooltip = infoIcon.querySelector('.tooltip-box');
+                if (tooltip) {
+                    tooltip.style.display = tooltip.style.display === 'block' ? 'none' : 'block';
+                }
+                e.stopPropagation();
+            }
+        });
+    </script>
+</body>
+</html>

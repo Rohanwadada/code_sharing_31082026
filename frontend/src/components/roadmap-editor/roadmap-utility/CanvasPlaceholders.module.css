@@ -1,0 +1,39 @@
+.placeholder {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 996;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 14px;
+  transition:
+    top 0.5s ease,
+    left 0.5s ease;
+  pointer-events: none;
+  font-family: var(--font-dm-sans);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.placeholder-top {
+  color: #3867f3;
+  text-align: center;
+}
+
+.placeholder-bottom {
+  color: #989090;
+}
+
+.drop-container {
+  width: 281px;
+  padding: 25px 10px;
+  gap: 10px;
+  border-radius: 12px;
+  border: 2px dashed #0070ff;
+  background: #e3e8f6;
+  color: #3867f3;
+  text-align: center;
+}

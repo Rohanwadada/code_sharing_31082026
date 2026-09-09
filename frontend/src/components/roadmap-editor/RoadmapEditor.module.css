@@ -1,0 +1,50 @@
+.main-container {
+  display: flex;
+  justify-content: space-between;
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  overflow: hidden;
+}
+
+.roadmap-canvas {
+  height: 100vh;
+  width: 100%;
+  margin-top: 70px;
+}
+
+/* .sidebar-container {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+} */
+
+.page-edit-blocker {
+  height: 100vh;
+  width: 100vw;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  font-family: var(--font-dm-sans);
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  background-color: var(--landing-page-bgc);
+  color: #e5e7eb;
+}
+
+.page-back-icon {
+  width: 20px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.desktop-icon {
+  width: 50px;
+  height: 50px;
+}

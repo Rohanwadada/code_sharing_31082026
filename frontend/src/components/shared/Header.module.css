@@ -1,0 +1,208 @@
+/* Desktop / Base Header Styles */
+.header {
+  padding: 12px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  background-color: var(--background-white);
+  color: var(--text-dark);
+  font-family: var(--font-dm-sans);
+  height: 60px;
+  width: 100%;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid #DDD9CC;
+  border-radius: 6px;
+  color: #7A8099;
+  font-family: "DM Sans", sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  background: #F7F5F0;
+  color: #0F1117;
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Hidden exactly on desktop, native sidebar manages it there*/
+.sidebar-toggle {
+  display: none;
+}
+
+.header-img-primary {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-img {
+  width: 62px;
+  height: 38px;
+  flex-shrink: 0;
+  aspect-ratio: 31/19;
+  margin-left: 74px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.header-img:hover {
+  opacity: 0.8;
+}
+
+.chat-title-ct {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dark);
+  max-width: 40%;
+}
+
+.chat-title-ct span {
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.chat-title-ct svg {
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+}
+
+.chat-title-ct svg:hover {
+  opacity: 0.7;
+}
+
+.title-input {
+  min-width: 210px;
+  padding: 4px 10px;
+  outline: none;
+  font-family: var(--font-dm-sans);
+  font-size: 16px;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  background-color: #1e293b;
+  color: var(--text-dark);
+}
+
+.title-input:focus {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.header-actions {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  opacity: 0.6;
+}
+
+.action-btn:hover {
+  opacity: 1;
+}
+
+.action-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Mobile responsive */
+
+@media screen and (max-width: 768px) {
+  .header {
+    padding: 0 28px;
+    height: 64px;
+    justify-content: flex-start;
+  }
+
+  .left-section {
+    gap: 12px;
+    flex-shrink: 0;
+    /* Prevents collapsing due to long titles */
+  }
+
+  .sidebar-toggle {
+    display: flex;
+    align-items: center;
+    color: #717684;
+    /* Dimmed exactly per Figma screenshot */
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .sidebar-toggle svg {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  .header-img {
+    height: 20px;
+    /* Visually mirrors sidebar icon size */
+    width: auto;
+    margin-left: 0;
+    /* Undo desktop absolute offset */
+    flex-shrink: 0;
+  }
+
+  .chat-title-ct {
+    width: 45vw;
+    /* Locks center boundary unconditionally */
+    max-width: none;
+    /* Remove desktop max constraint */
+    gap: 6px;
+    min-width: 0;
+    /* Fixes flexbox text explosions completely */
+  }
+
+  .chat-title-ct span {
+    font-size: 13px;
+    /* Compact, exact-to-Figma sizing */
+    max-width: calc(100% - 20px);
+    /* Leave precise space for pencil */
+  }
+
+  .chat-title-ct svg {
+    width: 14px;
+    /* Matched proportionally to the small font */
+    height: 14px;
+  }
+
+  .title-input {
+    min-width: 100px;
+    width: 100%;
+    max-width: calc(100vw - 120px);
+    font-size: 13px;
+    padding: 3px 6px;
+  }
+}

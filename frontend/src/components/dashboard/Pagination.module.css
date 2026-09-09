@@ -1,0 +1,138 @@
+.pagination-ct {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 32px;
+}
+
+.prev-btn,
+.next-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-dm-sans);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  transition: all 0.2s;
+}
+
+.prev-btn {
+  width: 134px;
+  color: var(--text-dark);
+  background: transparent;
+}
+
+.prev-btn:hover:not(:disabled) {
+  background: rgba(101, 117, 139, 0.08);
+}
+
+.prev-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.next-btn {
+  width: 108px;
+  gap: 4px;
+  color: #ffffff;
+  background: var(--ink-sidebar);
+}
+
+.next-btn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.next-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.page-info-ct {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-label {
+  color: var(--text-dark);
+  font-family: var(--font-dm-sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.page-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 4px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--background-grey);
+  font-family: var(--font-dm-sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.page-num:hover {
+  color: var(--text-dark);
+}
+
+.page-num.active {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .pagination-ct {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .prev-btn,
+  .next-btn {
+    width: auto;
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  .label {
+    display: none;
+  }
+
+  .prev-btn svg,
+  .next-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .page-label {
+    font-size: 13px;
+  }
+
+  .page-num {
+    min-width: 24px;
+    height: 24px;
+    font-size: 13px;
+  }
+}

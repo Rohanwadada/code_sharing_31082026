@@ -1,0 +1,62 @@
+.mainCt {
+  height: calc(100vh - 70px);
+  width: 35vw;
+  border-radius: 5px 0px 0px 20px;
+  background-color: var(--modal-bgc);
+  overflow: hidden;
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  padding: 20px;
+  gap: 23px;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.zizo-inner {
+  display: flex;
+  gap: 5px;
+}
+.zizo-inner img {
+  cursor: pointer;
+  width: 20px;
+}
+
+.component-name {
+  color: #121212cc;
+  font-family: var(--font-dm-sans);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.close-button {
+  /* position: absolute;
+  top: 0;
+  right: 0; */
+  background-color: var(--close-icon-bgc);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.preview-ct {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.preview-ct::-webkit-scrollbar {
+  display: none;
+}

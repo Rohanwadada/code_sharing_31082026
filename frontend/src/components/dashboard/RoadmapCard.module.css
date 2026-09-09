@@ -1,0 +1,117 @@
+.card-link {
+  display: block;
+  min-width: 0;
+}
+
+.card-ct {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  /*width: 368px;*/
+  height: 185px;
+
+  border-radius: 14px;
+  border: 1px solid rgba(101, 117, 139, 0.27);
+  background: #fdfdfd;
+  box-shadow: 0 1px 1.3px 0 rgba(0, 0, 0, 0.25);
+
+  font-family: var(--font-dm-sans);
+  cursor: pointer;
+
+  transition: all 0.3s;
+  min-width: 0;
+}
+
+.card-ct:hover {
+  border-top: 5px solid var(--brand-primary);
+  box-shadow:
+    0 48px 13px 0 rgba(0, 0, 0, 0),
+    0 30px 12px 0 rgba(0, 0, 0, 0.01),
+    0 17px 10px 0 rgba(0, 0, 0, 0.05),
+    0 8px 8px 0 rgba(0, 0, 0, 0.09),
+    0 2px 4px 0 rgba(0, 0, 0, 0.1);
+}
+
+.top {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.title {
+  color: var(--text-dark);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 20px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+  min-width: 0;
+}
+
+.tag-ct {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.bottom {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bottom-left {
+  padding: 4px 6px;
+  color: var(--ink-mid);
+  display: inline-flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 4px;
+  text-transform: capitalize;
+}
+
+.date {
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+.action-ct {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink-mid);
+}
+
+.action-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  color: var(--ink-mid);
+  border-radius: 4px;
+  padding: 3px;
+  width: 25px;
+  height: 25px;
+  aspect-ratio: 1/1;
+  cursor: pointer;
+
+  transition: all 0.2s ease-in;
+}
+
+.action-btn:hover {
+  background: var(--background-grey-light);
+}
+
+.action-btn:disabled {
+  background: #f0f0f0;
+}

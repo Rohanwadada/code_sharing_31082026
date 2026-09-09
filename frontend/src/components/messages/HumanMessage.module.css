@@ -1,0 +1,45 @@
+.human-message-ct {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.human-message {
+  max-width: 75%;
+  padding: 18px 16px;
+  border-radius: 12px;
+  background: #f7f5f0;
+
+  color: var(--text-dark);
+  font-family: var(--font-dm-sans);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.human-message-ct svg {
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+}
+
+.human-message-ct:hover svg {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .human-message {
+    max-width: 65%;
+    padding: 12px 14px;
+    /* font-size: 16px; */
+    leading-trim: both;
+    text-edge: cap;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+  }
+}

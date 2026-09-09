@@ -1,0 +1,217 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background-color: #020202;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 998;
+  height: 70px;
+  background-color: var(--header-background-color);
+  border-bottom: 1px solid var(--header-bottom-border-color);
+}
+
+.logo {
+  max-width: 35%;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px 20px;
+}
+
+.logo-img {
+  width: 40px;
+  height: 40px;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  height: 100%;
+  padding-right: 5px;
+}
+
+.util-div {
+  height: 57px;
+  min-width: 111px;
+  max-width: 170px;
+  position: relative;
+  padding: 0 6px;
+  text-decoration: none;
+  color: var(--header-utility-btn-text-color);
+  font-family: var(--font-dm-sans);
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  border-radius: 12px;
+  transition: all 0.5s;
+  cursor: pointer;
+}
+
+.util-div:hover {
+  background-color: #f0eeee;
+}
+
+.util-div img {
+  width: 22px !important;
+}
+
+.manage-access-open,
+.component-bag-open,
+.manage-access-open:hover,
+.component-bag-open:hover {
+  background-color: var(--section-active-bgc);
+}
+
+.component-bag-ct {
+  position: relative;
+}
+
+.component-bag-open {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.component-bag-open img {
+  width: 22px;
+}
+
+.component-count-badge {
+  position: absolute;
+  top: -14px;
+  left: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--section-active-bgc);
+  color: #000000;
+  text-align: center;
+  font-family: var(--font-dm-sans);
+  font-size: 12px;
+  font-weight: 600;
+  /* transition: background-color 0.3s ease-in-out; */
+}
+
+.component-count-badge.active {
+  background-color: #3867f3;
+  color: var(--color-text-on-secondary);
+}
+
+.section-active {
+  background-color: var(--section-active-bgc);
+}
+
+.component-bag-viewer-ct {
+  position: absolute;
+  top: 75px;
+  left: 0;
+  height: 300px;
+  width: 290px;
+  background-color: #f3f1f1;
+  border: 1px solid #000;
+  border-radius: 5px;
+  overflow: hidden;
+  padding-right: 5px;
+  font-family: var(--font-dm-sans);
+}
+
+.component-bag-viewer-ct-scroll {
+  height: 100%;
+  width: 100%;
+  padding: 8px 8px 0px 18px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f3f1f1;
+}
+
+.component-bag-viewer-ct-inner {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.no-component-ct {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.component-ct {
+  position: relative;
+  width: 100%;
+  height: fit-content;
+  /* word-break: break-word; */
+  overflow-wrap: anywhere;
+  padding: 8px 12px 12px 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10.55px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.component-info {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 10.55px;
+}
+
+.add-to-bag {
+  opacity: 0;
+  background: transparent;
+  width: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.add-to-bag img {
+  width: 16px;
+}
+
+.component-ct:hover .add-to-bag {
+  opacity: 1;
+}
+
+.component-name {
+  font-size: 16px;
+  font-weight: 500;
+}
+.component-text {
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.component-bag-viewer-ct [component-type='title'] {
+  background: #1849d640;
+}
+.component-bag-viewer-ct [component-type='topic'],
+.component-bag-viewer-ct [component-type='topicGroup'] {
+  background: #22222233;
+}
+.component-bag-viewer-ct [component-type='subtopicGroup'] {
+  background: #f7da8a99;
+}
+.component-bag-viewer-ct [component-type='subtopic'],
+.component-bag-viewer-ct [component-type='assignmentNode'] {
+  background: #0e971533;
+}

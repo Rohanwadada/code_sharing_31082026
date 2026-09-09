@@ -1,0 +1,19 @@
+You're In! 🎉
+
+Hi Learner,
+
+You've been granted {{ granted_role }} access to the "{{ roadmap_name }}" roadmap.
+
+{% if granted_role == "editor" %}
+  You can now manage the roadmap, update resources, and explore all the curated resources and learning paths we've assembled for you.
+{% else %}
+    You can now explore all the curated resources and learning paths we've assembled for you.
+{% endif %}
+
+Access your roadmap here:
+{{ roadmap_url }}
+
+If you need help or have any issues, feel free to reach out to us at mitra@setuschool.com.
+
+Happy learning,
+— Team SETU

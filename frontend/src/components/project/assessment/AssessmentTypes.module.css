@@ -1,0 +1,193 @@
+.container {
+  /*background-color: #f7f5f0;
+  min-height: calc(100vh - 70px);*/
+  font-family: 'DM Sans', sans-serif;
+  box-sizing: border-box;
+}
+
+/* Header */
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.pageTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a1c23;
+  margin: 0 0 12px 0;
+}
+
+.projectTagGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+}
+
+.projectLabel {
+  color: #7d8292;
+}
+
+.projectTag {
+  background-color: #fffdf4;
+  border: 1px solid #eae3c7;
+  color: #8a6d1c;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* Action Buttons */
+.actionGroup {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.bookmarkBtn {
+  background-color: #ffffff;
+  border: 1px solid #dcd8cc;
+  border-radius: 6px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #434753;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bookmarkBtn:hover {
+  background-color: #f7f5f0;
+}
+
+.sendBtn,
+.proceedBtn {
+  background-color: #9d9c98; /* Disabled state */
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 0 24px;
+  height: 40px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.sendBtnActive {
+  background-color: #1a1c23; /* Active state */
+  cursor: pointer;
+}
+
+.sendBtnActive:hover {
+  opacity: 0.9;
+}
+
+.subtitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1c23;
+  margin: 0 0 24px 0;
+}
+
+/* Cards Layout */
+.cardsContainer {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.formatCard {
+  background-color: #ffffff;
+  border: 1.5px solid #eae8e1;
+  border-radius: 12px;
+  padding: 28px;
+  width: 380px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.formatCard:hover {
+  border-color: #d4b254;
+}
+
+.cardActive {
+  background-color: #fffdf4;
+  border-color: #c9a84c;
+}
+
+/* Card Content */
+.cardIcon {
+  color: #1a1c23;
+  margin-bottom: 16px;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1c23;
+  margin: 0 0 12px 0;
+}
+
+.cardDescription {
+  color: #7d8292;
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+}
+
+.cardDescription strong {
+  color: #7d8292;
+  font-weight: 600;
+}
+
+/* Checkbox Section */
+.checkboxGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.customCheckbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid #c4c6d1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background-color: #ffffff;
+}
+
+.checkboxChecked {
+  background-color: #d4b254;
+  border-color: #d4b254;
+}
+
+.checkboxLabel {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1a1c23;
+}
+
+/* Info Box */
+.infoBox {
+  background-color: #f4eedc;
+  color: #434753;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-top: 8px;
+  font-weight: 500;
+}

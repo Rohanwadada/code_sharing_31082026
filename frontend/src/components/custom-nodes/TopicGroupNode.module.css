@@ -1,0 +1,59 @@
+.title-node-container {
+  height: 100%;
+  position: relative;
+}
+
+.label {
+  -webkit-text-size-adjust: 100%;
+  font-size: 32px;
+  background-color: #fdff00;
+  color: rgb(0, 0, 0);
+  border-radius: 9px;
+  border: 1.7px solid rgb(0, 0, 0);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  cursor: auto;
+  position: relative;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.label:hover .add-subtopic-btn {
+  opacity: 1;
+}
+
+.node-header {
+  text-align: center;
+  width: 100%;
+  padding: 20px 12px;
+  background-color: bisque;
+  overflow: hidden;
+  font-family: var(--font-dm-sans);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.add-subtopic-btn {
+  position: absolute;
+  z-index: 999999999999;
+  top: 5px;
+  right: 5px;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  background-color: white;
+}
+
+.add-subtopic-img {
+  width: 12.5px;
+}

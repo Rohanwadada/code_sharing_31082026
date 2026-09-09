@@ -1,0 +1,2234 @@
+{
+  "nodes": [
+    {
+      "id": "63d1A5f6DbeC98dE762Ac6f195BAbFfA",
+      "type": "title",
+      "position": {
+        "x": -150,
+        "y": 0
+      },
+      "data": {
+        "label": "Principal Backend Engineer (Java) Roadmap",
+        "style": {
+          "width": 850,
+          "height": 150,
+          "fontSize": "44px",
+          "color": "#ffffff",
+          "backgroundColor": "#cd0100"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 850,
+        "height": 150
+      },
+      "measured": {
+        "width": 850,
+        "height": 150
+      }
+    },
+    {
+      "id": "f19fC47e971D207184B44062EeA8698B",
+      "type": "topicGroup",
+      "position": {
+        "x": 0,
+        "y": 600
+      },
+      "data": {
+        "label": "Advanced Java Language Features",
+        "style": {
+          "borderColor": "#BEBEBE",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "headerStyle": {
+          "fontSize": "32px",
+          "color": "#ffffff",
+          "backgroundColor": "#1849D6"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 550,
+        "height": 150
+      }
+    },
+    {
+      "id": "E199e5b1442E5A2ABb002C057D9B7896",
+      "type": "subtopicGroup",
+      "position": {
+        "x": -1100,
+        "y": 600
+      },
+      "data": {
+        "label": "1. Modern Java Constructs",
+        "style": {
+          "borderColor": "#BEBEBE",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "headerStyle": {
+          "fontSize": "32px",
+          "color": "#ffffff",
+          "backgroundColor": "#313030"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 750,
+        "height": 150
+      }
+    },
+    {
+      "id": "eFd60177c9D3917f05877837687dA9b2",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Java 8+ Features (Lambdas, Streams, Optionals)",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "E199e5b1442E5A2ABb002C057D9B7896",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "1AbB86602138539625C4BDDC2e9C5F86",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Records and Pattern Matching",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "E199e5b1442E5A2ABb002C057D9B7896",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "0A9D609132768a7B0F4889c258FB2e6f",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Sealed Classes and Interfaces",
+        "style": {
+          "borderColor": "#FFC727",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FFC72780"
+        },
+        "convertible": false,
+        "knl_type": "good_to_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "E199e5b1442E5A2ABb002C057D9B7896",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "A3a7c01960df10037E924095F35eCF64",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Virtual Threads (Project Loom)",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "E199e5b1442E5A2ABb002C057D9B7896",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "8f9Eb9904137f94C29906B3F19cA0987",
+      "type": "assignmentNode",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Module Assessment",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "assessment",
+        "semanticScope": "m"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "E199e5b1442E5A2ABb002C057D9B7896",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "afa0e4Dc3Fe9e140d8e8f072E3697ade",
+      "type": "subtopicGroup",
+      "position": {
+        "x": 900,
+        "y": 600
+      },
+      "data": {
+        "label": "2. Concurrency and Parallelism",
+        "style": {
+          "borderColor": "#BEBEBE",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "headerStyle": {
+          "fontSize": "32px",
+          "color": "#ffffff",
+          "backgroundColor": "#313030"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 750,
+        "height": 150
+      }
+    },
+    {
+      "id": "10F5C02c96904C204692bA4dBC70210d",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Advanced Concurrency Utilities (Executors, Fork/Join)",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "afa0e4Dc3Fe9e140d8e8f072E3697ade",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "E6618B105d8f43173488224B62c8C051",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Reactive Programming with Project Reactor/RxJava",
+        "style": {
+          "borderColor": "#FFC727",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FFC72780"
+        },
+        "convertible": false,
+        "knl_type": "good_to_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "afa0e4Dc3Fe9e140d8e8f072E3697ade",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "685899DdFCd0Af89cAb116ccE4b2Cf6E",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Non-blocking I/O (NIO.2)",
+        "style": {
+          "borderColor": "#FFC727",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FFC72780"
+        },
+        "convertible": false,
+        "knl_type": "good_to_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "afa0e4Dc3Fe9e140d8e8f072E3697ade",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "84e9317cC8D1d88Be5bE5A5535340D97",
+      "type": "assignmentNode",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Module Assessment",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "assessment",
+        "semanticScope": "m"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "afa0e4Dc3Fe9e140d8e8f072E3697ade",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "Bf96E07719eCc4955a243542921233aD",
+      "type": "assignmentNode",
+      "position": {
+        "x": 20,
+        "y": 20
+      },
+      "data": {
+        "label": "Assessment",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "assessment",
+        "semanticScope": "t"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 350,
+        "height": 100
+      },
+      "parentId": "f19fC47e971D207184B44062EeA8698B",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "Dec770F76065078F5CF6c4d22d18E7b4",
+      "type": "topicGroup",
+      "position": {
+        "x": 0,
+        "y": 1400
+      },
+      "data": {
+        "label": "High-Performance Backend Systems",
+        "style": {
+          "borderColor": "#BEBEBE",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "headerStyle": {
+          "fontSize": "32px",
+          "color": "#ffffff",
+          "backgroundColor": "#1849D6"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 550,
+        "height": 150
+      }
+    },
+    {
+      "id": "e1Be99c8c978014dAf63359f605fDE8c",
+      "type": "subtopicGroup",
+      "position": {
+        "x": -1100,
+        "y": 1400
+      },
+      "data": {
+        "label": "3. Performance Tuning and Profiling",
+        "style": {
+          "borderColor": "#BEBEBE",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "headerStyle": {
+          "fontSize": "32px",
+          "color": "#ffffff",
+          "backgroundColor": "#313030"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 750,
+        "height": 150
+      }
+    },
+    {
+      "id": "ADC87922417284218f358C6634A911DD",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "JVM Internals and Memory Management",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "e1Be99c8c978014dAf63359f605fDE8c",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "696aC421fad21E8BF919E4D371751274",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Garbage Collection Tuning",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "e1Be99c8c978014dAf63359f605fDE8c",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "A2f655Aa0FfCfb64621FaEBD70B310C6",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Java Profiling Tools (JFR, VisualVM, YourKit)",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "e1Be99c8c978014dAf63359f605fDE8c",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "ce5F23344C81eB2EB57e0d2a65B97CE4",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Benchmarking with JMH",
+        "style": {
+          "borderColor": "#FFC727",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FFC72780"
+        },
+        "convertible": false,
+        "knl_type": "good_to_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "e1Be99c8c978014dAf63359f605fDE8c",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "11A208e048C4d20011Ce2C4e25a9536a",
+      "type": "assignmentNode",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Module Assessment",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "assessment",
+        "semanticScope": "m"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "e1Be99c8c978014dAf63359f605fDE8c",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "E56Ef69112554e56d03A48Bb8657e60C",
+      "type": "subtopicGroup",
+      "position": {
+        "x": 900,
+        "y": 1400
+      },
+      "data": {
+        "label": "4. Distributed Systems Patterns",
+        "style": {
+          "borderColor": "#BEBEBE",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "headerStyle": {
+          "fontSize": "32px",
+          "color": "#ffffff",
+          "backgroundColor": "#313030"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 750,
+        "height": 150
+      }
+    },
+    {
+      "id": "84E0c14B8B26C76eCD98Ea0b60F4B422",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Microservices Architecture Principles",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "E56Ef69112554e56d03A48Bb8657e60C",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "5B8f222b00d20DB5F0a0FB391AA20d43",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Event-Driven Architectures (Kafka, RabbitMQ)",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "E56Ef69112554e56d03A48Bb8657e60C",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "E11b390c6230C7549f714dAE957AC255",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Distributed Caching (Redis, Hazelcast)",
+        "style": {
+          "borderColor": "#FFC727",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FFC72780"
+        },
+        "convertible": false,
+        "knl_type": "good_to_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "E56Ef69112554e56d03A48Bb8657e60C",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "361D28a1ebc397e19A6c150e81c31034",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "API Gateway and Service Mesh Concepts",
+        "style": {
+          "borderColor": "#FFC727",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FFC72780"
+        },
+        "convertible": false,
+        "knl_type": "good_to_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "E56Ef69112554e56d03A48Bb8657e60C",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "D90eb69b1FE92fEa1d91aC7E6b816c95",
+      "type": "assignmentNode",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Module Assessment",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "assessment",
+        "semanticScope": "m"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "E56Ef69112554e56d03A48Bb8657e60C",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "3CfBd4BFF48cdaA672fF9fc54ce4E8F0",
+      "type": "assignmentNode",
+      "position": {
+        "x": 20,
+        "y": 20
+      },
+      "data": {
+        "label": "Assessment",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "assessment",
+        "semanticScope": "t"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 350,
+        "height": 100
+      },
+      "parentId": "Dec770F76065078F5CF6c4d22d18E7b4",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "f68E992478518988E1F35cf4462F010c",
+      "type": "topicGroup",
+      "position": {
+        "x": 0,
+        "y": 2200
+      },
+      "data": {
+        "label": "Robust and Scalable Architectures",
+        "style": {
+          "borderColor": "#BEBEBE",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "headerStyle": {
+          "fontSize": "32px",
+          "color": "#ffffff",
+          "backgroundColor": "#1849D6"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 550,
+        "height": 150
+      }
+    },
+    {
+      "id": "5230059Fc688D925Ef54d0B08c68E555",
+      "type": "subtopicGroup",
+      "position": {
+        "x": -1100,
+        "y": 2200
+      },
+      "data": {
+        "label": "5. Design Patterns and Principles",
+        "style": {
+          "borderColor": "#BEBEBE",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "headerStyle": {
+          "fontSize": "32px",
+          "color": "#ffffff",
+          "backgroundColor": "#313030"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 750,
+        "height": 150
+      }
+    },
+    {
+      "id": "5bC106dF187a19430fae0Fb61BB34658",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Advanced Design Patterns (e.g., Saga, CQRS)",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "5230059Fc688D925Ef54d0B08c68E555",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "B7850Fa0A9F8BD4Cff4d4DE809b5C015",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "SOLID Principles in Practice",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "5230059Fc688D925Ef54d0B08c68E555",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "bbE8FD704C3B1d860e51a9994Df434Fb",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Domain-Driven Design (DDD)",
+        "style": {
+          "borderColor": "#FFC727",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FFC72780"
+        },
+        "convertible": false,
+        "knl_type": "good_to_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "5230059Fc688D925Ef54d0B08c68E555",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "F6F379C152eA16C2967Ac1d7f1431a3E",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Clean Architecture and Hexagonal Architecture",
+        "style": {
+          "borderColor": "#FFC727",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FFC72780"
+        },
+        "convertible": false,
+        "knl_type": "good_to_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "5230059Fc688D925Ef54d0B08c68E555",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "2114393968a7e72380B6Cfea41B2747c",
+      "type": "assignmentNode",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Module Assessment",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "assessment",
+        "semanticScope": "m"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "5230059Fc688D925Ef54d0B08c68E555",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "f70a16Da080b7145858248FD55b5B238",
+      "type": "subtopicGroup",
+      "position": {
+        "x": 900,
+        "y": 2200
+      },
+      "data": {
+        "label": "6. Database and Data Management",
+        "style": {
+          "borderColor": "#BEBEBE",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "headerStyle": {
+          "fontSize": "32px",
+          "color": "#ffffff",
+          "backgroundColor": "#313030"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 750,
+        "height": 150
+      }
+    },
+    {
+      "id": "C6b54892704c1BD2A7312911f540d695",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Advanced SQL and NoSQL Database Optimization",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "f70a16Da080b7145858248FD55b5B238",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "2b05811451bb7F87424e4D510342D2A7",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "ORM Deep Dive (Hibernate/JPA Performance)",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "f70a16Da080b7145858248FD55b5B238",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "f5E15fa92A9fB8471918704aeec556bD",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Data Consistency in Distributed Systems",
+        "style": {
+          "borderColor": "#FFC727",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FFC72780"
+        },
+        "convertible": false,
+        "knl_type": "good_to_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "f70a16Da080b7145858248FD55b5B238",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "228D0C37A82df97E08e4bBBf2020ab9a",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Polyglot Persistence Strategies",
+        "style": {
+          "borderColor": "#0AB81F",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#7DCE7980"
+        },
+        "convertible": false,
+        "knl_type": "suggested_learning"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "f70a16Da080b7145858248FD55b5B238",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "284BCdC23f12D3b8810Ec738f39e6304",
+      "type": "assignmentNode",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Module Assessment",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "assessment",
+        "semanticScope": "m"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "f70a16Da080b7145858248FD55b5B238",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "323AA5C15E4f7f5d2CA3d03D23e3811D",
+      "type": "assignmentNode",
+      "position": {
+        "x": 20,
+        "y": 20
+      },
+      "data": {
+        "label": "Assessment",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "assessment",
+        "semanticScope": "t"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 350,
+        "height": 100
+      },
+      "parentId": "f68E992478518988E1F35cf4462F010c",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "1b233Cdb57A8eBef61ddCE5Ac8d625Ae",
+      "type": "topicGroup",
+      "position": {
+        "x": 0,
+        "y": 3000
+      },
+      "data": {
+        "label": "Cloud-Native and DevOps",
+        "style": {
+          "borderColor": "#BEBEBE",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "headerStyle": {
+          "fontSize": "32px",
+          "color": "#ffffff",
+          "backgroundColor": "#1849D6"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 550,
+        "height": 150
+      }
+    },
+    {
+      "id": "0Cb160f5A37703832248de1d96bdF07a",
+      "type": "subtopicGroup",
+      "position": {
+        "x": -1100,
+        "y": 3000
+      },
+      "data": {
+        "label": "7. Cloud Platforms and Deployment",
+        "style": {
+          "borderColor": "#BEBEBE",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "headerStyle": {
+          "fontSize": "32px",
+          "color": "#ffffff",
+          "backgroundColor": "#313030"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 750,
+        "height": 150
+      }
+    },
+    {
+      "id": "f3D0264f7F4A6a67190431f6A8A92834",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Containerization with Docker and Kubernetes",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "0Cb160f5A37703832248de1d96bdF07a",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "d0E30b5623f9570B881F3e27C672744b",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Cloud Providers (AWS, Azure, GCP) for Java Apps",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "0Cb160f5A37703832248de1d96bdF07a",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "BD73D97F27b25c55159031f3462265a4",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Serverless Architectures (AWS Lambda, Azure Functions)",
+        "style": {
+          "borderColor": "#FFC727",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FFC72780"
+        },
+        "convertible": false,
+        "knl_type": "good_to_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "0Cb160f5A37703832248de1d96bdF07a",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "c23ecc394b79f7bcbb9E02e6d68C5630",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Infrastructure as Code (Terraform)",
+        "style": {
+          "borderColor": "#0AB81F",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#7DCE7980"
+        },
+        "convertible": false,
+        "knl_type": "suggested_learning"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "0Cb160f5A37703832248de1d96bdF07a",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "Ba3ddC7c45e20533d8d3A51F964af65F",
+      "type": "assignmentNode",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Module Assessment",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "assessment",
+        "semanticScope": "m"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "0Cb160f5A37703832248de1d96bdF07a",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "47C083f31f6E7E1E764974dc4D362480",
+      "type": "subtopicGroup",
+      "position": {
+        "x": 900,
+        "y": 3000
+      },
+      "data": {
+        "label": "8. Observability and Reliability",
+        "style": {
+          "borderColor": "#BEBEBE",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "headerStyle": {
+          "fontSize": "32px",
+          "color": "#ffffff",
+          "backgroundColor": "#313030"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 750,
+        "height": 150
+      }
+    },
+    {
+      "id": "00234BdecFC7b84a377EF53130d7da01",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Logging Best Practices (SLF4J, Logback)",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "47C083f31f6E7E1E764974dc4D362480",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "D1FF09E57a9c637b5895B4D443A81151",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Monitoring and Alerting (Prometheus, Grafana)",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "47C083f31f6E7E1E764974dc4D362480",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "2B0D2166923BaaE44Fc4fac477DeA48E",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Tracing (OpenTelemetry, Jaeger)",
+        "style": {
+          "borderColor": "#FFC727",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FFC72780"
+        },
+        "convertible": false,
+        "knl_type": "good_to_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "47C083f31f6E7E1E764974dc4D362480",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "064d9a6Cf07FFb65EDCD9f7F678e7C78",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Chaos Engineering Principles",
+        "style": {
+          "borderColor": "#0AB81F",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#7DCE7980"
+        },
+        "convertible": false,
+        "knl_type": "suggested_learning"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "47C083f31f6E7E1E764974dc4D362480",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "D646D2f829B9D2276C4FA51965EFf975",
+      "type": "assignmentNode",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Module Assessment",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "assessment",
+        "semanticScope": "m"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "47C083f31f6E7E1E764974dc4D362480",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "966bCc002c4bf27AF2C2bf1E73bEdb1A",
+      "type": "assignmentNode",
+      "position": {
+        "x": 20,
+        "y": 20
+      },
+      "data": {
+        "label": "Assessment",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "assessment",
+        "semanticScope": "t"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 350,
+        "height": 100
+      },
+      "parentId": "1b233Cdb57A8eBef61ddCE5Ac8d625Ae",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "f6f5D7690eDb4Ec3EA1E4D8E6ab297ED",
+      "type": "topicGroup",
+      "position": {
+        "x": 0,
+        "y": 3800
+      },
+      "data": {
+        "label": "Leadership and Mentorship",
+        "style": {
+          "borderColor": "#BEBEBE",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "headerStyle": {
+          "fontSize": "32px",
+          "color": "#ffffff",
+          "backgroundColor": "#1849D6"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 550,
+        "height": 150
+      }
+    },
+    {
+      "id": "20EBC06357746bb1c2C15288cfA174Be",
+      "type": "subtopicGroup",
+      "position": {
+        "x": -1100,
+        "y": 3800
+      },
+      "data": {
+        "label": "9. Technical Leadership",
+        "style": {
+          "borderColor": "#BEBEBE",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "headerStyle": {
+          "fontSize": "32px",
+          "color": "#ffffff",
+          "backgroundColor": "#313030"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 750,
+        "height": 150
+      }
+    },
+    {
+      "id": "6D739e7674ADF5754c391542f408b0B4",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Code Review Best Practices",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "20EBC06357746bb1c2C15288cfA174Be",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "D797D7b946E17a433aBb98dB1f92A285",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Mentoring Junior Developers",
+        "style": {
+          "borderColor": "#FFC727",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FFC72780"
+        },
+        "convertible": false,
+        "knl_type": "good_to_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "20EBC06357746bb1c2C15288cfA174Be",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "344a23Ef4ddD6794c15Ab6cd14f4C018",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "System Design Interview Preparation",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "20EBC06357746bb1c2C15288cfA174Be",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "A9b92D94b3f3716b20bB9E450a00530c",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Architectural Decision Records (ADRs)",
+        "style": {
+          "borderColor": "#FFC727",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FFC72780"
+        },
+        "convertible": false,
+        "knl_type": "good_to_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "20EBC06357746bb1c2C15288cfA174Be",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "0a14032C9910377bEB590180E19754B9",
+      "type": "assignmentNode",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Module Assessment",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "assessment",
+        "semanticScope": "m"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "20EBC06357746bb1c2C15288cfA174Be",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "320D92F24321ef08f931c649163e9c0B",
+      "type": "subtopicGroup",
+      "position": {
+        "x": 900,
+        "y": 3800
+      },
+      "data": {
+        "label": "10. Project Management and Best Practices",
+        "style": {
+          "borderColor": "#BEBEBE",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "headerStyle": {
+          "fontSize": "32px",
+          "color": "#ffffff",
+          "backgroundColor": "#313030"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 750,
+        "height": 150
+      }
+    },
+    {
+      "id": "815fF2E7147DF280b07b012383Abe08D",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Agile Methodologies (Scrum, Kanban)",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "320D92F24321ef08f931c649163e9c0B",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "421417e3BA7DAc3eBd54C4900921aaab",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Git Advanced Workflows",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "320D92F24321ef08f931c649163e9c0B",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "56c5A8801a0D0A60f5CD989753135244",
+      "type": "subtopic",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "CI/CD Pipelines (Jenkins, GitLab CI, GitHub Actions)",
+        "style": {
+          "borderColor": "#FF4C4C",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#FF4C4C30"
+        },
+        "convertible": false,
+        "knl_type": "must_know"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "320D92F24321ef08f931c649163e9c0B",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "17E240ECb8D3339679c73c9C33E6000E",
+      "type": "assignmentNode",
+      "position": {
+        "x": 37.5,
+        "y": 0
+      },
+      "data": {
+        "label": "Module Assessment",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "assessment",
+        "semanticScope": "m"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 675
+      },
+      "parentId": "320D92F24321ef08f931c649163e9c0B",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "177bd0915a5779b1429EE72aCDf6eF7f",
+      "type": "assignmentNode",
+      "position": {
+        "x": 20,
+        "y": 20
+      },
+      "data": {
+        "label": "Assessment",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "assessment",
+        "semanticScope": "t"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 350,
+        "height": 100
+      },
+      "parentId": "f6f5D7690eDb4Ec3EA1E4D8E6ab297ED",
+      "extent": "parent",
+      "connectable": true
+    },
+    {
+      "id": "473B1668b152Cc0a822a5BDe71775CDf",
+      "type": "assignmentNode",
+      "position": {
+        "x": 0,
+        "y": 4600
+      },
+      "data": {
+        "label": "Final Assessment",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "assessment",
+        "semanticScope": "r"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 550,
+        "height": 150
+      }
+    },
+    {
+      "id": "74c6124FcdB042a8CdEb15c8E6136e40",
+      "type": "assignmentNode",
+      "position": {
+        "x": 0,
+        "y": 5400
+      },
+      "data": {
+        "label": "Capstone Project",
+        "style": {
+          "borderColor": "#000000",
+          "fontSize": "32px",
+          "color": "#000000",
+          "backgroundColor": "#ffffff"
+        },
+        "convertible": false,
+        "semanticType": "project",
+        "semanticScope": "r"
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 550,
+        "height": 150
+      }
+    },
+    {
+      "id": "C3fd885117E722055621e894afe0a920",
+      "type": "learningAnchor",
+      "position": {
+        "x": 0,
+        "y": 6200
+      },
+      "data": {
+        "label": "Keep Learning . . .",
+        "style": {
+          "width": 550,
+          "height": 150,
+          "fontSize": "44px",
+          "fontFamily": "cursive",
+          "color": "#000000",
+          "backgroundColor": "#FFFFFF",
+          "borderColor": "#000000"
+        },
+        "convertible": false
+      },
+      "selected": false,
+      "draggable": true,
+      "style": {
+        "width": 550,
+        "height": 150
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "xy_edge_ai__63d1A5f6DbeC98dE762Ac6f195BAbFfAb__f19fC47e971D207184B44062EeA8698Bt2",
+      "source": "63d1A5f6DbeC98dE762Ac6f195BAbFfA",
+      "target": "f19fC47e971D207184B44062EeA8698B",
+      "sourceHandle": "b",
+      "targetHandle": "t2",
+      "type": "straight",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__f19fC47e971D207184B44062EeA8698Bb1__Dec770F76065078F5CF6c4d22d18E7b4t2",
+      "source": "f19fC47e971D207184B44062EeA8698B",
+      "target": "Dec770F76065078F5CF6c4d22d18E7b4",
+      "sourceHandle": "b1",
+      "targetHandle": "t2",
+      "type": "straight",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__Dec770F76065078F5CF6c4d22d18E7b4b1__f68E992478518988E1F35cf4462F010ct2",
+      "source": "Dec770F76065078F5CF6c4d22d18E7b4",
+      "target": "f68E992478518988E1F35cf4462F010c",
+      "sourceHandle": "b1",
+      "targetHandle": "t2",
+      "type": "straight",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__f68E992478518988E1F35cf4462F010cb1__1b233Cdb57A8eBef61ddCE5Ac8d625Aet2",
+      "source": "f68E992478518988E1F35cf4462F010c",
+      "target": "1b233Cdb57A8eBef61ddCE5Ac8d625Ae",
+      "sourceHandle": "b1",
+      "targetHandle": "t2",
+      "type": "straight",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__1b233Cdb57A8eBef61ddCE5Ac8d625Aeb1__f6f5D7690eDb4Ec3EA1E4D8E6ab297EDt2",
+      "source": "1b233Cdb57A8eBef61ddCE5Ac8d625Ae",
+      "target": "f6f5D7690eDb4Ec3EA1E4D8E6ab297ED",
+      "sourceHandle": "b1",
+      "targetHandle": "t2",
+      "type": "straight",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__f6f5D7690eDb4Ec3EA1E4D8E6ab297EDb1__473B1668b152Cc0a822a5BDe71775CDft2",
+      "source": "f6f5D7690eDb4Ec3EA1E4D8E6ab297ED",
+      "target": "473B1668b152Cc0a822a5BDe71775CDf",
+      "sourceHandle": "b1",
+      "targetHandle": "t2",
+      "type": "straight",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__473B1668b152Cc0a822a5BDe71775CDfb1__74c6124FcdB042a8CdEb15c8E6136e40t2",
+      "source": "473B1668b152Cc0a822a5BDe71775CDf",
+      "target": "74c6124FcdB042a8CdEb15c8E6136e40",
+      "sourceHandle": "b1",
+      "targetHandle": "t2",
+      "type": "straight",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__f19fC47e971D207184B44062EeA8698Bl1__E199e5b1442E5A2ABb002C057D9B7896r2",
+      "source": "f19fC47e971D207184B44062EeA8698B",
+      "target": "E199e5b1442E5A2ABb002C057D9B7896",
+      "sourceHandle": "l1",
+      "targetHandle": "r2",
+      "type": "default",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__f19fC47e971D207184B44062EeA8698Br1__afa0e4Dc3Fe9e140d8e8f072E3697adel2",
+      "source": "f19fC47e971D207184B44062EeA8698B",
+      "target": "afa0e4Dc3Fe9e140d8e8f072E3697ade",
+      "sourceHandle": "r1",
+      "targetHandle": "l2",
+      "type": "default",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__Dec770F76065078F5CF6c4d22d18E7b4l1__e1Be99c8c978014dAf63359f605fDE8cr2",
+      "source": "Dec770F76065078F5CF6c4d22d18E7b4",
+      "target": "e1Be99c8c978014dAf63359f605fDE8c",
+      "sourceHandle": "l1",
+      "targetHandle": "r2",
+      "type": "default",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__Dec770F76065078F5CF6c4d22d18E7b4r1__E56Ef69112554e56d03A48Bb8657e60Cl2",
+      "source": "Dec770F76065078F5CF6c4d22d18E7b4",
+      "target": "E56Ef69112554e56d03A48Bb8657e60C",
+      "sourceHandle": "r1",
+      "targetHandle": "l2",
+      "type": "default",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__f68E992478518988E1F35cf4462F010cl1__5230059Fc688D925Ef54d0B08c68E555r2",
+      "source": "f68E992478518988E1F35cf4462F010c",
+      "target": "5230059Fc688D925Ef54d0B08c68E555",
+      "sourceHandle": "l1",
+      "targetHandle": "r2",
+      "type": "default",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__f68E992478518988E1F35cf4462F010cr1__f70a16Da080b7145858248FD55b5B238l2",
+      "source": "f68E992478518988E1F35cf4462F010c",
+      "target": "f70a16Da080b7145858248FD55b5B238",
+      "sourceHandle": "r1",
+      "targetHandle": "l2",
+      "type": "default",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__1b233Cdb57A8eBef61ddCE5Ac8d625Ael1__0Cb160f5A37703832248de1d96bdF07ar2",
+      "source": "1b233Cdb57A8eBef61ddCE5Ac8d625Ae",
+      "target": "0Cb160f5A37703832248de1d96bdF07a",
+      "sourceHandle": "l1",
+      "targetHandle": "r2",
+      "type": "default",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__1b233Cdb57A8eBef61ddCE5Ac8d625Aer1__47C083f31f6E7E1E764974dc4D362480l2",
+      "source": "1b233Cdb57A8eBef61ddCE5Ac8d625Ae",
+      "target": "47C083f31f6E7E1E764974dc4D362480",
+      "sourceHandle": "r1",
+      "targetHandle": "l2",
+      "type": "default",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__f6f5D7690eDb4Ec3EA1E4D8E6ab297EDl1__20EBC06357746bb1c2C15288cfA174Ber2",
+      "source": "f6f5D7690eDb4Ec3EA1E4D8E6ab297ED",
+      "target": "20EBC06357746bb1c2C15288cfA174Be",
+      "sourceHandle": "l1",
+      "targetHandle": "r2",
+      "type": "default",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__f6f5D7690eDb4Ec3EA1E4D8E6ab297EDr1__320D92F24321ef08f931c649163e9c0Bl2",
+      "source": "f6f5D7690eDb4Ec3EA1E4D8E6ab297ED",
+      "target": "320D92F24321ef08f931c649163e9c0B",
+      "sourceHandle": "r1",
+      "targetHandle": "l2",
+      "type": "default",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "0"
+      }
+    },
+    {
+      "id": "xy_edge_ai__74c6124FcdB042a8CdEb15c8E6136e40b1__C3fd885117E722055621e894afe0a920t",
+      "source": "74c6124FcdB042a8CdEb15c8E6136e40",
+      "target": "C3fd885117E722055621e894afe0a920",
+      "sourceHandle": "b1",
+      "targetHandle": "t",
+      "type": "straight",
+      "style": {
+        "stroke": "#000000",
+        "strokeWidth": 2,
+        "strokeDasharray": "15 15"
+      }
+    }
+  ]
+}

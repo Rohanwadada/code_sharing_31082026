@@ -1,0 +1,329 @@
+.main-container {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: column;
+  gap: 40px;
+  font-family: var(--font-dm-sans);
+  color: #bebebe;
+  /* background-color: #000000; */
+  overflow: hidden;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.grad-bg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+
+.lg-head {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 16px;
+  text-align: center;
+}
+
+.shifu-img-ct {
+  display: flex;
+  width: 100px;
+  height: 100px;
+  padding: 10px;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 1/1;
+  border-radius: 80px;
+  background: var(--ink-sidebar);
+  overflow: hidden;
+}
+
+.shifu-img {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  aspect-ratio: 1/1;
+}
+
+.lg-text {
+  color: #3a3f58;
+  font-family: var(--font-dm-sans);
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 34px;
+}
+
+.login-span {
+  color: var(--brand-primary);
+  font-family: var(--font-dm-sans);
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 34px;
+}
+
+.lg-form {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  padding: 40px 30px;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  border-radius: 8px;
+  background: var(--background-white);
+  box-shadow:
+    0 155px 43px 0 rgba(0, 0, 0, 0),
+    0 99px 40px 0 rgba(0, 0, 0, 0.01),
+    0 56px 33px 0 rgba(0, 0, 0, 0.05),
+    0 25px 25px 0 rgba(0, 0, 0, 0.09),
+    0 6px 14px 0 rgba(0, 0, 0, 0.1);
+  font-family: var(--font-dm-sans);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  box-sizing: border-box;
+}
+
+.form-group-email,
+.form-group-otp {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.label {
+  align-self: stretch;
+  color: var(--text-dark);
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+}
+
+.error {
+  color: var(--tertiary-red);
+}
+
+.input-box {
+  display: flex;
+  padding: 12px 16px;
+  align-items: center;
+  align-self: stretch;
+  background-color: var(--background-white);
+  color: #000000 !important;
+  border-radius: 6px;
+  border: 1.5px solid #d0d0cc;
+  font-family: var(--font-dm-sans);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  font-style: normal;
+  box-sizing: border-box;
+}
+
+.input-box::placeholder,
+.input-box::placeholder {
+  color: var(--background-grey);
+  font-family: var(--font-dm-sans);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.input-box:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  caret-color: var(--brand-primary);
+}
+
+.input-box::-webkit-inner-spin-button,
+.input-box::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input-box-green {
+  border: 1px solid var(--tertiary-green) !important;
+}
+
+.input-box-red {
+  border: 1px solid var(--tertiary-red) !important;
+}
+
+.resend-btn {
+  background-color: transparent;
+  width: fit-content;
+  color: #000000;
+  font-family: var(--font-dm-sans);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: auto;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+  text-underline-position: from-font;
+  cursor: pointer;
+}
+
+.resend-btn:disabled {
+  color: rgba(0, 0, 0, 0.2);
+  cursor: not-allowed;
+}
+
+.timer-text-div {
+  width: 100%;
+  padding: 10px 5px;
+  display: flex;
+  justify-content: flex-end;
+  color: #bebebe;
+  font-family: var(--font-dm-sans);
+  font-size: 14px;
+  font-style: normal;
+  outline: none;
+  color: #9a9a9a;
+  font-weight: 600;
+  line-height: normal;
+}
+
+.btn {
+  height: 36px;
+}
+
+.verified-span {
+  color: var(--tertiary-green);
+  font-family: var(--font-dm-sans);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 16px;
+
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .main-container {
+    gap: 20px;
+    padding: 32px 16px 24px;
+    justify-content: flex-start;
+    align-items: center;
+    overflow-y: auto;
+  }
+
+  /* --- Header block --- */
+  .lg-head {
+    gap: 12px;
+    width: 100%;
+  }
+
+  /* Shifu text logo */
+  .lg-head > img:first-child {
+    width: 72px;
+    height: auto;
+  }
+
+  /* Bot icon circle */
+  .shifu-img-ct {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    padding: 8px;
+  }
+
+  /* Bot image inside circle (shared class with logo) */
+  .shifu-img {
+    width: 58px;
+    height: 58px;
+  }
+
+  /* "Please Login to start conversation with me" */
+  .lg-text {
+    font-size: 14px;
+    line-height: 20px;
+    color: #e0e0e0;
+  }
+
+  .login-span {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  /* --- White form card --- */
+  .lg-form {
+    width: calc(100% - 0px);
+    /* full width inside 16px page padding */
+    max-width: 100%;
+    padding: 24px 16px;
+    gap: 16px;
+    border-radius: 12px;
+    box-shadow:
+      0 8px 32px 0 rgba(0, 0, 0, 0.25),
+      0 2px 8px 0 rgba(0, 0, 0, 0.15);
+  }
+
+  /* Label */
+  .label {
+    font-size: 13px;
+  }
+
+  /* Inputs */
+  .input-box {
+    padding: 11px 14px;
+    font-size: 14px;
+    border-radius: 6px;
+    height: 44px;
+    box-sizing: border-box;
+  }
+
+  .input-box::placeholder {
+    font-size: 14px;
+  }
+
+  /* Send OTP / action button */
+  .btn {
+    height: 40px;
+    font-size: 14px;
+    padding: 10px 24px;
+    border-radius: 6px;
+    /* Keep button centered, not forced full-width (matches Figma) */
+    align-self: center;
+    min-width: 110px;
+  }
+
+  /* Resend OTP link */
+  .resend-btn {
+    font-size: 13px;
+  }
+
+  /* Verified badge */
+  .verified-span {
+    font-size: 12px;
+  }
+
+  /* Error text */
+  .error {
+    font-size: 12px;
+  }
+
+  /* Timer */
+  .timer-text-div {
+    font-size: 12px;
+    padding: 6px 4px;
+  }
+}

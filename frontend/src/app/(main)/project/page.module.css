@@ -1,0 +1,13 @@
+.project-layout {
+  /*background-color: #f7f5f0;*/
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+}
+
+.child-container {
+  /*padding: 40px 26px;*/
+  padding: 20px;
+  height: 100%;
+  width: 100%;
+}

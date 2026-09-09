@@ -1,0 +1,377 @@
+.container {
+  /*background-color: #f7f5f0;*/
+  /*min-height: calc(100vh - 70px);*/
+  font-family: 'DM Sans', sans-serif;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* Header Section */
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.headerTextGroup {
+  max-width: 70%;
+}
+
+.pageTitle {
+  color: #1a1a1a;
+  font-family: 'DM Serif Display', sans-serif;
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 34px;
+  margin: 0 0 12px 0;
+}
+
+.pageSubtitle {
+  color: #7a8099;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.sendBtn {
+  background-color: #111111;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.sendBtn:hover {
+  opacity: 0.9;
+}
+
+/* Tab Switcher */
+.tabContainer {
+  background-color: #ebe7da;
+  border-radius: 100px;
+  display: flex;
+  padding: 6px;
+  margin-bottom: 24px;
+}
+
+.tabButton {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: 100px;
+  padding: 12px 24px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #434753;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tabButton:hover:not(.activeTab) {
+  color: #1a1c23;
+}
+
+.activeTab {
+  background-color: #ffffff;
+  color: #1a1c23;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Upload Section Layout */
+.uploadSection {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Content Card (Upload) */
+.contentCard {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 28px 32px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.uploadIcon {
+  color: #d4b254;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1c23;
+  margin: 0;
+}
+
+.cardDescription {
+  color: #7d8292;
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  max-width: 800px;
+}
+
+.cardActions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.sampleBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ffffff;
+  border: 1px solid #dcd8cc;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1c23;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sampleBtn:hover {
+  background-color: #f7f5f0;
+}
+
+.chooseFileBtn {
+  background-color: #1a1c23;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.chooseFileBtn:hover {
+  opacity: 0.9;
+}
+
+.fileInput {
+  display: none;
+}
+
+/* Upload Summary (Success/Error Message) */
+.uploadSummary {
+  margin-top: 24px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.summaryGreen {
+  color: #27ae60;
+}
+
+.summaryDivider {
+  color: #7d8292;
+  margin: 0 4px;
+}
+
+.summaryRed {
+  color: #d94444;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Candidates Table Section */
+.candidatesContainer {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px 32px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.candidatesHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.candidatesTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1c23;
+  margin: 0;
+}
+
+.candidatesCount {
+  font-size: 13px;
+  font-weight: 500;
+  color: #7d8292;
+}
+
+.tableWrapper {
+  border: 1px solid #eae8e1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.candidatesTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.candidatesTable th {
+  background-color: #f6f4ed;
+  color: #746c53;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 14px 20px;
+  border-bottom: 1px solid #eae8e1;
+}
+
+.candidatesTable td {
+  padding: 14px 20px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #3a3f50;
+  border-bottom: 1px solid #f0eee9;
+}
+
+.candidatesTable tr:last-child td {
+  border-bottom: none;
+}
+
+/* Row & Status Styles */
+.rowInvalid {
+  background-color: #fff6f6;
+}
+
+.statusMatched {
+  color: #27ae60;
+}
+
+.statusInvalid {
+  color: #d94444;
+  display: flex;
+  align-items: center;
+}
+
+/* Coming Soon Card (Browse Tab) */
+.comingSoonCard {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 64px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.02);
+  border: 1px dashed #eae3c7;
+}
+
+.comingSoonIcon {
+  background-color: #fdfbf4;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  border: 8px solid #f7f5f0;
+}
+
+.comingSoonTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1c23;
+  margin: 0 0 12px 0;
+}
+
+.comingSoonText {
+  color: #7d8292;
+  font-size: 14.5px;
+  line-height: 1.6;
+  max-width: 500px;
+  margin: 0;
+}
+
+/* --- Modal Styles --- */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.35); /* semi-transparent overlay */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.modalContent {
+  background-color: #f0faf3;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.1);
+  min-width: 300px;
+  top: 50px;
+  position: absolute;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modalTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1c23;
+  margin: 0;
+}
+
+.homeBtn {
+  background-color: #111111;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 32px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.homeBtn:hover {
+  opacity: 0.85;
+}

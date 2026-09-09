@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="x-apple-disable-message-reformatting">
+    <title>Login OTP</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400&family=DM+Sans:wght@500;700&family=DM+Serif+Display&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-primary: #c9a84c;
+            --bg-sidebar: #0f1117;
+            --bg-grey-light: #ebebeb;
+            --bg-white: #ffffff;
+            --ink-light: #7a8099;
+            --text-dark: #0f1117;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100% !important;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        table {
+            border-spacing: 0;
+            border-collapse: collapse;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        td {
+            padding: 0;
+        }
+
+        img {
+            border: 0;
+            -ms-interpolation-mode: bicubic;
+            display: block;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .email-wrapper {
+            width: 100%;
+            padding: 0;
+        }
+
+        .email-container {
+            max-width: 698px;
+            margin: 0 auto;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        /* Header */
+        .header {
+            background-color: #0f1117;
+            padding: 28px 36px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .logo {
+            height: 34px;
+            object-fit: fill;
+        }
+
+        .header-tagline {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            font-weight: 400;
+            color: var(--brand-primary, #c9a84c);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding-top: 2px;
+            line-height: 15px;
+        }
+
+        /* Gradient Divider */
+        .gradient-divider {
+            height: 2px;
+            background: linear-gradient(90deg, #c9a84c 0%, rgba(201, 168, 76, 0.15) 100%);
+        }
+
+        /* Content */
+        .content {
+            background-color: #1A1C19;
+            padding: 40px 36px 32px;
+        }
+
+        .content-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--brand-primary, #c9a84c);
+            letter-spacing: 0.1167em;
+            text-transform: uppercase;
+            line-height: 15px;
+        }
+
+        .content-heading {
+            font-family: 'DM Serif Display', serif;
+            font-size: 26px;
+            font-weight: 400;
+            color: var(--bg-white, #ffffff);
+            line-height: 32.5px;
+            letter-spacing: -0.01em;
+            padding-top: 16px;
+        }
+
+        .user-name {
+            font-family: 'DM Serif Display', serif;
+        }
+
+        .content-paragraph {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--bg-grey-light, #ebebeb);
+            line-height: 23.1px;
+            padding-top: 14px;
+        }
+
+        /* Responsive Styles */
+        @media screen and (max-width: 700px) {
+            .email-container {
+                max-width: 100% !important;
+                border-radius: 0 !important;
+            }
+
+            .header {
+                padding: 20px 20px !important;
+            }
+
+            .content {
+                padding: 28px 20px 24px !important;
+            }
+
+            .content-heading {
+                font-size: 22px !important;
+                line-height: 28px !important;
+            }
+
+            .content-paragraph {
+                font-size: 13px !important;
+                line-height: 21px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <table class="email-wrapper" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+        <tr>
+            <td align="center" style="padding: 0;">
+                <table class="email-container" role="presentation" cellspacing="0" cellpadding="0" border="0" width="698" style="max-width: 698px;">
+                    <!-- Header -->
+                    <tr>
+                        <td class="header">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                    <td>
+                                        <img src="https://setucontainer.blob.core.windows.net/shifu/shifu_logo/shifu-logo.svg" alt="Shifu Logo" class="logo" height="34" style="display: block; object-fit: fill;">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-top: 2px;">
+                                        <span class="header-tagline">learning &amp; growth</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Gradient Divider -->
+                    <tr>
+                        <td class="gradient-divider" style="height: 2px; background: linear-gradient(90deg, #c9a84c 0%, rgba(201, 168, 76, 0.15) 100%); font-size: 0; line-height: 0;">&nbsp;</td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td class="content">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <!-- Label -->
+                                <tr>
+                                    <td style="padding-bottom: 0;">
+                                        <span class="content-label">LOGIN OTP</span>
+                                    </td>
+                                </tr>
+
+                                <!-- Heading -->
+                                <tr>
+                                    <td style="padding-top: 16px;">
+                                        <h1 class="content-heading">Verify it's you </h1>
+                                        <!--, <span class="user-name">Arjun</span>.-->
+                                    </td>
+                                </tr>
+
+                                <!-- Paragraph -->
+                                <tr>
+                                    <td style="padding-top: 14px;">
+                                        <p class="content-paragraph">
+                                            Use the OTP below to sign in to your Shifu account. For your security, please don't share this OTP with anyone.
+                                        </p>
+                                    </td>
+                                </tr>
+
+                                <!-- OTP Box -->
+                                <tr>
+                                    <td style="padding-top: 32px;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: rgba(201, 168, 76, 0.1); border-radius: 10px;">
+                                            <tr>
+                                                <td align="center" style="padding: 20px 16px;">
+                                                    <span style="font-family: 'DM Mono', monospace; font-size: 10px; color: #ebebeb; letter-spacing: 0.1em; text-transform: uppercase;">YOUR LOGIN OTP</span>
+                                                    <br>
+                                                    <span style="font-family: 'DM Sans', sans-serif; font-size: 32px; font-weight: 700; color: #c9a84c; letter-spacing: 2px; padding-top: 12px; display: inline-block;">{{ otp }}</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+
+                                <!-- Warning Box -->
+                                <tr>
+                                    <td style="padding-top: 24px;">
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: rgba(201, 168, 76, 0.1); border-radius: 8px;">
+                                            <tr>
+                                                <td width="4" style="background-color: #c9a84c; border-top-left-radius: 8px; border-bottom-left-radius: 8px; font-size: 0; line-height: 0;">&nbsp;</td>
+                                                <td style="padding: 20px;">
+                                                    <p style="font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 400; color: rgba(235, 235, 235, 0.48); line-height: 21px; margin: 0;">
+                                                        If you didn't request this OTP, you can safely ignore this email — your account remains secure. Never share this OTP with anyone, including anyone claiming to be from Team Shifu.
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+
+                                <!-- Footer Text -->
+                                <tr>
+                                    <td style="padding-top: 40px;">
+                                        <p class="footer-text" style="font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 400; color: #ebebeb; line-height: 21.45px; margin: 0;">
+                                            Best Regards,<br>
+                                            Team Shifu
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

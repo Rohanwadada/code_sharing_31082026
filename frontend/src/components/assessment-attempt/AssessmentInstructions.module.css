@@ -1,0 +1,74 @@
+.instructionsModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 17, 23, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 20px;
+}
+
+.instructionsCard {
+  background-color: #ffffff;
+  border: 1px solid #ebebeb;
+  border-radius: 20px;
+  padding: 30px 40px;
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  position: relative;
+  z-index: 1001;
+}
+
+.instructionsTitle {
+  font-family: var(--font-montserrat), serif;
+  font-size: 29px;
+  font-weight: 400;
+  color: #0f1117;
+  margin: 0;
+  border-bottom: 1px solid #efebd8;
+  padding-bottom: 15px;
+}
+
+.startExamBtn {
+  /*background-color: #c9a84c;*/
+  /*color: #000000;*/
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 320px;
+  height: 45px;
+  font-size: 14px;
+  cursor: pointer;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+  margin-top: 10px;
+}
+
+.startExamBtn:hover {
+  opacity: 0.9;
+}
+
+.error-span {
+  width: 100%;
+  text-align: center;
+  margin-top: 10;
+  color: var(--tertiary-red);
+}

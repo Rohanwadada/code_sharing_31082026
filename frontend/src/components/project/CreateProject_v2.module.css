@@ -1,0 +1,712 @@
+.pageWrapper {
+  font-family: "DM Sans", sans-serif;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.mainCard {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 48px;
+  width: 100%;
+  max-width: 860px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+/* Header */
+.header {
+  margin-bottom: 32px;
+}
+
+.pageTitle {
+  color: #0f1117;
+  font-family: "DM Serif Display", sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 33px; /* 150% */
+  margin: 0 0 10px 0;
+}
+
+.pageSubtitle {
+  color: #7a8099;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 19.5px;
+}
+
+/* Form Layout */
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.row {
+  display: flex;
+  gap: 24px;
+}
+
+.row > * {
+  flex: 1;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Typography & Labels */
+.label {
+  color: #3a3f50;
+  font-family: "DM Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.labelMuted {
+  color: #7a8099;
+  font-family: "DM Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  text-transform: uppercase;
+  margin-left: 4px;
+}
+
+/* Inputs & Selects */
+.input,
+.textarea,
+.select {
+  width: 100%;
+  border-radius: 8px;
+  border: 1.333px solid #ddd9cc;
+  background: #fff;
+  padding: 12px 16px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+  color: #1a1c23;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  border-color: #c9a84c;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: #9a9ea8;
+}
+
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Select Dropdown Wrapper */
+.selectWrapper {
+  position: relative;
+}
+
+.select {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 40px;
+}
+
+.selectWrapper::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid #7d8292;
+  pointer-events: none;
+}
+
+/* Drag & Drop Upload Box */
+.uploadBox {
+  border-radius: 10px;
+  border: 2px dashed #ddd9cc;
+  background: #f7f5f0;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.uploadBox:hover {
+  background-color: #f7f5f0;
+}
+
+.uploadBoxDrag {
+  border-color: #c9a84c;
+  background-color: #fff8e1;
+}
+
+.fileRemove {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 2px;
+  color: #0078d7;
+  font-family: "DM Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  text-decoration-line: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.fileRemove:hover {
+  color: #2563eb;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.uploadIconWrapper {
+  color: #1a1c23;
+  margin-bottom: 12px;
+}
+
+.uploadTitle {
+  color: #0f1117;
+  text-align: center;
+  font-family: "DM Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 22.5px;
+  margin: 0 0 6px 0;
+}
+
+.uploadFormat {
+  color: #7a8099;
+  text-align: center;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 19.5px;
+  margin: 0 0 12px 0;
+}
+
+.uploadLink {
+  color: #c9a84c;
+  text-align: center;
+  font-family: "DM Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+/* Pills (Who is this for?) */
+.pillGroup {
+  display: flex;
+  gap: 12px;
+}
+
+.pillBtn {
+  border-radius: 25px;
+  background: rgba(201, 168, 76, 0.18);
+  border: none;
+  color: #4a4d57;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 8px 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pillBtn:hover {
+  background-color: #ebe4cd;
+  color: #000000;
+}
+
+.pillActive {
+  border-radius: 25px;
+  background: #0f1117;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* Cards (What do you want to create?) */
+.optionsContainer {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.optionCard {
+  flex: 1;
+  border-radius: 9px;
+  border: 1px solid rgba(122, 128, 153, 0.41);
+  background: #fff;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.optionCard:hover {
+  border-color: #d4b254;
+}
+
+.selectedCard {
+  border-radius: 14px;
+  border: 2px solid #c9a84c;
+  background: #fff8e1;
+  box-shadow:
+    0 57px 16px 0 rgba(201, 168, 76, 0),
+    0 37px 15px 0 rgba(201, 168, 76, 0.01),
+    0 21px 12px 0 rgba(201, 168, 76, 0.05),
+    0 9px 9px 0 rgba(201, 168, 76, 0.09),
+    0 2px 5px 0 rgba(201, 168, 76, 0.1);
+}
+
+.optionTitle {
+  color: #3a3f50;
+  font-family: "DM Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  margin: 0 0 12px 0;
+}
+
+.optionDesc {
+  font-size: 13px;
+  color: #7d8292;
+  line-height: 1.5;
+  margin: 0;
+  flex-grow: 1;
+}
+
+/* === Map to Question Bank Section === */
+.mapSection {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mapHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.optionalBadge {
+  border-radius: 25px;
+  background: #e8f4f5;
+  color: #0078d7;
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 4px 10px;
+}
+
+.mapSubtitle {
+  color: #7d8292;
+  font-size: 13px;
+  margin: 0;
+}
+
+.mapToolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.searchWrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchWrapper svg {
+  position: absolute;
+  left: 14px;
+}
+
+.mapSearchInput {
+  width: 100%;
+  border: 1px solid #eae8e1;
+  border-radius: 8px;
+  padding: 10px 16px 10px 40px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13.5px;
+  color: #1a1c23;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.mapSearchInput::placeholder {
+  color: #a3a6b4;
+}
+
+.mapSearchInput:focus {
+  border-color: #c9a84c;
+}
+
+.toolbarActions {
+  display: flex;
+  gap: 12px;
+}
+
+.dropdownContainer {
+  position: relative;
+}
+
+.iconBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ffffff;
+  border: 1px solid #eae8e1;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #434753;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.iconBtn:hover {
+  background-color: #f0eee9;
+}
+
+/* Sort Dropdown */
+.sortMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  background-color: #FFFFFF;
+  border: 1px solid #EAE8E1;
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Filter Dropdown */
+.filterMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background-color: #FFFFFF;
+  border: 1px solid #EAE8E1;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+}
+
+.filterSectionTitle {
+  color: #A97F29; /* Gold accent color for headings */
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin: 16px 0 10px 0;
+}
+
+/* Custom Checkboxes */
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  color: #3A3F50;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.checkboxLabel:last-child {
+  margin-bottom: 0;
+}
+
+.customCheckbox {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #C4C6D1;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.customCheckbox:checked {
+  background-color: #C9A84C;
+  border-color: #C9A84C;
+}
+
+.customCheckbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.showMoreBtn {
+  background: none;
+  border: none;
+  color: #434753;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 12.5px;
+  padding: 0;
+  margin-top: 4px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.filterActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.resetBtn {
+  flex: 1;
+  background-color: #FFFFFF;
+  border: 1px solid #DCD8CC;
+  border-radius: 6px;
+  padding: 8px 0;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #3A3F50;
+  cursor: pointer;
+}
+
+.applyBtn {
+  flex: 1;
+  background-color: #111111;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 0;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.qBankList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Custom Scrollbar for list */
+.qBankList::-webkit-scrollbar {
+  width: 6px;
+}
+.qBankList::-webkit-scrollbar-track {
+  background: #f7f5f0;
+  border-radius: 4px;
+}
+.qBankList::-webkit-scrollbar-thumb {
+  background: #7a8099;
+  border-radius: 4px;
+}
+
+.qBankCard {
+  border: 1px solid #eae8e1;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  background-color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.qBankCard:hover {
+  background: #fff8e1;
+}
+
+.qBankCardSelected {
+  border-radius: 7px;
+  border: 1px solid #ddd9cc;
+  background: #fff8e1;
+}
+
+.qBankCardSelected .qBankTag {
+  border-radius: 25px;
+  border: 1px solid #fff8e1;
+  background: #8a6a10;
+  color: #FFF;
+}
+
+.qBankTitle {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #3a3f50;
+  margin: 0 0 8px 0;
+}
+
+.qBankMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #7d8292;
+}
+
+.qBankTag {
+  background-color: #fdf6e3;
+  color: #b58d2a;
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-weight: 400;
+  font-size: 11px;
+}
+
+.metaDot {
+  color: #908F8C;
+}
+
+.selectionFooter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.selectionText {
+  font-size: 13px;
+  color: #1a1c23;
+}
+
+.clearBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #0078d7;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  text-decoration-line: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.clearBtn:hover {
+  color: #2563eb;
+}
+
+/* Footer Actions */
+.actionFooter {
+  display: flex;
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.cancelBtn {
+  border-radius: 8px;
+  border: 1.333px solid #ddd9cc;
+  background: #fff;
+  color: #1a1c23;
+  padding: 12px 32px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancelBtn:hover {
+  background-color: #f7f5f0;
+}
+
+.saveBtn {
+  background-color: #111111;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 32px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.saveBtn:not(:disabled):hover {
+  opacity: 0.85;
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .row,
+  .optionsContainer,
+  .mapToolbar {
+    flex-direction: column;
+  }
+  .pageWrapper {
+    padding: 24px 16px;
+  }
+  .mainCard {
+    padding: 24px;
+  }
+}

@@ -1,0 +1,11 @@
+.landing-background {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.landing-content {
+  position: relative;
+  z-index: 1;
+}

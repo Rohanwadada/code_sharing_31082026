@@ -1,0 +1,378 @@
+.container {
+  /*background-color: #f7f5f0;*/
+  /*min-height: calc(100vh - 70px);*/
+  font-family: 'DM Sans', sans-serif;
+  box-sizing: border-box;
+}
+
+/* Header Elements */
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.titleGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.pageTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a1c23;
+  margin: 0;
+}
+
+.infoIcon {
+  color: #8c909e;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.projectTagGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+}
+
+.projectLabel {
+  color: #7d8292;
+}
+
+.projectTag {
+  background-color: #fffdf4;
+  border: 1px solid #eae3c7;
+  color: #8a6d1c;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.proceedBtn {
+  background-color: #111111;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 24px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.proceedBtn:hover {
+  opacity: 0.9;
+}
+
+.description {
+  color: #7d8292;
+  font-size: 14px;
+  margin: 0 0 24px 0;
+}
+
+/* Summary Cards */
+.summaryCards {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.cardIconBg {
+  background-color: #f8f5e9;
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardNumber {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1c23;
+  line-height: 1.2;
+}
+
+.cardUnit {
+  font-size: 12px;
+  font-weight: 500;
+  color: #1a1c23;
+}
+
+.cardLabel {
+  font-size: 12.5px;
+  color: #1a1c23;
+  margin: 2px 0;
+  font-weight: 500;
+}
+
+.cardSubLabel {
+  font-size: 11px;
+  color: #b58d2a;
+  font-weight: 500;
+}
+
+/* Action Row */
+.actionRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.saveDropdown {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #dcd8cc;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.saveBtnText {
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #434753;
+  cursor: pointer;
+}
+
+.saveBtnDivider {
+  width: 1px;
+  height: 20px;
+  background-color: #dcd8cc;
+}
+
+.saveBtnIcon {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  color: #434753;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* --- New Table Styles Provided By User --- */
+.table-wrapper {
+  background: #ffffff;
+  border: 1px solid #ebebeb;
+  border-radius: 12px;
+  max-height: calc(100vh - 280px);
+  overflow-y: auto;
+}
+
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.comp-table th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #efebd8;
+  padding: 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #ddd9cc;
+}
+
+.comp-table td {
+  padding: 16px;
+  border-bottom: 1px solid #ebebeb;
+  color: #3a3f50;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+.id-col {
+  color: #a0a4b8 !important;
+}
+
+.center-col {
+  text-align: center;
+  color: #3a3f50;
+}
+
+.must-have {
+  color: #c0392b;
+  text-align: center;
+}
+
+.good-to-have {
+  color: #8a6a10;
+  text-align: center;
+}
+
+.icing-on-cake {
+  color: #27ae60;
+  text-align: center;
+}
+
+/* Custom Interactive Radios */
+.custom-radio {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid #a0a4b8;
+  margin: 0 auto;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.custom-radio:hover {
+  border-color: #7a8099;
+}
+
+.radio-red {
+  border-color: #e74c3c;
+  background: radial-gradient(circle, #e74c3c 48%, transparent 52%);
+}
+
+.radio-red:hover {
+  border-color: #e74c3c;
+}
+
+.radio-gold {
+  border-color: #a07010;
+  background: radial-gradient(circle, #a07010 48%, transparent 52%);
+}
+
+.radio-gold:hover {
+  border-color: #a07010;
+}
+
+.radio-green {
+  border-color: #27ae60;
+  background: radial-gradient(circle, #27ae60 48%, transparent 52%);
+}
+
+.radio-green:hover {
+  border-color: #27ae60;
+}
+
+/* Add To Test Column & Toggle Switches */
+.action-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-on {
+  background-color: #c9a84c;
+  border: 1px solid #ddd9cc;
+}
+
+.toggle-off {
+  background-color: transparent;
+  border: 1px solid #eed284;
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 1px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.toggle-on .toggle-knob {
+  left: 17px;
+  background-color: #fff;
+}
+
+.toggle-off .toggle-knob {
+  left: 1px;
+  background-color: #c9a84c;
+}
+
+.dots {
+  color: #a0a4b8;
+  font-size: 18px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.dots:hover {
+  color: #0f1117;
+}
+
+.question-badge {
+  display: inline-block;
+  border-radius: 10px;
+  border: 1px solid #ebebeb;
+  background: #fff;
+  padding: 4px 20px;
+  font-weight: 500;
+}
+
+.icon-align {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #3a3f50;
+}
+
+.ai-icon-part {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  justify-content: space-between;
+}
+
+.ai-icon {
+  border-radius: 13px;
+  background: #c9a84c;
+  padding: 3px 10px 0px 10px;
+}
+
+.ai-icon img {
+  width: 20px;
+  height: 20px;
+}

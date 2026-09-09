@@ -1,0 +1,127 @@
+.backdrop {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 5%;
+  font-family: var(--font-dm-sans);
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.modal {
+  width: 600px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 17px;
+  background-color: var(--background-white);
+  border-radius: 15px;
+  padding: 30px;
+  position: relative;
+}
+
+.modal-head,
+.modal-body {
+  width: 100%;
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.text {
+  color: #000;
+  text-align: center;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.close-btn {
+  display: inline-flex;
+  height: 30px;
+  width: 30px;
+  padding: 0px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 5px;
+  background: var(--background-grey-light);
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  background-color: var(--close-icon-bgc);
+}
+
+.close-btn img {
+  width: 20px;
+}
+
+.action-btn {
+  display: flex;
+  width: 260px;
+  height: 154px;
+  padding: 20px 17px 30px 17px;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+
+  border-radius: 6px;
+  border: 1px solid rgba(101, 117, 139, 0.27);
+  background: rgba(231, 246, 253, 0.06);
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.25);
+
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.action-btn:hover {
+  border-radius: 6px;
+  border-top: 3px solid var(--brand-primary);
+  box-shadow:
+    0 22px 6px 0 rgba(0, 0, 0, 0),
+    0 14px 6px 0 rgba(0, 0, 0, 0.01),
+    0 8px 5px 0 rgba(0, 0, 0, 0.05),
+    0 4px 4px 0 rgba(0, 0, 0, 0.09),
+    0 1px 2px 0 rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:hover .icon-ct,
+.action-btn:hover .action-text {
+  color: var(--text-dark);
+}
+
+.icon-ct {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.5s;
+  min-height: 60px;
+  color: #5e6370;
+}
+
+.flowchart-icon,
+.content-icon {
+  width: 60px;
+  height: 60px;
+}
+
+.action-text {
+  color: var(--color-text-secondary);
+  text-align: center;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+}

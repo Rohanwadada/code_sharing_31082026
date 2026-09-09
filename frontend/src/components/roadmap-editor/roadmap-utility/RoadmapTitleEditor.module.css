@@ -1,0 +1,67 @@
+.title-change-ct {
+  /* position: absolute; */
+  /* top: 80px; */
+  background-color: transparent;
+  /* left: 50%; */
+  /* transform: translate(-50%); */
+  font-family: var(--font-dm-sans);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 24.38px;
+  width: 100%;
+  min-width: 0;
+}
+
+.title-change-form {
+  display: flex;
+  justify-content: flex-start;
+  gap: 11px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.title-change-form input {
+  flex: 1;
+  border: 2px solid black;
+  outline: none;
+  border-radius: 6px;
+  padding: 5px;
+  max-width: 100%;
+  min-width: 0;
+  font-family: var(--font-dm-sans);
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.submit-btn {
+  width: 65px;
+  border-radius: 6px;
+  font-family: var(--font-dm-sans);
+  font-weight: 500;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.panel-btn {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  /*max-width: 800px;*/
+}
+
+.title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.edit-btn {
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.edit-icon {
+  width: 24px;
+}

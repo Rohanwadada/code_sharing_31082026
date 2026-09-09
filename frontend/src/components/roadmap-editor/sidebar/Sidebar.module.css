@@ -1,0 +1,101 @@
+.main-container {
+  /* padding-top: 70px; */
+  height: calc(100vh - 70px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  transition: all 0.5s;
+  position: absolute;
+  top: 70px;
+  left: 0px;
+  z-index: 1000;
+}
+
+.sidebar-small {
+  width: 60px;
+  gap: 10px;
+  border-right: 1px solid var(--draw-canvas-sidebar-border-color);
+  background-color: var(--draw-canvas-sidebar-tab-section-bgc);
+}
+
+.sections-container {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.section {
+  position: relative;
+  z-index: 10;
+  height: 38px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.section-image {
+  position: relative;
+  z-index: 10;
+  width: 18px;
+}
+
+.active-section {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: var(--draw-canvas-sidebar-active-section-bgc);
+}
+/* .active-section {
+  background-color: var(--draw-canvas-sidebar-active-section-bgc);
+} */
+
+.section-content {
+  height: 100vh;
+  width: auto;
+  /* min-width: 200px; */
+  background-color: #fff;
+  /* background-color: var(--draw-canvas-sidebar-section-content-bgc);
+  border-right: 1px solid var(--draw-canvas-sidebar-section-content-border-color); */
+  /* display: flex;
+  justify-content: flex-start;
+  align-items: flex-start; */
+}
+
+/* Add this to your Sidebar.module.css */
+.custom-tooltip-animation {
+  opacity: 0;
+  transform: translateX(-10px);
+  animation: slideInFade 0.3s ease-in-out forwards;
+}
+
+@keyframes slideInFade {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* For tooltip hiding animation */
+.custom-tooltip-animation[data-tooltip-hiding='true'] {
+  animation: slideOutFade 0.2s ease-in-out forwards;
+}
+
+@keyframes slideOutFade {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+}

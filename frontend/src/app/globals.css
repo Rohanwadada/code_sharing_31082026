@@ -1,0 +1,162 @@
+/*@import '../styles/tokens/palette.css'; */
+@import '../styles/tokens/semantic.css';
+
+* {
+  transform: all 0.5s;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-focus-ring-color: transparent;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: var(--border-default);
+}
+
+:root {
+  /* Knowledge Level indicator */
+  --must-know-color: #ff4c4c;
+  --good-to-know-color: #ffc727;
+  --suggested-learning-color: #01a901;
+
+  --container-bgc: #faf5f2;
+  --hero-container-bgc: #fff;
+  --back-section-text-color: #505050;
+  --roadmap-title-text-color: #000;
+  --start-learning-button-gradient: linear-gradient(
+    90deg,
+    #ffc727 0%,
+    #f90 59.17%
+  );
+  --start-learning-button-box-shadow: 1px 4px 0px 0px #563f00;
+  --start-learning-button-text-color: #000;
+  --hero-conntainer-footer-bgc: #f7f7f7;
+  --hero-container-footer-text-color: #000;
+  --buy-now-text-color: #3867f3;
+  --progress-percentage-text-color: #0043ce;
+  --progress-count-text-color: #6f6f6f;
+  --progress-bar-outer-bgc: #e0e0e0;
+  --progress-bar-inner-bgc: #0043ce;
+
+  /* Node Content Viewer */
+  --select-element-border-color: #4c4c4c;
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --close-icon-bgc: #d9d9d9;
+  --open-access-color: #0e9715;
+  --premium-access-color: #3867f3;
+  --date-bgc: #666666;
+  --update-status-bgc: #ffc727;
+  --dropdown-options-box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  --dropdown-option-hover: rgba(0, 0, 0, 0.05);
+  --next-btn-bgc: #0f1117;
+  --previous-btn-bgc: #bebebe;
+
+  /*  Roadmap module switcher */
+  --modal-active-tab-btn-bgc: #e5e7eb;
+  --modal-active-tab-text-color: #252525;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--text-dark);
+  background: var(--background);
+  font-family: var(--font-dm-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Customization of React Flow Styles */
+
+.react-flow {
+  --xy-theme-selected: #000000;
+}
+
+/* Global Styles */
+
+.react-flow__handle,
+.react-flow__resize-control {
+  opacity: 0;
+}
+
+/* RF Node css*/
+.react-flow__node {
+  z-index: 999;
+  border: 2px solid transparent;
+  border-radius: 5px;
+  padding: 2px;
+  font-family: var(--font-dm-sans);
+}
+
+.react-flow__node:hover {
+  cursor: pointer;
+}
+
+.react-flow__node:hover .react-flow__handle {
+  opacity: 1;
+  background-color: #2b78e4;
+  height: 10px;
+  width: 10px;
+  border: none;
+}
+
+.react-flow__node:hover .react-flow__resize-control {
+  opacity: 1;
+}
+
+.react-flow__node.selectable.selected {
+  border-color: var(--xy-theme-selected);
+}
+
+/* RF ViewPort css*/
+.react-flow__pane.draggable {
+  cursor: grab;
+}
+
+.react-flow__pane.selection {
+  cursor: auto;
+}
+
+.react-flow__selection {
+  border: 2px dashed #3498db;
+  background: rgba(52, 152, 219, 0.2);
+}
+
+/*custom nodes*/
+.react-flow__node-title {
+  border-color: transparent;
+}
+
+.react-flow__edges {
+  z-index: 10 !important;
+  pointer-events: auto;
+}
+
+g.react-flow__edge.selected {
+  filter: drop-shadow(3px 5px 2px rgba(0, 0, 0, 0.35));
+}
+
+[data-node-type='subtopicGroup'] .react-flow__resize-control.line.top,
+[data-node-type='subtopicGroup'] .react-flow__resize-control.line.bottom {
+  display: none !important;
+}
+
+/* React toast styles */
+.Toastify__close-button {
+  color: #ffffff !important;
+}

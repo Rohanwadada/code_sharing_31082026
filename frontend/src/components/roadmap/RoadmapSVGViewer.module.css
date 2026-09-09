@@ -1,0 +1,77 @@
+.node-ct {
+  transition: fill 0.2s ease;
+  font-family: var(--font-dm-sans);
+}
+
+[data-type='topic']:hover {
+  filter: brightness(90%);
+  cursor: pointer;
+}
+
+[data-type='subtopic']:hover {
+  filter: brightness(80%);
+  cursor: pointer;
+}
+
+[data-type='assignmentNode']:hover {
+  filter: brightness(80%);
+  cursor: pointer;
+}
+
+/* CoursesByChapterViewer */
+@keyframes tooltipSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.course-tooltip {
+  animation: tooltipSlideIn 0.2s ease-out forwards;
+}
+
+.ccv-main-ct {
+  background-color: var(--surface-card);
+  color: #000;
+  font-family: var(--font-dm-sans);
+  font-size: 13px;
+  font-weight: 600;
+  max-width: 300px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.course-ct {
+  text-decoration: none;
+  color: #000;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.course-ct:hover {
+  text-decoration: underline;
+}
+
+.cn-links-img {
+  width: 20px;
+  border-radius: 9999px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.cn-links-img img {
+  width: 100%;
+  object-fit: contain;
+}

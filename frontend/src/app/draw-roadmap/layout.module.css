@@ -1,0 +1,142 @@
+.layout-container {
+  --header-background-color: #ffffff;
+  --header-bottom-border-color: #a5a5a5;
+  --section-active-bgc: #ffc727;
+
+  /* Loader */
+  --loader-background-color: #49494970;
+
+  /* Sidebar */
+  --draw-canvas-sidebar-border-color: #666666;
+  --draw-canvas-sidebar-active-section-bgc: #ffc727;
+  --draw-canvas-sidebar-section-content-border-color: #a5a5a5;
+  --draw-canvas-sidebar-tab-section-bgc: #ffffff;
+  --draw-canvas-sidebar-section-content-bgc: #ffffff;
+
+  /* Sidebar-Component-Section */
+  --drag-and-drop-text-bgc: #666666;
+  --component-card-border-color: #666666;
+  --components-scrollbar-color: #000;
+
+  /* Node-Edit-Modal */
+  --modal-border-color: #a5a5a5;
+  --modal-bgc: #ffffff;
+  --modal-tab-btn-hover-bgc: #e5e7eb;
+  --modal-tab-default-text-color: #878787;
+  --modal-active-tab-btn-bgc: #e5e7eb;
+  --modal-active-tab-text-color: #252525;
+
+  /* Node-Edit-Modal--Properties tab */
+  --label-name-color: #000000;
+  --label-input-border-color: #a5a5a5;
+  --position-dimension-input-bgc: #fff3d3;
+
+  /* --select-element-bgc: #e9e9ed; */
+  --select-element-bgc: #fff3d3;
+  --select-element-border-color: #a5a5a5;
+  --select-element-text-color: #000000;
+
+  --font-size-default-btn-bgc: #e5e7eb;
+  --font-size-default-text-color: #252525;
+  --font-size-selected-text-color: #878787;
+
+  --node-color-add-btn-bgc: #cccccc;
+
+  --paragraph-color-input-bgc: transparent;
+  --patagraph-padding-input-bgc: #cbcbcb;
+
+  --knowledege-type-select-bgc: #fff3d3;
+
+  /* Content tab */
+  --add-link-border-color: #a5a5a5;
+  --add-link-btn-bgc: #e5e7eb;
+  --add-link-btn-text-color: #000000;
+
+  --resource-remove-btn-bgc: #fee2e2;
+  --resource-remove-btn-text-color: #c81c1c;
+
+  --access-type-selected-bgc: #ececec;
+
+  /* Edge edit modal */
+  --chip-bgc: #e5e7eb;
+
+  /* Knowledge Level indicator */
+  --must-know-color: #ff4c4c;
+  --good-to-know-color: #ffc727;
+  --suggested-learning-color: #01a901;
+
+  /* Roadmap Landing page */
+  --landing-page-bgc: #161616;
+  --landing-grey-300: #bebebe;
+  --landing-yellow-400: #ffc727;
+  --landing-black: #000000;
+  --landing-white: #ffffff;
+  --roadmap-desc-text-color: #dcdcdc;
+
+  /* Header utilities */
+  --header-utility-btn-bgc: #e5e7eb;
+  --header-utility-btn-text-color: #000000;
+
+  /* Roadmap Control Panel */
+  --button-border-color: #121212;
+  --button-background-color: #fafafa;
+
+  /* Node Content Viewer */
+  --select-element-border-color: #4c4c4c;
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --close-icon-bgc: #d9d9d9;
+  --open-access-color: #0e9715;
+  --premium-access-color: #3867f3;
+  --date-bgc: #666666;
+  --update-status-bgc: #ffc727;
+  --dropdown-options-box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  --dropdown-option-hover: rgba(0, 0, 0, 0.05);
+  --next-btn-bgc: #ffc728;
+  --previous-btn-bgc: #bebebe;
+
+  /* Client Canvas : RoadmapScreen */
+  --container-bgc: #faf5f2;
+  --hero-container-bgc: #fff;
+  --back-section-text-color: #505050;
+  --roadmap-title-text-color: #000;
+  --start-learning-button-gradient: linear-gradient(
+    90deg,
+    #ffc727 0%,
+    #f90 59.17%
+  );
+  --start-learning-button-box-shadow: 1px 4px 0px 0px #563f00;
+  --start-learning-button-text-color: #000;
+  --hero-conntainer-footer-bgc: #f7f7f7;
+  --hero-container-footer-text-color: #000;
+  --buy-now-text-color: #3867f3;
+  --progress-percentage-text-color: #0043ce;
+  --progress-count-text-color: #6f6f6f;
+  --progress-bar-outer-bgc: #e0e0e0;
+  --progress-bar-inner-bgc: #0043ce;
+
+  /* Client Canvas : GetInTouchSection */
+  --get-in-touch-main-bgc: #000;
+  --get-in-touch-head-bgc: #ffc727;
+  --get-in-touch-text-color: #bebebe;
+
+  /* Client Canvas : RelatedCoursesSection */
+  --related-courses-main-ct-bgc: #252525;
+  --related-courses-head-text-color: #ffc727;
+  --related-course-text-color: #bebebe;
+
+  /*--skeleton-base-color: #0000001a;*/
+
+  --canvas-bgc: #fafafa;
+
+  --modal-bgc: #ffffff;
+  --backdrop-bgc: #000000cc;
+  --yellow-btn: #ffc727;
+  --predefined-module-text-color: #252525;
+}
+
+.layout-container {
+  min-height: 100vh;
+  height: 100vh;
+  width: 100%;
+}

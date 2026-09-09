@@ -1,0 +1,93 @@
+ <!-- TOOD: Need to update this -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{ subject_title | default('SETU') | e }}</title>
+    </head>
+  <body style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif;">
+    <table
+      role="presentation"
+      width="100%"
+      cellspacing="0"
+      cellpadding="0"
+      border="0"
+      style="background-color: #f5f7fa; padding: 40px 0;"
+    >
+      <tr>
+        <td align="center">
+          <table
+            role="presentation"
+            width="600"
+            cellspacing="0"
+            cellpadding="0"
+            border="0"
+            style="background-color: #ffffff; border-radius: 10px; overflow: hidden;"
+          >
+            <!-- Logo -->
+            <tr>
+              <td style="background-color: #000000; text-align: center; padding: 20px;">
+                <img
+                  src="https://roadmap.setuschool.com/setu-logo.png"
+                  alt="SETU Logo"
+                  width="50"
+                  style="display: inline-block;"
+                />
+              </td>
+            </tr>
+
+            <!-- Header -->
+            <tr>
+              <td style="padding: 30px; text-align: center;">
+                <h2 style="margin: 0; font-size: 24px; color: #333333;">You're In! 🎉</h2>
+              </td>
+            </tr>
+
+            <!-- Body Text -->
+            <tr>
+              <td style="padding: 0 30px 30px 30px; font-size: 16px; color: #555555;">
+                <p style="margin: 0 0 16px;">Hi Learner,</p>
+                <p style="margin: 0 0 16px;">
+                  You’ve been granted <strong>{{ granted_role }}</strong> access to the <strong>{{ roadmap_name }}</strong> roadmap.
+                  {% if granted_role == "editor" %}
+                    You can now manage the roadmap, update resources, and explore all the curated resources and learning paths we've assembled for you.
+                  {% else %}
+                      You can now explore all the curated resources and learning paths we've assembled for you.
+                  {% endif %}
+                </p>
+                <p style="margin: 0 0 30px;">Click the button below to start your journey.</p>
+
+                <!-- CTA Button -->
+                <div style="text-align: center;">
+                  <a
+                    href="{{ roadmap_url }}"
+                    style="background-color: #ffc728; color: #000000 !important; text-decoration: none; padding: 12px 24px; border-radius: 6px; display: inline-block; font-weight: bold;"
+                  >
+                    Access Your Roadmap
+                  </a>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding: 30px; background-color: #f0f0f0; font-size: 14px; color: #666666; text-align: center;">
+                <p style="margin: 0 0 8px;">Need help? We're here for you.</p>
+                <p style="margin: 0;">
+                  Contact our support team at
+                  <a href="mailto:mitra@setuschool.com" style="color: #f7cf02; text-decoration: none;">
+                    mitra@setuschool.com
+                  </a>
+                </p>
+                <p style="margin: 8px 0 0;">© 2026 SETU. All rights reserved.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

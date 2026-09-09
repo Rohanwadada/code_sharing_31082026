@@ -1,0 +1,433 @@
+.tabContent {
+  padding: 32px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  font-family: "DM Sans", sans-serif;
+  animation: fadeIn 0.3s ease;
+  width: 100%;
+  height: auto;
+  min-height: calc(100vh - 60px);
+  background-color: #f7f5f0;
+  overflow-y: auto;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- KYC Header Section --- */
+.kycSection {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.kycCenter {
+  text-align: center;
+}
+
+.kycTitle {
+  color: #c9a84c;
+  font-family: "DM Sans", sans-serif;
+  font-size: 34px;
+  font-weight: 700;
+}
+
+.kycSubtitle {
+  color: #c9a84c;
+  text-align: center;
+  font-family: "DM Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.kycRight {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 16px;
+}
+
+.kycIconBtn {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  color: #c9a84c;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+
+.kycIconBtn:hover {
+  opacity: 0.7;
+}
+
+/* Base Card Style */
+.card {
+  background-color: #ffffff;
+  border: 1px solid #eae8e1;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+/* --- Top Row (Gauge + Stats) --- */
+.topRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.gaugeContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+}
+
+.gaugeSvg {
+  width: 100%;
+  max-width: 450px;
+  height: auto;
+  display: block;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.statCard {
+  background-color: #ffffff;
+  border: 1px solid #eae8e1;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 120px;
+}
+
+.statLabel {
+  color: #0f1117;
+  text-align: center;
+  font-family: "DM Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+.statValueBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 6px;
+  background: rgba(239, 235, 216, 0.25);
+  border: none;
+  padding: 12px;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: #1a1c23;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+/* --- Middle Row (Performance + Skills) --- */
+.middleRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.cardTitleGold {
+  font-size: 16px;
+  font-weight: 700;
+  color: #c9a84c;
+  margin: 0 0 12px 0;
+}
+
+.cardDesc {
+  font-size: 13.5px;
+  color: #434753;
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+}
+
+.totalQs {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1c23;
+  margin: 0 0 16px 0;
+}
+
+.perfBars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.perfRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.perfTrack {
+  flex: 1;
+  height: 8px;
+  background-color: #f7f5f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.perfFill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.perfRow span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #434753;
+  width: 60px;
+  text-align: right;
+}
+
+.perfLegend {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #eae8e1;
+  padding-top: 16px;
+  margin-top: auto;
+}
+
+.perfLegend span,
+.capLegend span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: #434753;
+  font-weight: 500;
+}
+
+.legendBox {
+  width: 25px;
+  height: 15px;
+  border-radius: 2px;
+}
+
+.radarWrapper {
+  margin-top: -80px;
+}
+
+/* --- Bottom Section (Capabilities) --- */
+.sectionTitleGold {
+  font-size: 16px;
+  font-weight: 700;
+  color: #c9a84c;
+  margin: 16px 0 0 0;
+}
+
+.capGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.capCard {
+  background-color: #ffffff;
+  border: 1px solid #eae8e1;
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.capBadge {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+}
+
+.capHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.capIcon {
+  width: 36px;
+  height: 36px;
+  background-color: #1a1c23;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.capTitle {
+  color: #0f1117;
+  font-family: "DM Sans", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.capScoreRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.capScoreTxt {
+  font-size: 11px;
+  font-weight: 700;
+  color: #c9a84c;
+}
+
+.capScoreTrack {
+  width: 100%;
+  height: 6px;
+  background-color: #a3a6b4; /* Gray unused portion */
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.capScoreFill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.capStatus {
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.capDesc {
+  color: #0f1117;
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  margin: 0 0 20px 0;
+}
+
+.subCompTitle {
+  color: #0f1117;
+  font-family: "DM Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 150%;
+  margin: 0 0 12px 0;
+}
+
+.subCompList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex: 1;
+}
+
+.subCompRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.subCompLabel {
+  width: 120px;
+  color: #3a3f50;
+  text-align: right;
+  font-family: "DM Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 150%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subCompTrack {
+  flex: 1;
+  height: 10px;
+  background-color: #a3a6b4;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.subCompFill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.subCompValue {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #434753;
+  width: 35px;
+  text-align: right;
+}
+
+.capLegend {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #eae8e1;
+  padding-top: 16px;
+  margin-top: auto;
+}
+
+
+.btnSection {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.generateLearningRoadmapBtn {
+  width: fit-content;
+  border-radius: 10px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .capGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .topRow,
+  .middleRow {
+    grid-template-columns: 1fr;
+  }
+  .capGrid {
+    grid-template-columns: 1fr;
+  }
+}

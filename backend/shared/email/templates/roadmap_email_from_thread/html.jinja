@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ subject_title | default('SETU') | e }}</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#000000; font-family:Arial, Helvetica, sans-serif;">
+    <table
+      role="presentation"
+      width="100%"
+      cellspacing="0"
+      cellpadding="0"
+      border="0"
+      style="margin:0; padding:40px 0; background-color:#000000;"
+    >
+      <tr>
+        <td align="center">
+
+          <table
+            role="presentation"
+            width="600"
+            cellspacing="0"
+            cellpadding="0"
+            border="0"
+            style="width:600px; max-width:600px; background-color:#0e1629; border-radius:10px; overflow:hidden;"
+          >
+            <!-- Header -->
+            <tr>
+              <td style="padding:20px; text-align:center; background-color:#0e1629;">
+                <img
+                  src="https://roadmap.setuschool.com/setu-logo.png"
+                  width="50"
+                  alt="SETU Logo"
+                  style="display:block; margin:0 auto; border:0; outline:none; text-decoration:none;"
+                />
+              </td>
+            </tr>
+
+            <!-- Accent -->
+            <tr>
+              <td style="height:4px; line-height:4px; font-size:0; background-color:#00f0ff;">&nbsp;</td>
+            </tr>
+
+            <!-- Title -->
+            <tr>
+              <td style="padding:30px 30px 10px 30px; text-align:center; background-color:#0e1629;">
+                <h2 style="margin:0; font-size:22px; line-height:1.4; color:#ffffff; font-weight:600;">
+                  {{ subject_title | default('') | e }}
+                </h2>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding:10px 30px 30px 30px; font-size:15px; line-height:1.7; color:#cccccc; background-color:#0e1629;">
+                <p style="margin:0 0 16px;">Hello,</p>
+
+                {# 
+                  If `message_html` is provided, it is rendered as trusted HTML.
+                  Otherwise, fallback to plain-text `message` and escape it.
+                  Replace newlines with <br> so multi-line messages render cleanly in email.
+                #}
+                {% if message_html %}
+                  <div style="margin:0 0 16px;">
+                    {{ message_html | safe }}
+                  </div>
+                {% elif message %}
+                  <p style="margin:0 0 16px;">
+                    {{ message | e | replace('\n', '<br>') | safe }}
+                  </p>
+                {% endif %}
+
+                <p style="margin:0 0 16px;">
+                  Take your time to go through it, and approach each step with focus. Consistency over time will make a meaningful difference.
+                </p>
+
+                <p style="margin:0 0 24px;">
+                  If you have any questions or need guidance along the way, we're here to support you.
+                </p>
+
+                {% if cta_url %}
+                  <div style="text-align:center; margin-top:20px;">
+                    <a
+                      href="{{ cta_url | e }}"
+                      style="
+                        background-color:#00f0ff;
+                        color:#000000;
+                        text-decoration:none;
+                        padding:12px 26px;
+                        border-radius:6px;
+                        font-weight:600;
+                        display:inline-block;
+                      "
+                    >
+                      {{ cta_text | default('Open') | e }}
+                    </a>
+                  </div>
+                {% endif %}
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding:25px; text-align:center; font-size:13px; line-height:1.6; color:#888888; background-color:#2d2d2d;">
+                <p style="margin:0 0 8px;">Need support?</p>
+
+                <p style="margin:0 0 8px;">
+                  Reach us at
+                  <a
+                    href="mailto:mitra@setuschool.com"
+                    style="color:#00f0ff; text-decoration:none;"
+                  >
+                    mitra@setuschool.com
+                  </a>
+                </p>
+
+                <p style="margin:0;">© 2026 SETU. All rights reserved.</p>
+              </td>
+            </tr>
+          </table>
+
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

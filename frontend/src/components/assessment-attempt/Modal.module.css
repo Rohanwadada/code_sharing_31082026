@@ -1,0 +1,85 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.submit-popup {
+  font-family: "ABeeZee", sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  background: var(--text-primary);
+  padding: 15px;
+  border-radius: 8px;
+  width: 35%;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.limit {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  padding: 5px;
+}
+
+.red {
+  color: var(--red);
+}
+
+.main-q {
+  font-family: "ABeeZee", sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  text-align: left;
+  padding: 10px;
+}
+
+.popup-actions {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.confirm-button,
+.cancel-button {
+  padding: 0px 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.confirm-button {
+  font-family: "ABeeZee", sans-serif;
+  font-weight: 400;
+  background-color: var(--submit-border);
+  width: 129px;
+  height: 58.66px;
+  border-bottom: 5px solid var(--border-3d);
+  border-right: 2px solid var(--border-3d);
+}
+
+.cancel-button {
+  font-family: "ABeeZee", sans-serif;
+  font-weight: 400;
+  background-color: VAR(--hint-bg);
+  width: 129px;
+  height: 58.66px;
+  border-bottom: 5px solid var(--option-border);
+  border-right: 2px solid var(--option-border);
+}
+
+@media (max-width: 768px) {
+  .submit-popup {
+    width: 90%;
+  }
+}

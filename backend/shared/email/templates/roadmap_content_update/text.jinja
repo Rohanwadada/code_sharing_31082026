@@ -1,0 +1,36 @@
+Hi Learner,
+
+Exciting news!
+
+We've added new content to your roadmap:
+
+"{{ roadmap_name }}"
+
+The following sections have been updated:
+
+{% for nd in node_details %}
+📘 {{ nd.parentTitle | default("-", true) }}
+
+{% for cd in nd.childDetails %}
+   ▶ Chapter: {{ cd.title }}
+
+{% for content in cd.content | sort(attribute='id') %}
+      • {{ content.title }}
+{% endfor %}
+
+{% endfor %}
+{% endfor %}
+
+Log in now to explore the updated content and keep progressing on your learning journey.
+
+👉 Access your roadmap here:
+{{ roadmap_url }}
+
+If you have any questions or need support, feel free to reach out at:
+
+mitra@setuschool.com
+
+Happy learning!
+— Team SETU
+
+© 2026 SETU. All rights reserved.

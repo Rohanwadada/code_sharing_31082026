@@ -1,0 +1,11 @@
+Hi {{ email }},
+
+Your OTP is: {{ otp }}
+
+This OTP will expire in {{ expiry_minutes }} minutes.
+
+Check out our YouTube: https://www.youtube.com/@SETUSchool/videos
+Visit our blog: https://ai.setuschool.com/all/blogs
+
+Best Regards,
+Mitra

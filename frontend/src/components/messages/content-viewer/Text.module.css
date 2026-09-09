@@ -1,0 +1,13 @@
+.text-message-ct {
+  color: var(--text-dark);
+  font-family: var(--font-dm-sans);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.text-message-ct p {
+  white-space: pre-wrap;
+  /* font-size: 16px; */
+}

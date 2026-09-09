@@ -1,0 +1,19 @@
+.component-added-toast {
+  padding: 10px;
+  display: inline-flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  max-width: 300px;
+  border-radius: 8px;
+  background-color: #cecccc;
+  color: #000000;
+  font-family: var(--font-dm-sans);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.component-added-toast svg {
+  width: 24px;
+  flex-shrink: 0;
+}

@@ -1,0 +1,37 @@
+/* RoadmapSearch */
+.search-input-container {
+  flex: 1;
+  max-width: 25%;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--background-white);
+  border-radius: 8px;
+  border: 1px solid rgba(62, 69, 84, 0.39);
+  padding: 8px 0px 8px 14px;
+  width: auto;
+  transition: all 0.3s ease;
+}
+
+.search-input {
+  flex: 1;
+  height: 100%;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: var(--ink-light);
+  font-family: var(--font-dm-sans);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 18px;
+}
+
+.search-input::placeholder {
+  color: var(--ink-light);
+}
+
+@media (max-width: 768px) {
+  .search-input-container {
+    max-width: 100%;
+  }
+}

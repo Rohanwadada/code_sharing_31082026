@@ -1,0 +1,76 @@
+.ai-message-ct {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ai-message {
+  width: 100%;
+  display: flex;
+  gap: 9px;
+}
+
+.shifu-icon {
+  flex-shrink: 0;
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.shifu-icon img {
+  height: 100%;
+  width: 100%;
+  /* width: 80px; */
+  /* aspect-ratio: 1/1; */
+  object-fit: cover;
+}
+
+.loading-icon {
+  width: 100px;
+  height: 50px;
+  margin-left: -10px;
+}
+
+.message-content-ct {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.action-ct {
+  display: inline-flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+}
+
+.action-ct svg {
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .shifu-icon {
+    height: 30px;
+    width: 30px;
+  }
+
+  .loading-icon {
+    height: 40px;
+    width: 40px;
+    object-fit: contain;
+  }
+
+  .message-content-ct {
+    gap: 12px;
+  }
+}

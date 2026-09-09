@@ -1,0 +1,83 @@
+.component-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+  width: 205px;
+  background-color: var(--draw-canvas-sidebar-section-content-bgc);
+  border-right: 1px solid
+    var(--draw-canvas-sidebar-section-content-border-color);
+}
+
+.component-container-head {
+  margin-top: 25px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.component-container-head-p1 {
+  font-family: var(--font-dm-sans);
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 17.07px;
+}
+.component-container-head-p2 {
+  font-family: var(--font-dm-sans);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17.07px;
+  color: var(--drag-and-drop-text-bgc);
+}
+
+.components {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: column;
+  gap: 9px;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.component-card {
+  width: 80%;
+  height: fit-content;
+  gap: 8px;
+  border: 1px solid var(--component-card-border-color);
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: grab;
+}
+
+/* .component-card-img {
+    width: 24px;
+    height: 24px;
+} */
+
+.component-card-name {
+  font-family: var(--font-dm-sans);
+  font-weight: 500;
+  font-size: 14px;
+  /* line-height: 19.5px; */
+}
+
+.components::-webkit-scrollbar {
+  width: 8px;
+  background-color: #f0f0f0;
+  border-radius: 100px;
+}
+
+.components::-webkit-scrollbar-thumb {
+  background-color: #666666;
+  border-radius: 100px;
+}

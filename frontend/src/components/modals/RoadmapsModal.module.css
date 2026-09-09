@@ -1,0 +1,369 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(2px);
+}
+
+.modal-content {
+  background-color: var(--background-white);
+  width: 400px;
+  max-width: 94vw;
+  height: 790px;
+  max-height: 90vh;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 16px 0 16px;
+  position: relative;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  margin-top: 40px;
+}
+
+/* ---- Header ---- */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.modal-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.modal-count {
+  color: var(--ink-light);
+  font-family: var(--font-dm-sans);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.15s;
+}
+
+.close-btn:hover {
+  background: #f1f5f9;
+}
+
+/* ---- Search ---- */
+.search-container {
+  margin: 16px -16px 0 -16px;
+  padding: 0 16px 16px 16px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.15);
+}
+
+.search-field {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--text-secondary-500);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #1e293b;
+  outline: none;
+  background: var(--surface-modal);
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+  box-sizing: border-box;
+}
+
+/* ---- roadmap List ---- */
+.roadmap-list {
+  flex: 1;
+  overflow-y: auto;
+  margin: 0 -16px;
+  padding: 0 0 12px 0;
+}
+
+/* Custom Scrollbar */
+.roadmap-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.roadmap-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.roadmap-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---- roadmap Item ---- */
+.roadmap-item {
+  padding: 20px 16px;
+  border-bottom: 1px solid rgba(101, 117, 139, 0.51);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    opacity 0.2s ease,
+    box-shadow 0.2s ease,
+    z-index 0.2s;
+  position: relative;
+}
+
+.roadmap-item:last-child {
+  border-bottom: none;
+}
+
+/* .roadmap-item:hover {
+  background-color: #f8fafc;
+} */
+
+.roadmap-item-active {
+  background-color: var(--surface-modal);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  /* deeper shadow for floating effect */
+  border-radius: 12px;
+  border-bottom-color: transparent;
+  z-index: 10;
+}
+
+.roadmap-item-dimmed {
+  opacity: 0.35;
+}
+
+.roadmap-item-left {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  padding-right: 8px;
+}
+
+/* ---- AI Tag ---- */
+.ai-tag {
+  display: flex;
+  width: fit-content;
+  padding: 2px 5px;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  border-radius: 4px;
+  background: var(--primary-100);
+
+  color: var(--secondary-background-400);
+  font-family: var(--font-dm-sans);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 14px; /* 116.667% */
+}
+
+/* ---- Title ---- */
+.roadmap-title {
+  color: #000000;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 18px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* ---- Date ---- */
+.roadmap-date {
+  color: var(--color-text-secondary);
+  /* Body/Body H5 */
+  font-family: var(--font-dm-sans);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+/* ---- More Button ---- */
+.more-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+/* .more-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+} */
+
+/* ---- Action Menu ---- */
+.action-menu {
+  position: absolute;
+  top: 40px;
+  right: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--text-secondary-500);
+  background: #fff;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
+  z-index: 2100;
+  width: 152px;
+  overflow: hidden;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  font-size: 13.5px;
+  color: #485363;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+
+.menu-item:hover {
+  background-color: #f1f5f9;
+  color: #1e293b;
+}
+
+.menu-item svg {
+  flex-shrink: 0;
+}
+
+.delete-item {
+  color: var(--color-text-error) !important;
+}
+
+.delete-item:hover {
+  background-color: #fef2f2;
+  color: var(--color-text-error) !important;
+}
+
+/* ---- Rename Input ---- */
+.rename-input {
+  width: 90%;
+  padding: 4px 8px;
+  border: 1.5px solid #0d9488;
+  border-radius: 6px;
+  font-size: 13.5px;
+  font-family: var(--font-dm-sans);
+  outline: none;
+  color: #0f172a;
+}
+
+/* ===============================================
+   DESKTOP AND TABLET SPECIFIC DESIGN
+   =============================================== */
+@media (min-width: 768px) {
+  /* Center it perfectly, expand width, and add proper inner cushion */
+  .modal-content {
+    margin-top: 0;
+    width: 650px;
+    height: 75vh;
+    max-height: 850px;
+    padding: 36px 40px 10px 40px;
+    border-radius: 16px;
+  }
+
+  .modal-title {
+    font-size: 20px;
+  }
+
+  .modal-count {
+    font-size: 13px;
+  }
+
+  .modal-header {
+    margin-bottom: 12px;
+  }
+
+  /* Standard responsive search input with no edge-to-edge lower border */
+  .search-container {
+    margin: 20px 0 24px 0;
+    padding: 0;
+    border-bottom: none;
+  }
+
+  .search-field {
+    font-size: 15px;
+    padding: 12px 16px;
+  }
+
+  /* Bring list back to normal containing block */
+  .roadmap-list {
+    margin: 0;
+    padding: 0 16px 20px 0;
+  }
+
+  /* Subtle divider that doesn't touch the modal edges, as seen in Image 1 */
+  .roadmap-item {
+    padding: 22px 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .roadmap-title {
+    font-size: 15px;
+  }
+
+  .roadmap-date {
+    font-size: 13px;
+    margin-top: 5px;
+  }
+
+  .more-btn {
+    padding: 8px;
+  }
+}

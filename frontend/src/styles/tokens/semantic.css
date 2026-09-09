@@ -1,0 +1,32 @@
+:root {
+  --background: #F7F5F0;
+  --background-chat:
+    linear-gradient(180deg,
+      rgba(226, 188, 106, 0.05) 0%,
+      rgba(247, 245, 240, 0) 40%,
+      rgba(226, 188, 106, 0.03) 100%),
+    radial-gradient(41.67% 41.67% at 50% 50%,
+      #faf3df 0%,
+      #f7f5f0 50%,
+      #efebd8 100%);
+  --foreground: #ffffff;
+
+  --brand-primary: #c9a84c;
+
+  --background-sidebar: #070d1a;
+  --background-grey: #929292;
+  --background-grey-light: #ebebeb;
+  --background-white: #ffffff;
+  --background-content: #f7f5f0;
+
+  --ink-light: #7a8099;
+  --ink-mid: #3a3f50;
+  --ink-sidebar: #0f1117;
+
+  --text-dark: #0f1117;
+
+  --tertiary-red: #c0392b;
+  --tertiary-green: #27ae60;
+  --tertiary-blue: #0078d7;
+  --tertiary-orange: #ff8902;
+}

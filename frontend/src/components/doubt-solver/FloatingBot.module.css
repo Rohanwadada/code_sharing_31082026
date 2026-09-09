@@ -1,0 +1,19 @@
+.main-ct {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  height: 54px;
+  width: 54px;
+  border-radius: 50%;
+  object-fit: contain;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.main-ct img {
+  height: 100%;
+  width: 100%;
+}

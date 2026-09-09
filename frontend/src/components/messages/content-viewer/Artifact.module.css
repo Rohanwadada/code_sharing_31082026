@@ -1,0 +1,103 @@
+/* RoadmapArtifact */
+
+.main-ct {
+  padding: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 8px;
+  background: var(--background-content);
+  width: 100%;
+}
+
+.af-left {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.title-ct {
+  display: inline-flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.af-title {
+  color: var(--text-dark);
+  font-family: var(--font-dm-sans);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.af-version {
+  color: var(--brand-primary);
+  font-family: var(--font-dm-sans);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.icon {
+  width: 38px;
+  height: 38px;
+  padding: 7px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 4px;
+  background: #fff;
+}
+
+.icon svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.cta-btn {
+  display: flex;
+  padding: 10px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 6px;
+  background: #efebd8;
+
+  color: #000;
+  font-family: var(--font-dm-sans);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 16px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .main-ct {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .af-title,
+  .cta-btn {
+    font-size: 12px;
+    width: 100%;
+  }
+
+  .af-right {
+    width: 100%;
+  }
+}
