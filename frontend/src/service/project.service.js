@@ -26,4 +26,14 @@ const createProject = async (projectData, jdFile) => {
   return response.data
 }
 
-export { getFunctions, getDesignations, getDesignationsByFunction, createProject }
+const getAllProjects = async () => {
+  const orgContext = getOrgContext()
+  let url = '/get-all-projects'
+  if (orgContext?.organizationId) {
+    url += `?organization_id=${orgContext.organizationId}`
+  }
+  const response = await axios.get(url)
+  return response.data
+}
+
+export { getFunctions, getDesignations, getDesignationsByFunction, createProject, getAllProjects }

@@ -16,6 +16,7 @@ from modules.project.model import (
 )
 from modules.project.schema import ProjectCreate, ProjectStatus, ProjectUpdate
 from modules.user.model import UserDetails
+import modules.roadmap.model  # noqa: F401
 
 
 async def create_project_async(db: AsyncSession, project_in: ProjectCreate) -> Project:

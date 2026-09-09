@@ -1,12 +1,12 @@
-import CreateProject from '@/components/project/CreateProject_v2';
+import NewProjectDashboard from '@/components/project/newprojectDashboard';
 
 export const metadata = {
-  title: 'Create Project',
-  description: 'Create Project',
+  title: 'Projects Dashboard',
+  description: 'View all projects and create new projects',
 };
 
 const Page = () => {
-  return <CreateProject />;
+  return <NewProjectDashboard />;
 };
 
 export default Page;

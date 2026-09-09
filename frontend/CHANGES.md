@@ -1151,6 +1151,73 @@ This document tracks all code changes, bug fixes, file paths, line numbers, prev
 
 ---
 
+### **24. Projects Dashboard & CreateProject_v2 Integration Guide for New Developers**
+* **Files Involved:**
+  * [`src/components/project/newprojectDashboard.jsx`](file:///c:/Users/Admin/Downloads/code_sharing_31082026/frontend/src/components/project/newprojectDashboard.jsx) *(Dashboard UI Component)*
+  * [`src/components/project/newprojectDashboard.module.css`](file:///c:/Users/Admin/Downloads/code_sharing_31082026/frontend/src/components/project/newprojectDashboard.module.css) *(Dashboard Styling)*
+  * [`src/app/(main)/project/page.jsx`](file:///c:/Users/Admin/Downloads/code_sharing_31082026/frontend/src/app/%28main%29/project/page.jsx) *(Main /project Route)*
+  * [`src/app/(main)/project/create-project/page.jsx`](file:///c:/Users/Admin/Downloads/code_sharing_31082026/frontend/src/app/%28main%29/project/create-project/page.jsx) *(Create Route)*
+  * [`src/components/project/CreateProject_v2.jsx`](file:///c:/Users/Admin/Downloads/code_sharing_31082026/frontend/src/components/project/CreateProject_v2.jsx) *(Create Form Wizard Component)*
 
+* **Overview & Rationale:**
+  When a new developer receives a project codebase that only contains `CreateProject_v2.jsx` and wants to integrate the **Projects Dashboard** landing page (which displays existing projects in a card grid and opens the creation wizard when clicking **"New +"**), follow this 4-step integration process.
 
+---
 
+#### **Step-by-Step Developer Integration Steps:**
+
+1. **Step 1: Create `newprojectDashboard.jsx` & `newprojectDashboard.module.css`**
+   - Place `newprojectDashboard.jsx` and `newprojectDashboard.module.css` inside `src/components/project/`.
+   - `newprojectDashboard.jsx` fetches all projects from `getAllProjects()` (in `src/service/project.service.js`) and renders them in card format according to Figma specs.
+   - Wire the **New +** button to navigate to `/project/create-project`:
+     ```javascript
+     const handleNewProject = () => {
+       router.push('/project/create-project');
+     };
+     ```
+
+2. **Step 2: Configure Main Page Route (`/project`)**
+   - File: `src/app/(main)/project/page.jsx`
+   - Import `NewProjectDashboard` and render it as the main view for `/project`:
+     ```javascript
+     import NewProjectDashboard from '@/components/project/newprojectDashboard';
+
+     export const metadata = {
+       title: 'Projects Dashboard',
+       description: 'View all projects and create new projects',
+     };
+
+     const Page = () => {
+       return <NewProjectDashboard />;
+     };
+
+     export default Page;
+     ```
+
+3. **Step 3: Configure Create Project Route (`/project/create-project`)**
+   - File: `src/app/(main)/project/create-project/page.jsx`
+   - Import `CreateProject_v2` and render it as the wizard page:
+     ```javascript
+     import CreateProject_v2 from '@/components/project/CreateProject_v2';
+
+     export const metadata = {
+       title: 'Create New Project',
+       description: 'Create New Project',
+     };
+
+     const Page = () => {
+       return <CreateProject_v2 />;
+     };
+
+     export default Page;
+     ```
+
+4. **Step 4: Verify Backwards Compatibility for `PROJECT_TYPES`**
+   - Ensure `CreateProject_v2.jsx` exports `PROJECT_TYPES` so existing components (like `SkillGapAnalysis.jsx`) can import it without build errors:
+     ```javascript
+     export const PROJECT_TYPES = {
+       assessment: 'skill_gap_assessment',
+       roadmap: 'roadmap',
+       both: 'skill_gap_assessment_and_roadmap',
+     };
+     ```
