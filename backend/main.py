@@ -41,6 +41,8 @@ from modules.course_recommendation.router import router as course_recommendation
 from modules.project.router import router as project_router
 from modules.roadmap_learning_assessment.router import router as roadmap_learning_assessment_router
 from modules.assessment_attempt.router import router as assessment_attempt_router
+from modules.prompt_sharing.router import router as prompt_sharing_router
+
 
 
 @asynccontextmanager
@@ -113,6 +115,8 @@ api_v1.include_router(background_jobs_router)
 api_v1.include_router(course_recommendation_router)
 api_v1.include_router(roadmap_learning_assessment_router)
 api_v1.include_router(assessment_attempt_router)
+api_v1.include_router(prompt_sharing_router)
+
 
 app.include_router(api_v1)
 

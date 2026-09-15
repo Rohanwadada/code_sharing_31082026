@@ -8,7 +8,11 @@ import {
   getDesignationsByFunction,
   createProject,
 } from '@/service/project.service';
+import { generateRoadmapPrompt } from '@/service/promptSharing.service';
+import { usePromptSharingContext } from '@/context/PromptSharingContext';
+import { useThreadStore } from '@/store/threadStore';
 import { useOrganizationStore } from '@/store/organizationStore';
+
 import { useProjectStore } from '@/store/projectStore';
 import { useNotification } from '@/hooks/useNotification';
 import { useAuthStore } from '@/store/authStore';
@@ -155,8 +159,10 @@ const qBanksList = [
 
 const CreateProject = () => {
   const router = useRouter();
+  const promptSharingContext = usePromptSharingContext();
 
   const userDetails = useAuthStore((s) => s.userDetails);
+
 
   const organizationId = useOrganizationStore((s) => s.organizationId);
   const organizationName = useOrganizationStore((s) => s.organizationName);
@@ -350,19 +356,39 @@ const CreateProject = () => {
         currentProjectId: response.project_id,
         currentProjectName: formData.projectName,
       });
+
+      // Generate prompt for roadmap via API service
+      if (formData.creationType === 'roadmap' || formData.creationType === 'both') {
+        promptSharingContext?.setIsGenerating?.(true);
+        try {
+          const promptRes = await generateRoadmapPrompt({
+            who_is_this_for: formData.whoFor,
+            what_to_create: formData.creationType,
+            role_description_text: formData.roleDescription,
+          }, jdFile);
+
+          if (promptRes && promptRes.prompt) {
+            promptSharingContext?.setGeneratedPromptData?.(promptRes);
+            useThreadStore.getState().setQueryInput(promptRes.prompt);
+          }
+        } catch (promptErr) {
+          console.error("Failed to generate roadmap prompt:", promptErr);
+        } finally {
+          promptSharingContext?.setIsGenerating?.(false);
+        }
+      }
+
       if (
-        formData.creationType === 'assessment' ||
-        formData.creationType === 'both'
+        formData.creationType === 'assessment'
       ) {
         router.push(
           `/project/${response.project_id}/assessment/assessment-types`,
         );
-      } else if (formData.creationType === 'roadmap') {
-        router.push(`/project/${response.project_id}/new-roadmap`);
+      } else {
+        router.push('/threads');
       }
     } catch (error) {
       console.error('Failed to create project:', error);
-      // alert('Failed to create project. Please try again.');
       showNotification(
         'error',
         error?.response?.data?.message || 'Something went wrong',
@@ -370,6 +396,7 @@ const CreateProject = () => {
     } finally {
       setIsSubmitting(false);
     }
+
   };
 
   const showQuestionBankSection = false;

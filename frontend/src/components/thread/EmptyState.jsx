@@ -21,6 +21,8 @@ import { useRouter } from 'next/navigation';
 import { createThreadStreamHandlers } from '@/lib/threadStreamHandlers';
 import { motion } from 'framer-motion';
 import { useSidebarStore } from '@/store/sidebarStore';
+import { usePromptSharingContext } from '@/context/PromptSharingContext';
+
 
 const EmptyState = ({projectId}) => {
   const userDetails = useAuthStore((s) => s.userDetails);
@@ -48,8 +50,16 @@ const EmptyState = ({projectId}) => {
   const pendingAssistantMessageIdRef = useRef(null);
 
   const router = useRouter();
+  const promptSharingContext = usePromptSharingContext();
+
+  useEffect(() => {
+    if (promptSharingContext?.generatedPromptData?.prompt && !queryInput) {
+      setQueryInput(promptSharingContext.generatedPromptData.prompt);
+    }
+  }, [promptSharingContext?.generatedPromptData, queryInput, setQueryInput]);
 
   const { connectStream } = useThreadController({
+
     email: userDetails?.email,
     setMessages,
     setIsThreadRunning,
