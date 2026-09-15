@@ -78,6 +78,12 @@
   border-radius: 20px;
   padding: 10px 18px;
   gap: 10px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.searchBox:focus-within {
+  border-color: #c9a84c;
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
 }
 
 .searchIcon {
@@ -112,11 +118,14 @@
   font-weight: 500;
   color: #374151;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .filterBtn:hover {
-  background: #f9fafb;
+  background: #fdfcf9;
+  border-color: rgba(201, 168, 76, 0.4);
+  color: #1a1d2e;
 }
 
 /* Grid Layout */
@@ -261,6 +270,8 @@
 }
 
 .typeVector {
+  width: 14px;
+  height: 14px;
   color: #0078d7;
   flex-shrink: 0;
 }
@@ -386,4 +397,172 @@
   font-size: 14px;
   color: #6b7280;
   margin: 0 0 20px 0;
+}
+
+/* #change_by_rohan: Enhanced Filter & Sort Dropdown Styles (Figma Aesthetics & Custom UI) */
+.toolbarActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.dropdownContainer {
+  position: relative;
+}
+
+.activeBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #c9a84c;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  margin-left: 6px;
+  box-shadow: 0 2px 4px rgba(201, 168, 76, 0.3);
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  z-index: 100;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: fadeInDropdown 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dropdownOption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: #3a3f50;
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.dropdownOption:hover {
+  background: #f7f5f0;
+  color: #0f1117;
+}
+
+.dropdownOptionActive {
+  background: #fcf8ee;
+  color: #a97f29;
+  font-weight: 600;
+}
+
+.filterMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  z-index: 100;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeInDropdown 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInDropdown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filterSectionTitle {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #c9a84c;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 0 0 8px 0;
+}
+
+.filterSelect {
+  width: 100%;
+  padding: 10px 36px 10px 14px;
+  border: 1.33px solid #ddd9cc;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  color: #1a1c23;
+  outline: none;
+  background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%3C6b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 12px center;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.filterSelect:focus {
+  border-color: #c9a84c;
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15);
+}
+
+.resetFilterBtn {
+  margin-top: 4px;
+  padding: 10px;
+  background: #0f1117;
+  border: none;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.2s ease, opacity 0.2s ease;
+  text-align: center;
+}
+
+.resetFilterBtn:hover {
+  background: #1e293b;
+}
+
+/* Dynamic Project Type Badges (Figma Specs) */
+.typeBadgeAssessment,
+.typeBadgeRoadmap,
+.typeBadgeBoth {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 4px 10px;
+  gap: 4px;
+  height: 25.33px;
+  background: #f0f9ff;
+  border: 0.67px solid #b8e6fe;
+  border-radius: 12px;
+  align-self: flex-start;
 }

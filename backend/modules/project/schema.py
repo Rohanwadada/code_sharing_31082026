@@ -105,7 +105,7 @@ class ProjectResponse(BaseModel):
     function_name: Optional[str] = None
     designation_name: Optional[str] = None
     hiring_goal: Optional[str] = None
-    jd_url: Optional[str] = None
+    # jd_url: Optional[str] = None
     project_status: Optional[Dict[str, Any]] = None
     created_at: datetime
     created_by: Optional[UUID] = None

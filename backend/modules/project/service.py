@@ -507,7 +507,17 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
 #             }
 #         )
 #     return projects_data
-async def get_all_projects_async(db: AsyncSession, organization_id: Optional[UUID] = None):
+# async def get_all_projects_async(db: AsyncSession, organization_id: Optional[UUID] = None):
+# #change_by_rohan
+# async def get_all_projects_async(db: AsyncSession, organization_id: Optional[UUID] = None, user_email: Optional[str] = None):
+
+#change_by_rohan
+async def get_all_projects_async(
+    db: AsyncSession, 
+    organization_id: str, 
+    current_user_id: str,
+
+):
     stmt = (
         select(
             Project,
@@ -518,15 +528,16 @@ async def get_all_projects_async(db: AsyncSession, organization_id: Optional[UUI
         .outerjoin(Organization, Project.organization_id == Organization.organization_id)
         .outerjoin(Function, Project.function_id == Function.function_id)
         .outerjoin(Designation, Project.designation_id == Designation.designation_id)
-    )
-    
-    if organization_id:
-        stmt = stmt.where(Project.organization_id == organization_id)
+        .where(Project.created_by==current_user_id,Project.organization_id==organization_id)
+        .order_by(Project.created_at.desc())  # #change_by_rohan (Order by latest first)
+    )   
     
     result = await db.execute(stmt)
     projects_data = []
     for row in result.all():
-        project, org_name, func_name, desig_name = row
+        project, org_name, func_name, desig_name = row 
+        project_details={k: v for k, v in project.project_details.items() if k not in ['jd_data']}
+
         projects_data.append({
             "project_id": project.project_id,
             "project_name": project.project_name,
@@ -534,11 +545,11 @@ async def get_all_projects_async(db: AsyncSession, organization_id: Optional[UUI
             "function_name": func_name,
             "designation_name": desig_name,
             "hiring_goal": project.hiring_goal,
-            "jd_url": project.jd_url,
+            # "jd_url": project.jd_url,
             "project_status": project.project_status,
             "created_at": project.created_at,
             "created_by": project.created_by,
-            "project_details": project.project_details,
+            "project_details": project_details,
             "profiles_count": None,
             "avg_score": None,
             "shortlisted_count": None

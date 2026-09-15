@@ -3,6 +3,8 @@ import json
 import logging
 from uuid import UUID
 
+from core.security.dependencies import get_current_user
+
 from azure.storage.blob import BlobServiceClient, ContentSettings
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -80,6 +82,9 @@ async def create_project(
             
         project_dict = json.loads(project_data)
         project_in = ProjectCreate(**project_dict)
+        #change_by_rohan (Set created_by to logged-in user_id)
+        if hasattr(user, 'user_id') and user.user_id:
+            project_in.created_by = user.user_id
 
         if jd_file:
             extracted_text = await extract_jd_text(jd_file)
@@ -199,13 +204,49 @@ async def duplicate_project_route(project_id: UUID, db: AsyncSession = Depends(g
 #         raise HTTPException(
 #             status_code=500, detail=f"Failed to fetch projects: {str(e)}"
 #         )
+# @router.get("/get-all-projects", response_model=list[ProjectResponse], status_code=status.HTTP_200_OK)
+# async def get_projects(
+#     organization_id: Optional[UUID] = None,
+#     db: AsyncSession = Depends(get_db)
+# ):
+#     try:
+#         projects = await get_all_projects_async(db=db, organization_id=organization_id)
+#         return projects
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Failed to fetch projects: {str(e)}")
+
+# #change_by_rohan
+# @router.get("/get-all-projects", response_model=list[ProjectResponse], status_code=status.HTTP_200_OK)
+# async def get_projects(
+#     organization_id: Optional[UUID] = None,
+#     user_email: Optional[str] = None,
+#     db: AsyncSession = Depends(get_db)
+# ):
+#     try:
+#         projects = await get_all_projects_async(db=db, organization_id=organization_id, user_email=user_email)
+#         return projects
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Failed to fetch projects: {str(e)}")
+#change_by_rohan
+
+
+
+#change_by_rohan
 @router.get("/get-all-projects", response_model=list[ProjectResponse], status_code=status.HTTP_200_OK)
 async def get_projects(
-    organization_id: Optional[UUID] = None,
-    db: AsyncSession = Depends(get_db)
+    organization_id: str ,
+    
+    db: AsyncSession = Depends(get_db),
+    user: UserDetails = Depends(get_current_user)
 ):
     try:
-        projects = await get_all_projects_async(db=db, organization_id=organization_id)
+        current_user_id = user.user_id
+        projects = await get_all_projects_async(
+            db=db, 
+            organization_id=organization_id, 
+            current_user_id=current_user_id,
+         
+        )
         return projects
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch projects: {str(e)}")

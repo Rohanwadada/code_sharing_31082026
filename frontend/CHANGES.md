@@ -1221,3 +1221,40 @@ This document tracks all code changes, bug fixes, file paths, line numbers, prev
        both: 'skill_gap_assessment_and_roadmap',
      };
      ```
+
+---
+
+### **📋 Complete Quick Integration Steps for New Developers**
+
+1. **Copy 2 Files into `src/components/project/`:**
+   - `newprojectDashboard.jsx` *(self-contained API fetching & UI layout)*
+   - `newprojectDashboard.module.css` *(Figma styling)*
+
+2. **Map Main Route (`/project`):**
+   In [`src/app/(main)/project/page.jsx`](file:///c:/Users/Admin/Downloads/code_sharing_31082026/frontend/src/app/%28main%29/project/page.jsx):
+   ```javascript
+   import NewProjectDashboard from '@/components/project/newprojectDashboard';
+
+   const Page = () => {
+     return <NewProjectDashboard />;
+   };
+
+   export default Page;
+   ```
+
+3. **Map Create Route (`/project/create-project`):**
+   In [`src/app/(main)/project/create-project/page.jsx`](file:///c:/Users/Admin/Downloads/code_sharing_31082026/frontend/src/app/%28main%29/project/create-project/page.jsx):
+   ```javascript
+   import CreateProject_v2 from '@/components/project/CreateProject_v2';
+
+   const Page = () => {
+     return <CreateProject_v2 />;
+   };
+
+   export default Page;
+   ```
+
+✨ **That's it!**
+- **Data Fetching:** Handled automatically inside `newprojectDashboard.jsx` using `/api/v1/get-all-projects`.
+- **Navigation:** Clicking **New +** on the Dashboard automatically routes to `/project/create-project` to open `CreateProject_v2.jsx`.
+

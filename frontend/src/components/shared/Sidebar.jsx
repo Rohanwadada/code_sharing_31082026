@@ -361,9 +361,8 @@ const Sidebar = () => {
                     <span className={styles['label-inner']}>
                       <span>Roadmap Chats</span>
                       <span
-                        className={`${styles['arrow']} ${
-                          isThreadsOpen ? styles['arrowOpen'] : ''
-                        }`}
+                        className={`${styles['arrow']} ${isThreadsOpen ? styles['arrowOpen'] : ''
+                          }`}
                       >
                         <Arrow />
                       </span>
@@ -415,9 +414,8 @@ const Sidebar = () => {
                     <span className={styles['label-inner']}>
                       <span>Saved Roadmaps</span>
                       <span
-                        className={`${styles['arrow']} ${
-                          isSavedOpen ? styles['arrowOpen'] : ''
-                        }`}
+                        className={`${styles['arrow']} ${isSavedOpen ? styles['arrowOpen'] : ''
+                          }`}
                       >
                         <Arrow />
                       </span>
@@ -463,7 +461,7 @@ const Sidebar = () => {
 
           <div className={styles['sidebar-section']}>
             <div className={`${styles['section-title']} ${styles['label']}`}>
-              My Team
+              My Projects
             </div>
 
             <div className={styles['sidebar-items']}>

@@ -309,8 +309,18 @@ const CreateProject = () => {
   const removeJdFile = () => setJdFile(null);
 
   const handleSaveProject = async () => {
-    if (isAdmin && !formData.projectName || !formData.creationType || isSubmitting) return;
-    if (isAdmin && !formData.roleDescription.trim() && !jdFile) return;
+    if ((isAdmin && !formData.projectName) || !formData.creationType || isSubmitting) return;
+
+    const isJdRequired = formData.creationType === 'assessment' || formData.creationType === 'both';
+    const hasJdOrRoleDesc = Boolean(formData.roleDescription?.trim() || jdFile);
+
+    if (isAdmin && isJdRequired && !hasJdOrRoleDesc) {
+      showNotification(
+        'error',
+        'Job Description (JD) upload or JTBD / Role Description is compulsory for Skill Gap Assessment.'
+      );
+      return;
+    }
 
     const projectData = {
       project_name: formData.projectName,
@@ -459,7 +469,12 @@ const CreateProject = () => {
 
           {isAdmin && (
             <div className={classes.formGroup}>
-              <label className={classes.label}>JTBD / ROLE DESCRIPTION</label>
+              <label className={classes.label}>
+                JTBD / ROLE DESCRIPTION{' '}
+                {formData.creationType === 'roadmap' && (
+                  <span className={classes.labelMuted}>(Optional)</span>
+                )}
+              </label>
               <textarea
                 className={classes.textarea}
                 placeholder="What does success look like for this hire?"
@@ -476,7 +491,9 @@ const CreateProject = () => {
             <div className={classes.formGroup}>
               <label className={classes.label}>
                 UPLOAD ROLE DESCRIPTION{' '}
-                <span className={classes.labelMuted}>(MAX 5MB)</span>
+                <span className={classes.labelMuted}>
+                  (MAX 5MB){formData.creationType === 'roadmap' ? ' • Optional' : ''}
+                </span>
               </label>
               <div
                 className={`${classes.uploadBox} ${isDragging ? classes.uploadBoxDrag : ''}`}
@@ -511,7 +528,7 @@ const CreateProject = () => {
                 ) : (
                   <>
                     <h4 className={classes.uploadTitle}>Upload Here</h4>
-                    <p className={classes.uploadFormat}>PDF or DOCX</p>
+                    <p className={classes.uploadFormat}>PDF </p>
                     <p className={classes.uploadLink}>
                       Click to browse or drag & drop
                     </p>
@@ -766,7 +783,6 @@ const CreateProject = () => {
               !formData.projectName ||
               !formData.creationType ||
               isSubmitting ||
-              (isAdmin && !formData.roleDescription.trim() && !jdFile) ||
               (isAdmin && formData.functionSsl === 'others' &&
                 !customFunctionName.trim()) ||
               (isAdmin && formData.designationLevel === 'others' &&

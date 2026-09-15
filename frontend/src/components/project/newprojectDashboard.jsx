@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import classes from './newprojectDashboard.module.css';
 import { useRouter } from 'next/navigation';
 import axios from '@/lib/axios';
+//change_by_rohan
 import { getOrgContext } from '@/lib/orgContext';
+import { useAuthStore } from '@/store/authStore';
 
 export const PROJECT_TYPES = {
   assessment: 'skill_gap_assessment',
@@ -61,28 +63,92 @@ const FilterIcon = () => (
   </svg>
 );
 
-const CheckCircleIcon = () => (
+const SortIcon = () => (
   <svg
-    className={classes.typeVector}
-    width="12"
-    height="12"
+    width="16"
+    height="16"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth="2.5"
+    strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
   >
+    <path d="M11 5h10M11 9h7M11 13h4M3 17l3 3 3-3M6 18V4"></path>
+  </svg>
+);
+
+//change_by_rohan (Icons for dynamic project types with exact Figma dimensions width="12" height="12")
+const AssessmentIcon = () => (
+  <svg
+    width="12"
+    height="12"
+    className={classes.typeVector}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+    <polyline points="14 2 14 8 20 8"></polyline>
+    <line x1="16" y1="13" x2="8" y2="13"></line>
+    <line x1="16" y1="17" x2="8" y2="17"></line>
+    <polyline points="10 9 9 9 8 9"></polyline>
+  </svg>
+);
+
+const RoadmapIcon = () => (
+  <svg
+    width="12"
+    height="12"
+    className={classes.typeVector}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+    <polyline points="2 17 12 22 22 17"></polyline>
+    <polyline points="2 12 12 17 22 12"></polyline>
+  </svg>
+);
+
+const BothIcon = () => (
+  <svg
+    width="12"
+    height="12"
+    className={classes.typeVector}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <circle cx="12" cy="12" r="10"></circle>
-    <polyline points="9 12 11 14 15 10"></polyline>
+    <line x1="12" y1="8" x2="12" y2="12"></line>
+    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+  </svg>
+);
+
+const CheckCircleIcon = () => (
+  <svg
+    width="12"
+    height="12"
+    className={classes.typeVector}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+    <polyline points="22 4 12 14.01 9 11.01"></polyline>
   </svg>
 );
 
 const getInitials = (name) => {
-  if (!name) return 'ES';
-  const words = name.trim().split(/\s+/);
-  if (words.length >= 2) {
-    return (words[0][0] + words[1][0]).toUpperCase();
+  if (!name) return 'PR';
+  const parts = name.trim().split(' ');
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
   }
   return name.slice(0, 2).toUpperCase();
 };
@@ -102,6 +168,29 @@ const NewProjectDashboard = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+
+  //change_by_rohan: Interactive Filter & Sort States
+  const [sortOption, setSortOption] = useState('latest');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [designationFilter, setDesignationFilter] = useState('all');
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const filterRef = useRef(null);
+  const sortRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setIsFilterOpen(false);
+      }
+      if (sortRef.current && !sortRef.current.contains(event.target)) {
+        setIsSortOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -129,14 +218,65 @@ const NewProjectDashboard = () => {
     router.push('/project/create-project');
   };
 
-  const filteredProjects = projects.filter((p) => {
-    const q = searchQuery.toLowerCase();
-    return (
-      (p.project_name && p.project_name.toLowerCase().includes(q)) ||
-      (p.function_name && p.function_name.toLowerCase().includes(q)) ||
-      (p.designation_name && p.designation_name.toLowerCase().includes(q))
-    );
-  });
+  //change_by_rohan: Direct projects rendering (no frontend deduplication)
+  const availableDesignations = Array.from(
+    new Set(projects.map((p) => p.designation_name).filter(Boolean)),
+  );
+
+  const activeFiltersCount =
+    (typeFilter !== 'all' ? 1 : 0) + (designationFilter !== 'all' ? 1 : 0);
+
+  const filteredProjects = projects
+    .filter((p) => {
+      const q = searchQuery.toLowerCase();
+      const matchesSearch =
+        !q ||
+        (p.project_name && p.project_name.toLowerCase().includes(q)) ||
+        (p.function_name && p.function_name.toLowerCase().includes(q)) ||
+        (p.designation_name && p.designation_name.toLowerCase().includes(q));
+
+      const pType = p.project_details?.project_type || 'skill_gap_assessment';
+      const matchesType = typeFilter === 'all' || pType === typeFilter;
+
+      const matchesDesignation =
+        designationFilter === 'all' || p.designation_name === designationFilter;
+
+      return matchesSearch && matchesType && matchesDesignation;
+    })
+    .sort((a, b) => {
+      if (sortOption === 'latest') {
+        return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+      } else if (sortOption === 'oldest') {
+        return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+      } else if (sortOption === 'a-z') {
+        return (a.project_name || '').localeCompare(b.project_name || '');
+      } else if (sortOption === 'z-a') {
+        return (b.project_name || '').localeCompare(a.project_name || '');
+      }
+      return 0;
+    });
+
+  const getProjectTypeBadge = (project) => {
+    const pType = project.project_details?.project_type || 'skill_gap_assessment';
+    if (pType === 'roadmap') {
+      return {
+        label: 'Roadmap',
+        badgeClass: classes.typeBadgeRoadmap,
+        Icon: RoadmapIcon,
+      };
+    } else if (pType === 'skill_gap_assessment_and_roadmap') {
+      return {
+        label: 'Skill Gap & Roadmap',
+        badgeClass: classes.typeBadgeBoth,
+        Icon: BothIcon,
+      };
+    }
+    return {
+      label: 'Skill Gap Assessment',
+      badgeClass: classes.typeBadgeAssessment,
+      Icon: AssessmentIcon,
+    };
+  };
 
   return (
     <div className={classes.pageWrapper}>
@@ -151,25 +291,125 @@ const NewProjectDashboard = () => {
             </p>
           </div>
           <button className={classes.btnNew} onClick={handleNewProject}>
-            New <PlusIcon />
+            <PlusIcon /> Create New Project
           </button>
         </div>
 
-        {/* Search & Filter Toolbar */}
+        {/* Search, Sort & Filter Toolbar */}
         <div className={classes.toolbar}>
           <div className={classes.searchBox}>
             <SearchIcon />
             <input
               type="text"
               className={classes.searchInput}
-              placeholder="Search Project"
+              placeholder="Search Project by name, function or designation..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <button className={classes.filterBtn}>
-            <FilterIcon /> Filter
-          </button>
+
+          <div className={classes.toolbarActions}>
+            <div className={classes.dropdownContainer} ref={sortRef}>
+              <button
+                className={classes.filterBtn}
+                onClick={() => {
+                  setIsSortOpen(!isSortOpen);
+                  setIsFilterOpen(false);
+                }}
+              >
+                <SortIcon />
+                {sortOption === 'latest' && 'Latest First'}
+                {sortOption === 'oldest' && 'Oldest First'}
+                {sortOption === 'a-z' && 'A to Z'}
+                {sortOption === 'z-a' && 'Z to A'}
+              </button>
+              {isSortOpen && (
+                <div className={classes.dropdownMenu}>
+                  <button
+                    className={`${classes.dropdownOption} ${sortOption === 'latest' ? classes.dropdownOptionActive : ''
+                      }`}
+                    onClick={() => { setSortOption('latest'); setIsSortOpen(false); }}
+                  >
+                    Date: Latest First
+                  </button>
+                  <button
+                    className={`${classes.dropdownOption} ${sortOption === 'oldest' ? classes.dropdownOptionActive : ''
+                      }`}
+                    onClick={() => { setSortOption('oldest'); setIsSortOpen(false); }}
+                  >
+                    Date: Oldest First
+                  </button>
+                  <button
+                    className={`${classes.dropdownOption} ${sortOption === 'a-z' ? classes.dropdownOptionActive : ''
+                      }`}
+                    onClick={() => { setSortOption('a-z'); setIsSortOpen(false); }}
+                  >
+                    Name: A to Z
+                  </button>
+                  <button
+                    className={`${classes.dropdownOption} ${sortOption === 'z-a' ? classes.dropdownOptionActive : ''
+                      }`}
+                    onClick={() => { setSortOption('z-a'); setIsSortOpen(false); }}
+                  >
+                    Name: Z to A
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className={classes.dropdownContainer} ref={filterRef}>
+              <button
+                className={classes.filterBtn}
+                onClick={() => {
+                  setIsFilterOpen(!isFilterOpen);
+                  setIsSortOpen(false);
+                }}
+              >
+                <FilterIcon /> Filter
+                {activeFiltersCount > 0 && (
+                  <span className={classes.activeBadge}>{activeFiltersCount}</span>
+                )}
+              </button>
+              {isFilterOpen && (
+                <div className={classes.filterMenu}>
+                  <div>
+                    <p className={classes.filterSectionTitle}>Project Type</p>
+                    <select
+                      className={classes.filterSelect}
+                      value={typeFilter}
+                      onChange={(e) => setTypeFilter(e.target.value)}
+                    >
+                      <option value="all">All Project Types</option>
+                      <option value="skill_gap_assessment">Skill Gap Assessment</option>
+                      <option value="roadmap">Roadmap</option>
+                      <option value="skill_gap_assessment_and_roadmap">Skill Gap & Roadmap</option>
+                    </select>
+                  </div>
+                  <div>
+                    <p className={classes.filterSectionTitle}>Designation</p>
+                    <select
+                      className={classes.filterSelect}
+                      value={designationFilter}
+                      onChange={(e) => setDesignationFilter(e.target.value)}
+                    >
+                      <option value="all">All Designations</option>
+                      {availableDesignations.map((desig) => (
+                        <option key={desig} value={desig}>{desig}</option>
+                      ))}
+                    </select>
+                  </div>
+                  {(typeFilter !== 'all' || designationFilter !== 'all') && (
+                    <button
+                      className={classes.resetFilterBtn}
+                      onClick={() => { setTypeFilter('all'); setDesignationFilter('all'); }}
+                    >
+                      Reset Filters
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Project Cards Grid */}
@@ -183,11 +423,19 @@ const NewProjectDashboard = () => {
             <div className={classes.emptyState}>
               <h3 className={classes.emptyTitle}>No Projects Found</h3>
               <p className={classes.emptySubtitle}>
-                {searchQuery
-                  ? 'No projects match your search query.'
+                {searchQuery || activeFiltersCount > 0
+                  ? 'No projects match your active search and filter criteria.'
                   : 'Get started by creating your first project.'}
               </p>
-              {!searchQuery && (
+              {activeFiltersCount > 0 && (
+                <button
+                  className={classes.resetFilterBtn}
+                  onClick={() => { setSearchQuery(''); setTypeFilter('all'); setDesignationFilter('all'); }}
+                >
+                  Clear All Filters
+                </button>
+              )}
+              {!searchQuery && activeFiltersCount === 0 && (
                 <button className={classes.btnNew} onClick={handleNewProject}>
                   New Project <PlusIcon />
                 </button>
@@ -195,88 +443,58 @@ const NewProjectDashboard = () => {
             </div>
           ) : (
             filteredProjects.map((project) => {
-              const initials = getInitials(
-                project.project_name || project.function_name,
-              );
-              const statusText =
-                typeof project.project_status === 'object'
-                  ? project.project_status?.status || 'active'
-                  : project.project_status || 'active';
-
+              const initials = getInitials(project.project_name || project.function_name);
+              const statusText = typeof project.project_status === 'object'
+                ? project.project_status?.status || 'active'
+                : project.project_status || 'active';
               const createdDate = formatDate(project.created_at);
+              const { label: typeLabel, badgeClass, Icon: TypeIcon } = getProjectTypeBadge(project);
 
               return (
                 <div key={project.project_id} className={classes.card}>
-                  {/* Header Container */}
                   <div className={classes.cardHeader}>
                     <div className={classes.cardHeaderLeft}>
                       <div className={classes.avatar}>
                         <span className={classes.avatarText}>{initials}</span>
                       </div>
                       <div className={classes.cardTitleGroup}>
-                        <h3 className={classes.cardTitle}>
-                          {project.project_name || 'Devops'}
-                        </h3>
+                        <h3 className={classes.cardTitle}>{project.project_name || 'Devops'}</h3>
                         <p className={classes.cardSubtitle}>
-                          Shared by{' '}
-                          {project.organization_name || 'Setuschool'} ·{' '}
-                          {createdDate}
+                          Shared by {project.organization_name || 'Setuschool'} · {createdDate}
                         </p>
                       </div>
                     </div>
-                    <div
-                      className={`${classes.statusPill} ${
-                        statusText.toLowerCase() !== 'active'
-                          ? classes.statusPillInactive
-                          : ''
-                      }`}
-                    >
+                    <div className={`${classes.statusPill} ${statusText.toLowerCase() !== 'active' ? classes.statusPillInactive : ''}`}>
                       {statusText}
                     </div>
                   </div>
 
-                  {/* Body Container */}
                   <div className={classes.cardBody}>
-                    {/* Type Badge (Skill Gap Assessment) */}
-                    <div className={classes.typeBadge}>
-                      <CheckCircleIcon />
-                      <span className={classes.typeText}>
-                        Skill Gap Assessment
-                      </span>
+                    <div className={badgeClass}>
+                      <TypeIcon />
+                      <span className={classes.typeText}>{typeLabel}</span>
                     </div>
 
-                    {/* Inner Wrapper */}
                     <div className={classes.innerWrapper}>
-                      {/* Shared Box */}
                       <div className={classes.sharedBox}>
                         Shared with{' '}
                         <span className={classes.sharedBoxBold}>
                           {project.function_name || project.designation_name
-                            ? [project.function_name, project.designation_name]
-                                .filter(Boolean)
-                                .join(' — ')
+                            ? [project.function_name, project.designation_name].filter(Boolean).join(' — ')
                             : 'Developer — Developer L2'}
                         </span>
                       </div>
-
-                      {/* Checklist Items */}
-                      <div className={classes.checklist}>
+                      {/* #change_by_rohan: Commented out static Assessment Stat & Roadmap Stat pills until backend returns dynamic counts */}
+                      {/* <div className={classes.checklist}>
                         <div className={classes.checkPill}>
-                          <span className={classes.checkPillText}>
-                            ✓ 2/3 completed the assessment
-                          </span>
+                          <span className={classes.checkPillText}>✓ 2/3 completed the assessment</span>
                         </div>
                         <div className={classes.checkPill}>
-                          <span className={classes.checkPillText}>
-                            1 personalised roadmap generated
-                          </span>
+                          <span className={classes.checkPillText}>1 personalised roadmap generated</span>
                         </div>
-                      </div>
-
-                      {/* Footnote Note */}
+                      </div> */}
                       <p className={classes.cardNote}>
-                        Members: each person who's assessed gets their own
-                        personalised roadmap
+                        Members: each person who's assessed gets their own personalised roadmap
                       </p>
                     </div>
                   </div>
