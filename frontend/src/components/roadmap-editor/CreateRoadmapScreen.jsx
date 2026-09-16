@@ -66,10 +66,11 @@ const CreateRoadmapScreen = ({projectId}) => {
         projectId
       );
 
-      // If successfully created, router to roadmap drawing page
+      // If successfully created, route to roadmap drawing page
       const roadmapId = responseData?.id;
-      router.replace('/');
-      router.push(`/draw-roadmap/${roadmapId}`);
+      if (roadmapId) {
+        router.push(`/draw-roadmap/${roadmapId}`);
+      }
     } catch (error) {
       console.log(error);
     }
