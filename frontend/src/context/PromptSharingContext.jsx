@@ -1,8 +1,11 @@
 'use client';
 
 import React, { createContext, useContext, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { generateRoadmapPrompt } from '@/service/promptSharing.service';
+import { useThreadStore } from '@/store/threadStore';
 
-export const PromptSharingContext = createContext(null);
+export const PromptSharingContext = createContext();
 
 export const PromptSharingProvider = ({ children }) => {
   const [whoIsThisFor, setWhoIsThisFor] = useState('Organization');
@@ -10,15 +13,49 @@ export const PromptSharingProvider = ({ children }) => {
   const [roleDescriptionText, setRoleDescriptionText] = useState('');
   const [uploadedFile, setUploadedFile] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedPromptData, setGeneratedPromptData] = useState(null);
+  const [generatedData, setGeneratedData] = useState(null);
 
-  const resetPromptState = () => {
+  const router = useRouter();
+
+  const handleGeneratePromptAndNavigate = async (projectId = null, options = {}, file = null) => {
+    try {
+      setIsGenerating(true);
+      const reqOptions = {
+        who_is_this_for: options.who_is_this_for || whoIsThisFor,
+        what_to_create: options.what_to_create || whatToCreate,
+        role_description_text: options.role_description_text || roleDescriptionText,
+      };
+      const reqFile = file || uploadedFile;
+
+      const resData = await generateRoadmapPrompt(reqOptions, reqFile);
+      setGeneratedData(resData);
+
+      if (resData && resData.prompt) {
+        // Automatically populate the query input for EmptyState / Chat UI
+        useThreadStore.getState().setQueryInput(resData.prompt);
+      }
+
+      if (projectId) {
+        router.push(`/project/${projectId}/thread`);
+      } else {
+        router.push('/threads');
+      }
+      return resData;
+    } catch (err) {
+      console.error('Error generating roadmap prompt:', err);
+      throw err;
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const resetPromptSharingState = () => {
     setWhoIsThisFor('Organization');
     setWhatToCreate('roadmap');
     setRoleDescriptionText('');
     setUploadedFile(null);
     setIsGenerating(false);
-    setGeneratedPromptData(null);
+    setGeneratedData(null);
   };
 
   return (
@@ -34,9 +71,10 @@ export const PromptSharingProvider = ({ children }) => {
         setUploadedFile,
         isGenerating,
         setIsGenerating,
-        generatedPromptData,
-        setGeneratedPromptData,
-        resetPromptState,
+        generatedData,
+        setGeneratedData,
+        handleGeneratePromptAndNavigate,
+        resetPromptSharingState,
       }}
     >
       {children}
@@ -47,22 +85,7 @@ export const PromptSharingProvider = ({ children }) => {
 export const usePromptSharingContext = () => {
   const context = useContext(PromptSharingContext);
   if (!context) {
-    // Return fallback state if used outside provider
-    return {
-      whoIsThisFor: 'Organization',
-      setWhoIsThisFor: () => {},
-      whatToCreate: 'roadmap',
-      setWhatToCreate: () => {},
-      roleDescriptionText: '',
-      setRoleDescriptionText: () => {},
-      uploadedFile: null,
-      setUploadedFile: () => {},
-      isGenerating: false,
-      setIsGenerating: () => {},
-      generatedPromptData: null,
-      setGeneratedPromptData: () => {},
-      resetPromptState: () => {},
-    };
+    throw new Error('usePromptSharingContext must be used within a PromptSharingProvider');
   }
   return context;
 };

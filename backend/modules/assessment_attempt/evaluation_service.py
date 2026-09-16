@@ -364,13 +364,20 @@ class ExamEvaluationSerice:
 
             allocated_exam = await self.db.scalar(
                 select(AllocatedExams).where(
-                    AllocatedExams.allocation_id == decrypted_allocation_id,
-                    AllocatedExams.user_id == user.user_id
+                    AllocatedExams.allocation_id == decrypted_allocation_id
                 )
             )
             if not allocated_exam:
                 raise HTTPException(
                     status_code=404, detail="Allocated exam record not found"
+                )
+
+            user_role = str(getattr(user, "provided_role", "") or getattr(user, "role", "") or "").lower()
+            is_owner = str(allocated_exam.user_id) == str(user.user_id)
+            is_privileged = user_role in ("admin", "superadmin", "super_admin", "manager", "hiring_manager", "lead", "staff", "instructor")
+            if not is_owner and not is_privileged:
+                raise HTTPException(
+                    status_code=403, detail="Not authorized to view this assessment result"
                 )
 
             assessment_name, assessment_type = None, allocated_exam.assessment_type

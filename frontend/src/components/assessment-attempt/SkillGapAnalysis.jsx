@@ -407,11 +407,13 @@ const formatCapabilitiesData = (data) => {
 };
 
 // --- Main Component ---
-const ShifuSkillGapAnalysis = ({ allocationId }) => {
+const ShifuSkillGapAnalysis = ({ allocationId, embedded = false }) => {
   const [result, setResult] = useState({});
   const [improvementRoadmapDetails, setImprovementRoadmapDetils] =
     useState(null);
   const [isApiCallActive, setIsApiCallActive] = useState(false);
+  const [loadError, setLoadError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const router = useRouter();
 
@@ -509,7 +511,7 @@ const ShifuSkillGapAnalysis = ({ allocationId }) => {
       const data = await generateImprovementRoadmapApi(allocationId, result.project_id);
       setImprovementRoadmapDetils(data);
       const threadId = data?.t_id;
-      if (threadId) {
+      if (threadId && !embedded) {
         router.push(`/project/${result.project_id}/shifu/${threadId}`);
       }
     } catch (error) {
@@ -520,24 +522,32 @@ const ShifuSkillGapAnalysis = ({ allocationId }) => {
   }
 
   function handleGotoImprovementRoadmap() {
-    if (improvementRoadmapDetails?.t_id) {
+    if (improvementRoadmapDetails?.t_id && !embedded) {
       console.log('Going exising improvement roadmap. . . ');
       router.push(`/project/${result.project_id}/shifu/${improvementRoadmapDetails.t_id}?openArtifact=true`);
     }
   }
 
   useEffect(() => {
+    if (!allocationId) return;
     const getResult = async () => {
+      setIsLoading(true);
+      setLoadError(null);
       try {
         const responseData = await getExamResult(allocationId);
         setResult(responseData);
       } catch (error) {
-        console.error(error);
-        router.push('/');
+        console.error('SkillGapAnalysis: failed to load result', error);
+        setLoadError('Could not load assessment results. The result may not be available yet.');
+        // Do NOT redirect — just show error inline
+      } finally {
+        setIsLoading(false);
       }
     };
     getResult();
   }, [allocationId]);
+
+
 
   useEffect(() => {
     const getImprovementRoadmapDetails = async () => {
@@ -557,26 +567,35 @@ const ShifuSkillGapAnalysis = ({ allocationId }) => {
     }
   }, [allocationId, result]);
 
+  // Loading and error states
+  if (isLoading) {
+    return (
+      <div style={{ padding: '48px 24px', textAlign: 'center' }}>
+        <div style={{ fontSize: '32px', marginBottom: '12px' }}>⏳</div>
+        <p style={{ color: '#7A8099', fontFamily: 'DM Sans', fontSize: '15px' }}>Loading assessment results...</p>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div style={{ padding: '48px 24px', textAlign: 'center', background: '#FFFFFF', borderRadius: '16px', border: '1px solid #EAE8E1' }}>
+        <div style={{ fontSize: '40px', marginBottom: '12px' }}>📊</div>
+        <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#1A1C23', marginBottom: '8px' }}>No Skill Gap Results Yet</h3>
+        <p style={{ color: '#7A8099', fontSize: '14px', maxWidth: '500px', margin: '0 auto' }}>{loadError}</p>
+      </div>
+    );
+  }
+
   return (
     <>
-      <Header assessmentDetails={result} />
+      {!embedded && <Header assessmentDetails={result} />}
       <div className={classes.tabContent}>
       <div className={classes.kycSection}>
         <div className={classes.kycCenter}>
           <h2 className={classes.kycTitle}>Your KYC Scoreboard</h2>
           <p className={classes.kycSubtitle}>KYC = know your competency</p>
         </div>
-        {/* <div className={classes.kycRight}>
-          <button className={classes.kycIconBtn}>
-            <ShareKycIcon />
-          </button>
-          <button className={classes.kycIconBtn}>
-            <DownloadKycIcon />
-          </button>
-          <button className={classes.kycIconBtn}>
-            <QrKycIcon />
-          </button>
-        </div>*/}
       </div>
         {/* Top Row: Gauge & Stats */}
         <div className={classes.topRow}>

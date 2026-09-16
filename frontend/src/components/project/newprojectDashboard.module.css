@@ -566,3 +566,30 @@
   border-radius: 12px;
   align-self: flex-start;
 }
+
+.cardFooter {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.openProjectBtn {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: #c9a84c;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.2s ease;
+}
+
+.openProjectBtn:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}

@@ -1,10 +1,13 @@
 import re
+import logging
 from typing import Optional
 from uuid import UUID
 from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import delete, select
 from sqlalchemy.orm.attributes import flag_modified
+
+logger = logging.getLogger(__name__)
 
 from modules.organization.model import Organization
 from modules.project.model import (
@@ -452,6 +455,517 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
     if not row:
         return None
     project, org_name, func_name, desig_name = row
+
+    # Extract assigned members and dynamic learning progress
+    assigned_members_dict = {}
+
+    from modules.roadmap.model import Roadmap, UserRoadmap
+    from modules.roadmap_learning_assessment.model import RoadmapLearningAssessment
+    rm_stmt = select(Roadmap).where(Roadmap.project_id == str(project_id))
+    rm_res = await db.execute(rm_stmt)
+    roadmaps = rm_res.scalars().all()
+    roadmap_ids = [rm.roadmap_id for rm in roadmaps]
+
+    from modules.assessment.model import ProjectAssessmentMap
+    from modules.assessment_attempt.model import AllocatedExams, Submissions
+    from modules.assessment_attempt.encryption import encrypt_allocation_id
+
+    pa_stmt = select(ProjectAssessmentMap).where(ProjectAssessmentMap.project_id == str(project_id))
+    pa_res = await db.execute(pa_stmt)
+    pa_maps = pa_res.scalars().all()
+    assessment_ids = [str(p.assessment_formation_id) for p in pa_maps if p.assessment_formation_id]
+
+    if roadmap_ids:
+        ur_stmt = select(UserRoadmap).where(UserRoadmap.roadmap_id.in_(roadmap_ids))
+        ur_res = await db.execute(ur_stmt)
+        user_roadmaps = ur_res.scalars().all()
+
+        for ur in user_roadmaps:
+            u_stmt = select(UserDetails).where(UserDetails.user_id == ur.user_id)
+            u_res = await db.execute(u_stmt)
+            user = u_res.scalars().first()
+
+            rm_obj = await db.scalar(select(Roadmap).where(Roadmap.roadmap_id == ur.roadmap_id))
+            rm_title = rm_obj.title if rm_obj else None
+            rm_graph = rm_obj.roadmap_graph if rm_obj else {}
+
+            data = ur.user_roadmap_data or {}
+            lp = data.get("learning_progress", {})
+
+            # Fetch all RoadmapLearningAssessment for this roadmap
+            rla_stmt = select(RoadmapLearningAssessment).where(RoadmapLearningAssessment.roadmap_id == ur.roadmap_id)
+            rla_res = await db.execute(rla_stmt)
+            rla_rows = rla_res.scalars().all()
+            rla_by_node = {r.node_id: r for r in rla_rows if r.node_id}
+            rla_by_id = {str(r.assessment_id): r for r in rla_rows}
+
+            # Query real user quiz submissions and allocations
+            user_subs_stmt = (
+                select(Submissions, AllocatedExams)
+                .join(AllocatedExams, Submissions.allocation_id == AllocatedExams.allocation_id)
+                .where(AllocatedExams.user_id == str(ur.user_id))
+                .order_by(Submissions.submission_time.desc())
+            )
+            user_subs_res = await db.execute(user_subs_stmt)
+            user_subs_rows = user_subs_res.all()
+
+            subs_by_exam_id = {}
+            for sub_obj, alloc_obj in user_subs_rows:
+                subs_by_exam_id[str(alloc_obj.exam_id)] = (sub_obj, alloc_obj)
+
+            alloc_stmt = select(AllocatedExams).where(AllocatedExams.user_id == str(ur.user_id))
+            alloc_res = await db.execute(alloc_stmt)
+            user_allocs = alloc_res.scalars().all()
+            alloc_by_exam_id = {str(a.exam_id): a for a in user_allocs}
+
+            # Parse graph nodes and subtopic nodes
+            nodes = rm_graph.get("nodes", []) if isinstance(rm_graph, dict) else []
+            edges = rm_graph.get("edges", []) if isinstance(rm_graph, dict) else []
+            node_map = {n.get("id"): n for n in nodes if n.get("id")}
+
+            # Build parent_map from explicit parentId on nodes
+            parent_map = {}
+            for n in nodes:
+                p_id = n.get("parentId")
+                if p_id:
+                    if p_id not in parent_map:
+                        parent_map[p_id] = []
+                    parent_map[p_id].append(n)
+
+            # Also build parent_map from graph edges (source → target) when parentId is absent
+            if not parent_map and edges:
+                for e in edges:
+                    src = e.get("source")
+                    tgt = e.get("target")
+                    if src and tgt and src in node_map and tgt in node_map:
+                        if src not in parent_map:
+                            parent_map[src] = []
+                        if node_map[tgt] not in parent_map[src]:
+                            parent_map[src].append(node_map[tgt])
+
+            # Identify group/chapter nodes
+            groups = []
+            for n in nodes:
+                n_id = n.get("id")
+                n_type = str(n.get("type", "")).lower()
+                p_id = n.get("parentId")
+                if n_type in ("title", "titlenode"):
+                    continue
+                if (n_id in parent_map) or (p_id is None and ("group" in n_type or "topic" in n_type or "chapter" in n_type)):
+                    groups.append(n)
+
+            if not groups and nodes:
+                groups = [n for n in nodes if not n.get("parentId") and str(n.get("type", "")).lower() not in ("title", "titlenode")]
+
+            # Assignment nodes
+            assignment_nodes = [n for n in nodes if str(n.get("type", "")) == "assignmentNode"]
+
+            # Detect Capstone Project
+            capstone_data = None
+            capstone_node = None
+            for an in assignment_nodes:
+                an_data = an.get("data", {})
+                an_sem_type = str(an_data.get("semanticType", "")).lower()
+                an_label = an_data.get("label", "")
+                if an_sem_type == "project" or "capstone" in an_label.lower():
+                    capstone_node = an
+                    break
+
+            if capstone_node:
+                c_id = capstone_node.get("id")
+                c_label = capstone_node.get("data", {}).get("label") or "Capstone Project"
+                lp_cap = lp.get(c_id, {})
+                c_status_raw = lp_cap.get("status") if isinstance(lp_cap, dict) else "not_started"
+                
+                sub_info = subs_by_exam_id.get(c_id)
+                if sub_info:
+                    s_obj, a_obj = sub_info
+                    c_status = "Completed"
+                    c_score = round(s_obj.obtained_percentage)
+                    c_correct = f"{s_obj.total_number_of_correct_answer}/{a_obj.total_questions} correct"
+                    c_time = s_obj.submission_time.strftime("%Y-%m-%d %H:%M:%S") if s_obj.submission_time else None
+                elif c_status_raw in ("done", "completed"):
+                    c_status = "Completed"
+                    c_score = 100
+                    c_correct = "Completed"
+                    c_time = lp_cap.get("updated_at")
+                elif c_status_raw in ("in_progress", "active"):
+                    c_status = "In Progress"
+                    c_score = 50
+                    c_correct = "In Progress"
+                    c_time = None
+                else:
+                    c_status = "Not Started"
+                    c_score = 0
+                    c_correct = "Not Started"
+                    c_time = None
+
+                p_node = node_map.get(capstone_node.get("parentId"))
+                cap_chapter_name = p_node.get("data", {}).get("label") if p_node else "Roadmap Capstone"
+
+                capstone_data = {
+                    "node_id": c_id,
+                    "title": c_label,
+                    "chapter_name": cap_chapter_name,
+                    "module_name": "Capstone Project",
+                    "status": c_status,
+                    "score": c_score,
+                    "percent": c_score,
+                    "correct_text": c_correct,
+                    "submission_time": c_time,
+                    "description": "Comprehensive practical capstone project demonstrating mastery across roadmap competencies."
+                }
+
+            # Build all real quizzes
+            quizzes_list = []
+            quiz_seen_ids = set()
+
+            # 1. Skill Gap Baseline Assessment (strictly for this project's assessment_ids)
+            if assessment_ids:
+                sg_sub = next(((s, a) for s, a in user_subs_rows if str(a.exam_id) in assessment_ids), None)
+                if not sg_sub:
+                    sg_sub = next(((s, a) for s, a in user_subs_rows if a.assessment_type == "skill_gap_assessment" and str(a.exam_id) in assessment_ids), None)
+
+                if sg_sub:
+                    s_obj, a_obj = sg_sub
+                    quizzes_list.append({
+                        "id": f"sg_{a_obj.allocation_id}",
+                        "title": "Skill-Gap Baseline Assessment",
+                        "chapter_name": "Baseline Assessment",
+                        "module_name": "Skill-Gap Baseline",
+                        "assessment_type": "skill_gap_assessment",
+                        "status": "Completed",
+                        "score": round(s_obj.obtained_percentage),
+                        "correct_answers": s_obj.total_number_of_correct_answer,
+                        "total_questions": a_obj.total_questions,
+                        "correctText": f"{s_obj.total_number_of_correct_answer}/{a_obj.total_questions} correct",
+                        "allocation_id": encrypt_allocation_id(a_obj.allocation_id),
+                        "submission_time": s_obj.submission_time.strftime("%Y-%m-%d %H:%M:%S") if s_obj.submission_time else None
+                    })
+                    quiz_seen_ids.add(str(a_obj.exam_id))
+                else:
+                    # Check if allocated for this project
+                    sg_alloc = next((a for a in user_allocs if str(a.exam_id) in assessment_ids), None)
+                    if sg_alloc:
+                        quizzes_list.append({
+                            "id": f"sg_{sg_alloc.allocation_id}",
+                            "title": "Skill-Gap Baseline Assessment",
+                            "chapter_name": "Baseline Assessment",
+                            "module_name": "Skill-Gap Baseline",
+                            "assessment_type": "skill_gap_assessment",
+                            "status": "In Progress",
+                            "score": 0,
+                            "correct_answers": 0,
+                            "total_questions": sg_alloc.total_questions or 60,
+                            "correctText": f"0/{sg_alloc.total_questions or 60} correct",
+                            "allocation_id": encrypt_allocation_id(sg_alloc.allocation_id),
+                            "submission_time": None
+                        })
+                        quiz_seen_ids.add(str(sg_alloc.exam_id))
+                    else:
+                        quizzes_list.append({
+                            "id": "sg_not_started",
+                            "title": "Skill-Gap Baseline Assessment",
+                            "chapter_name": "Baseline Assessment",
+                            "module_name": "Skill-Gap Baseline",
+                            "assessment_type": "skill_gap_assessment",
+                            "status": "Not Started",
+                            "score": 0,
+                            "correct_answers": 0,
+                            "total_questions": 60,
+                            "correctText": "0/60 correct",
+                            "allocation_id": None,
+                            "submission_time": None
+                        })
+
+            # 2. RoadmapLearningAssessment entries (Crack it / Smash it)
+            for rla in rla_rows:
+                rla_id_str = str(rla.assessment_id)
+                node = node_map.get(rla.node_id)
+                parent_mod = node_map.get(node.get("parentId")) if node else None
+                
+                mod_name = parent_mod.get("data", {}).get("label") if parent_mod else (node.get("data", {}).get("label") if node else "Roadmap Module")
+                ch_name = "Roadmap Quizzes"
+                if parent_mod and parent_mod.get("parentId") and parent_mod.get("parentId") in node_map:
+                    ch_name = node_map[parent_mod.get("parentId")].get("data", {}).get("label", ch_name)
+                elif node and node.get("parentId") and node.get("parentId") in node_map:
+                    ch_name = node_map[node.get("parentId")].get("data", {}).get("label", ch_name)
+
+                sub_info = subs_by_exam_id.get(rla_id_str)
+                lp_info = lp.get(rla.node_id, {})
+
+                if sub_info:
+                    sub_obj, alloc_obj = sub_info
+                    q_status = "Completed"
+                    q_score = round(sub_obj.obtained_percentage)
+                    q_corr = sub_obj.total_number_of_correct_answer
+                    q_tot = alloc_obj.total_questions or 5
+                    q_alloc = encrypt_allocation_id(alloc_obj.allocation_id)
+                    q_time = sub_obj.submission_time.strftime("%Y-%m-%d %H:%M:%S") if sub_obj.submission_time else None
+                elif lp_info.get("status") in ("done", "completed") or (isinstance(lp_info.get("assessment"), dict) and lp_info.get("assessment", {}).get("status") == "complete"):
+                    q_status = "Completed"
+                    q_score = 100
+                    q_corr = 5
+                    q_tot = 5
+                    raw_a = lp_info.get("allocation_id") or (lp_info.get("assessment", {}).get("allocation_id") if isinstance(lp_info.get("assessment"), dict) else None)
+                    q_alloc = encrypt_allocation_id(raw_a) if raw_a else None
+                    q_time = lp_info.get("updated_at")
+                elif lp_info.get("status") in ("in_progress", "active") or rla_id_str in alloc_by_exam_id:
+                    q_status = "In Progress"
+                    q_score = 0
+                    q_corr = 0
+                    q_tot = 5
+                    alloc_rec = alloc_by_exam_id.get(rla_id_str)
+                    q_alloc = encrypt_allocation_id(alloc_rec.allocation_id) if alloc_rec else None
+                    q_time = None
+                else:
+                    q_status = "Not Started"
+                    q_score = 0
+                    q_corr = 0
+                    q_tot = 5
+                    q_alloc = None
+                    q_time = None
+
+                quizzes_list.append({
+                    "id": f"rla_{rla.assessment_id}",
+                    "title": rla.title,
+                    "node_id": rla.node_id,
+                    "chapter_name": ch_name,
+                    "module_name": mod_name,
+                    "assessment_type": "roadmap_learning_assessment",
+                    "status": q_status,
+                    "score": q_score,
+                    "correct_answers": q_corr,
+                    "total_questions": q_tot,
+                    "correctText": f"{q_corr}/{q_tot} correct" if q_status == "Completed" else ("In Progress" if q_status == "In Progress" else f"0/{q_tot} correct"),
+                    "allocation_id": q_alloc,
+                    "submission_time": q_time
+                })
+                quiz_seen_ids.add(rla_id_str)
+                if rla.node_id:
+                    quiz_seen_ids.add(rla.node_id)
+
+            # 3. Add any assignmentNode assessments not covered by RLA (e.g. Final Assessment or Module Assessment)
+            for an in assignment_nodes:
+                an_id = an.get("id")
+                an_data = an.get("data", {})
+                an_label = an_data.get("label", "Assessment")
+                an_sem_type = str(an_data.get("semanticType", "")).lower()
+
+                if an_sem_type == "project" or "capstone" in an_label.lower():
+                    continue  # already handled in capstone_data
+                if an_id in quiz_seen_ids:
+                    continue
+
+                parent = node_map.get(an.get("parentId"))
+                p_name = parent.get("data", {}).get("label") if parent else "Roadmap Level"
+                lp_an = lp.get(an_id, {})
+                sub_info = subs_by_exam_id.get(an_id)
+
+                if sub_info:
+                    s_obj, al_obj = sub_info
+                    st = "Completed"
+                    sc = round(s_obj.obtained_percentage)
+                    co = s_obj.total_number_of_correct_answer
+                    to = al_obj.total_questions or 10
+                    al = encrypt_allocation_id(al_obj.allocation_id)
+                    tm = s_obj.submission_time.strftime("%Y-%m-%d %H:%M:%S") if s_obj.submission_time else None
+                elif lp_an.get("status") in ("done", "completed"):
+                    st = "Completed"
+                    sc = 100
+                    co = 10
+                    to = 10
+                    al = None
+                    tm = None
+                elif lp_an.get("status") in ("in_progress", "active") or an_id in alloc_by_exam_id:
+                    st = "In Progress"
+                    sc = 0
+                    co = 0
+                    to = 10
+                    alloc_rec = alloc_by_exam_id.get(an_id)
+                    al = encrypt_allocation_id(alloc_rec.allocation_id) if alloc_rec else None
+                    tm = None
+                else:
+                    st = "Not Started"
+                    sc = 0
+                    co = 0
+                    to = 10
+                    al = None
+                    tm = None
+
+                quizzes_list.append({
+                    "id": f"an_{an_id}",
+                    "title": an_label,
+                    "node_id": an_id,
+                    "chapter_name": p_name,
+                    "module_name": p_name,
+                    "assessment_type": "roadmap_learning_assessment",
+                    "status": st,
+                    "score": sc,
+                    "correct_answers": co,
+                    "total_questions": to,
+                    "correctText": f"{co}/{to} correct" if st == "Completed" else f"0/{to} correct",
+                    "allocation_id": al,
+                    "submission_time": tm
+                })
+                quiz_seen_ids.add(an_id)
+
+            # Build parsed_chapters with nested quizzes and capstone
+            parsed_chapters = []
+            total_leaf_nodes = 0
+            done_leaf_nodes = 0
+
+            for idx, g in enumerate(groups):
+                g_id = g.get("id")
+                g_label = g.get("data", {}).get("label") or f"Chapter {idx + 1}"
+                children = parent_map.get(g_id, [])
+
+                sub_modules = []
+                done_in_group = 0
+                for child in children:
+                    c_id = child.get("id")
+                    c_label = child.get("data", {}).get("label") or "Module"
+                    c_status_raw = lp.get(c_id, {})
+
+                    c_status = "not_started"
+                    alloc_id_sub = None
+                    if isinstance(c_status_raw, dict):
+                        c_status = c_status_raw.get("status", "not_started")
+                        raw_alloc = c_status_raw.get("allocation_id") or c_status_raw.get("assessment", {}).get("allocation_id")
+                        if raw_alloc:
+                            alloc_id_sub = encrypt_allocation_id(raw_alloc)
+
+                    if c_status in ("done", "completed"):
+                        done_in_group += 1
+                        done_leaf_nodes += 1
+                        status_label = "Completed"
+                    elif c_status in ("in_progress", "active"):
+                        status_label = "In Progress"
+                    else:
+                        status_label = "Not Started"
+
+                    total_leaf_nodes += 1
+
+                    # Match any quiz for this sub-module
+                    mod_quiz = next((q for q in quizzes_list if q.get("node_id") == c_id or q.get("module_name") == c_label), None)
+
+                    sub_modules.append({
+                        "id": c_id,
+                        "name": c_label,
+                        "status": status_label,
+                        "allocation_id": alloc_id_sub,
+                        "quiz": mod_quiz
+                    })
+
+                group_status = "Done" if (len(children) > 0 and done_in_group == len(children)) else ("In Progress" if done_in_group > 0 else "Not Started")
+
+                # Chapter quizzes
+                chapter_quizzes = [q for q in quizzes_list if q.get("chapter_name") == g_label or any(sm.get("name") == q.get("module_name") for sm in sub_modules)]
+
+                parsed_chapters.append({
+                    "id": idx + 1,
+                    "title": g_label,
+                    "modulesCount": len(children),
+                    "doneCount": done_in_group,
+                    "status": group_status,
+                    "subModules": sub_modules,
+                    "quizzes": chapter_quizzes
+                })
+
+            total_nodes = total_leaf_nodes if total_leaf_nodes > 0 else len(lp)
+            done_nodes = done_leaf_nodes if total_leaf_nodes > 0 else sum(1 for v in lp.values() if isinstance(v, dict) and v.get("status") in ("done", "completed"))
+
+            if total_nodes > 0 and done_nodes == total_nodes:
+                member_status = "Completed"
+            elif done_nodes > 0 or total_nodes > 0:
+                member_status = "In progress"
+            else:
+                member_status = "Not started"
+
+            progress_pct = round((done_nodes / total_nodes * 100)) if total_nodes > 0 else 0
+
+            name = (user.user_name if user and user.user_name else (user.user_email.split("@")[0] if user else "Team Member")).title()
+            email = user.user_email if user else "member@organization.com"
+            designation = (user.designation_specialization if user and user.designation_specialization else "Software Developer")
+            role = (user.provided_role if user and user.provided_role else "Learner")
+
+            alloc_id = None
+            if assessment_ids:
+                alloc_stmt = select(AllocatedExams).where(
+                    AllocatedExams.user_id == str(ur.user_id),
+                    AllocatedExams.exam_id.in_(assessment_ids)
+                ).order_by(AllocatedExams.allocated_date.desc())
+                alloc_res = await db.execute(alloc_stmt)
+                alloc = alloc_res.scalars().first()
+                if alloc:
+                    alloc_id = encrypt_allocation_id(alloc.allocation_id)
+
+
+            # Quiz summary metrics
+            taken_quizzes = [q for q in quizzes_list if q.get("status") == "Completed" or (q.get("score") and q.get("score") > 0)]
+            taken_quizzes_count = len(taken_quizzes)
+            avg_quiz_score = round(sum(q["score"] for q in taken_quizzes) / taken_quizzes_count) if taken_quizzes_count > 0 else 0
+
+            capstone_percent = capstone_data.get("percent", 0) if capstone_data else 0
+            capstone_status_str = capstone_data.get("status", "Not started") if capstone_data else "Not started"
+
+            assigned_members_dict[ur.user_id] = {
+                "id": ur.user_id,
+                "name": name,
+                "email": email,
+                "role": role,
+                "designation": designation,
+                "department": func_name or "Engineering",
+                "status": member_status,
+                "progress": progress_pct,
+                "completed_nodes": done_nodes,
+                "total_nodes": total_nodes,
+                "allocation_id": alloc_id,
+                "allocationId": alloc_id,
+                "roadmap_id": ur.roadmap_id,
+                "roadmap_title": rm_title,
+                "roadmap_chapters": parsed_chapters,
+                "user_quizzes": quizzes_list,
+                "capstone_project": capstone_data,
+                "capstonePercent": capstone_percent,
+                "capstoneStatus": capstone_status_str,
+                "total_quizzes_count": len(quizzes_list),
+                "taken_quizzes_count": taken_quizzes_count,
+                "avg_quiz_score": avg_quiz_score,
+            }
+
+    details = project.project_details or {}
+    hiring_managers = details.get("hiring_managers", [])
+    for hm_email in hiring_managers:
+        u_stmt = select(UserDetails).where(UserDetails.user_email == hm_email)
+        u_res = await db.execute(u_stmt)
+        user = u_res.scalars().first()
+        if user and user.user_id not in assigned_members_dict:
+            alloc_id = None
+            if user:
+                alloc_stmt = select(AllocatedExams).where(AllocatedExams.user_id == str(user.user_id)).order_by(AllocatedExams.allocated_date.desc())
+                alloc_res = await db.execute(alloc_stmt)
+                alloc = alloc_res.scalars().first()
+                if alloc:
+                    alloc_id = encrypt_allocation_id(alloc.allocation_id)
+
+            assigned_members_dict[user.user_id] = {
+                "id": user.user_id,
+                "name": (user.user_name or hm_email.split("@")[0]).title(),
+                "email": hm_email,
+                "role": user.provided_role or "Hiring Manager",
+                "designation": user.designation_specialization or "Manager",
+                "department": func_name or "Management",
+                "status": "Not started",
+                "progress": 0,
+                "completed_nodes": 0,
+                "total_nodes": 0,
+                "allocation_id": alloc_id,
+                "allocationId": alloc_id,
+            }
+
+    members_list = list(assigned_members_dict.values())
+
     return {
         "project_id": project.project_id,
         "project_name": project.project_name,
@@ -464,9 +978,10 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
         "created_at": project.created_at,
         "created_by": project.created_by,
         "project_details": project.project_details,
-        "profiles_count": None,
+        "profiles_count": len(members_list),
         "avg_score": None,
         "shortlisted_count": None,
+        "assigned_members": members_list,
     }
 
 

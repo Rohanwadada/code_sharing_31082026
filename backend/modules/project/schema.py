@@ -115,6 +115,7 @@ class ProjectResponse(BaseModel):
     profiles_count: Optional[int] = None
     avg_score: Optional[float] = None
     shortlisted_count: Optional[int] = None
+    assigned_members: Optional[List[Dict[str, Any]]] = None
 
     class Config:
         from_attributes = True  

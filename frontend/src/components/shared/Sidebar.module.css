@@ -72,8 +72,8 @@
   display: flex;
 }
 
-.sidebar-section {
-}
+.sidebar-section {}
+
 .section-title {
   font-family: var(--font-dm-sans);
   font-weight: 400;
@@ -155,6 +155,20 @@
   border-left: 2.67px solid var(--brand-primary);
 }
 
+.active-item-gold {
+  background: rgba(201, 168, 76, 0.08);
+  border-left: 2.67px solid #C9A84C;
+}
+
+.nav-label-gold {
+  color: #C9A84C;
+  font-weight: 500;
+}
+
+.nav-label-dim {
+  color: rgba(247, 245, 240, 0.72);
+}
+
 .cr-txt {
   color: var(--interactive-primary) !important;
 }
@@ -175,7 +189,7 @@
   line-height: 18px;
   text-decoration: none;
   border-radius: 10px;
-  transition: all 0.5s;
+  transition: all 0.3s ease;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -285,24 +299,22 @@
   width: 34px;
   border: none;
   border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    #c9a84c 0%,
-    #bea452 7.14%,
-    #b3a057 14.29%,
-    #a89c5b 21.43%,
-    #9d975f 28.57%,
-    #929362 35.71%,
-    #868f65 42.86%,
-    #7b8a67 50%,
-    #70866a 57.14%,
-    #64826c 64.29%,
-    #587d6d 71.43%,
-    #4c786f 78.57%,
-    #3f7470 85.71%,
-    #306f71 92.86%,
-    #1d6a72 100%
-  );
+  background: linear-gradient(135deg,
+      #c9a84c 0%,
+      #bea452 7.14%,
+      #b3a057 14.29%,
+      #a89c5b 21.43%,
+      #9d975f 28.57%,
+      #929362 35.71%,
+      #868f65 42.86%,
+      #7b8a67 50%,
+      #70866a 57.14%,
+      #64826c 64.29%,
+      #587d6d 71.43%,
+      #4c786f 78.57%,
+      #3f7470 85.71%,
+      #306f71 92.86%,
+      #1d6a72 100%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -321,6 +333,7 @@
   letter-spacing: 0px;
   text-transform: capitalize;
 }
+
 .user-desig {
   color: #f7f5f059;
   font-family: var(--font-dm-sans);
@@ -376,6 +389,7 @@
 }
 
 @media (max-width: 768px) {
+
   /* Base Mobile Sidebar (Hidden completely offscreen until toggled) */
   .sidebar {
     position: fixed;
@@ -457,4 +471,52 @@
     /* Behind the sidebar, above background */
     transition: opacity 0.3s ease;
   }
+}
+
+/* ── Create Roadmap Button ── */
+.create-project-btn-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 4px 10px 16px;
+  width: 100%;
+}
+
+.create-project-btn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  height: 42px;
+  padding: 0 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #F7F5F0;
+  font-family: var(--font-dm-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.create-project-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(201, 168, 76, 0.4);
+}
+
+.create-project-plus {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.projects-section-title {
+  color: rgba(201, 168, 76, 0.72) !important;
+  font-weight: 600;
+  letter-spacing: 2px;
+  font-size: 9px;
+  text-transform: uppercase;
 }

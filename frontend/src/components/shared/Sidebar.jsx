@@ -6,7 +6,7 @@ import sidebarIcon from '@/assets/thread/sidebar-icon.svg';
 import headerImage from '@/assets/shifu-logo.svg';
 import { useThreadStore } from '@/store/threadStore';
 import { useAuthStore } from '@/store/authStore';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useArtifactStore } from '@/store/artifactStore';
 import useWindowDimensions from '@/hooks/useWindowDimensions';
@@ -19,6 +19,7 @@ import { LogOut } from 'lucide-react';
 import { getAllSavedRoadmapArtifact } from '@/service/artifact.service';
 import { getAllUserThread } from '@/service/thread.service';
 import { logout } from '@/service/auth.service';
+import { getAllProjects } from '@/service/project.service';
 import shifuIcon from '@/assets/bot/default.png';
 import { ADMIN_ROLE } from '@/utils/constants';
 
@@ -56,9 +57,16 @@ const Sidebar = () => {
   const [isThreadsFetching, setIsThreadsFetching] = useState(false);
   const [isRoadmapsFetching, setIsRoadmapsFetching] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isMyTeamOpen, setIsMyTeamOpen] = useState(false);
+  const [isMyOrgOpen, setIsMyOrgOpen] = useState(false);
+  const [myTeamProjects, setMyTeamProjects] = useState([]);
+  const [myOrgProjects, setMyOrgProjects] = useState([]);
+  const [isProjectsFetching, setIsProjectsFetching] = useState(false);
   const userMenuRef = useRef(null);
 
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const handleLogoClick = () => {
     window.location.href = '/';
@@ -250,8 +258,50 @@ const Sidebar = () => {
   }, [isSavedOpen]);
 
   useEffect(() => {
-    setActiveTab('dashboard')
-  }, [])
+    if (pathname?.startsWith('/project')) {
+      const mandate = searchParams?.get('mandate');
+      if (mandate === 'team') {
+        setActiveTab('team-projects');
+      } else if (mandate === 'organization') {
+        setActiveTab('org-projects');
+      } else {
+        setActiveTab('project');
+      }
+    } else if (pathname?.startsWith('/dashboard') || pathname === '/') {
+      setActiveTab('dashboard');
+    }
+  }, [pathname, searchParams, setActiveTab]);
+
+  const fetchAndFilterProjects = async () => {
+    if (isProjectsFetching) return;
+    try {
+      setIsProjectsFetching(true);
+      const response = await getAllProjects();
+      const allProjects = response?.projects || [];
+      setMyTeamProjects(allProjects.filter((p) => p?.project_details?.project_mandate === 'team'));
+      setMyOrgProjects(allProjects.filter((p) => p?.project_details?.project_mandate === 'organization'));
+    } catch (err) {
+      console.error('Failed to fetch projects:', err);
+    } finally {
+      setIsProjectsFetching(false);
+    }
+  };
+
+  const toggleMyTeam = () => {
+    if (!isSidebarOpen) setIsSidebarOpen(true);
+    const next = !isMyTeamOpen;
+    setIsMyTeamOpen(next);
+    if (next && myTeamProjects.length === 0) fetchAndFilterProjects();
+    router.push('/project?mandate=team');
+  };
+
+  const toggleMyOrg = () => {
+    if (!isSidebarOpen) setIsSidebarOpen(true);
+    const next = !isMyOrgOpen;
+    setIsMyOrgOpen(next);
+    if (next && myOrgProjects.length === 0) fetchAndFilterProjects();
+    router.push('/project?mandate=organization');
+  };
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -297,43 +347,28 @@ const Sidebar = () => {
             </div>
           </div>
 
+          {/* ── 1. Create Projects Button at Top ── */}
+          <div className={`${styles['create-project-btn-wrap']} ${styles['label']}`}>
+            <button
+              className={styles['create-project-btn']}
+              onClick={() => router.push('/project/create-project')}
+            >
+              <span className={styles['create-project-plus']}>+</span>
+              <span>Create Projects</span>
+            </button>
+          </div>
+
+          {/* ── 2. PROJECTS Section (My Learning, My Team, My Organisation) ── */}
           <div className={styles['sidebar-section']}>
-            <div className={`${styles['section-title']} ${styles['label']}`}>
-              Main
+            <div className={`${styles['section-title']} ${styles['label']} ${styles['projects-section-title']}`}>
+              Projects
             </div>
 
             <div className={styles['sidebar-items']}>
-              {/* <div className={styles['sidebar-item']}>
-                <div
-                  className={`${styles['sidebar-item-head']}  ${activeTab === 'ask-shifu' ? styles['active-item'] : ''}`}
-                  onClick={handleCreateNewRoadmap}
-                >
-                  <Image
-                    src={shifuIcon}
-                    height={24}
-                    width={24}
-                    style={{ borderRadius: '50%' }}
-                    alt=""
-                  />
-                  <span className={`${styles['cr-txt']} ${styles['label']}`}>
-                    Ask Shifu
-                  </span>
-                </div>
-              </div>*/}
-
-              {/* <div className={styles['sidebar-item']}>
-                <div
-                  className={`${styles['sidebar-item-head']}  ${activeTab === 'dashboard' ? styles['active-item'] : ''}`}
-                  onClick={handleGoToDashboard}
-                >
-                  <Dashboard />
-                  <span className={styles['label']}>Home</span>
-                </div>
-              </div>*/}
-
+              {/* My Learning */}
               <div className={styles['sidebar-item']}>
                 <div
-                  className={`${styles['sidebar-item-head']}  ${activeTab === 'dashboard' ? styles['active-item'] : ''}`}
+                  className={`${styles['sidebar-item-head']} ${activeTab === 'dashboard' ? styles['active-item'] : ''}`}
                   onClick={handleGoToDashboard}
                 >
                   <Book />
@@ -341,16 +376,44 @@ const Sidebar = () => {
                 </div>
               </div>
 
-              {/* <div className={styles['sidebar-item']}>
+              {/* My Team */}
+              <div className={styles['sidebar-item']}>
                 <div
-                  className={styles['sidebar-item-head']}
-                  onClick={handleGoToDashboard}
+                  className={`${styles['sidebar-item-head']} ${activeTab === 'team-projects' ? styles['active-item'] : ''}`}
+                  onClick={() => {
+                    setActiveTab('team-projects');
+                    router.push('/project?mandate=team');
+                  }}
                 >
-                  <Bell />
-                  <span className={styles['label']}>Reminders</span>
+                  <TeamOutlineIcon />
+                  <span className={styles['label']}>My Team</span>
                 </div>
-              </div>*/}
+              </div>
 
+              {/* My Organisation */}
+              <div className={styles['sidebar-item']}>
+                <div
+                  className={`${styles['sidebar-item-head']} ${activeTab === 'org-projects' ? styles['active-item'] : ''}`}
+                  onClick={() => {
+                    setActiveTab('org-projects');
+                    router.push('/project?mandate=organization');
+                  }}
+                >
+                  <OrgIcon />
+                  <span className={styles['label']}>My Organisation</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── 3. ROADMAP Section (Roadmap Chats, Saved Roadmaps) ── */}
+          <div className={styles['sidebar-section']}>
+            <div className={`${styles['section-title']} ${styles['label']} ${styles['projects-section-title']}`}>
+              Roadmap
+            </div>
+
+            <div className={styles['sidebar-items']}>
+              {/* Roadmap Chats */}
               <div className={styles['sidebar-item']}>
                 <div
                   className={styles['sidebar-item-head']}
@@ -360,10 +423,7 @@ const Sidebar = () => {
                   <span className={styles['label']}>
                     <span className={styles['label-inner']}>
                       <span>Roadmap Chats</span>
-                      <span
-                        className={`${styles['arrow']} ${isThreadsOpen ? styles['arrowOpen'] : ''
-                          }`}
-                      >
+                      <span className={`${styles['arrow']} ${isThreadsOpen ? styles['arrowOpen'] : ''}`}>
                         <Arrow />
                       </span>
                     </span>
@@ -386,43 +446,34 @@ const Sidebar = () => {
                           </Link>
                         ))}
                         {threads.length > 5 && (
-                          <div
-                            className={styles['view-all']}
-                            onClick={handleThreadViewAll}
-                          >
+                          <div className={styles['view-all']} onClick={handleThreadViewAll}>
                             View All
                           </div>
                         )}
                       </>
                     ) : (
-                      <span className={styles['empty-span']}>
-                        No threads found
-                      </span>
+                      <span className={styles['empty-span']}>No threads found</span>
                     )}
                   </div>
                 )}
               </div>
 
+              {/* Saved Roadmaps */}
               <div className={styles['sidebar-item']}>
                 <div
                   className={styles['sidebar-item-head']}
                   onClick={toggleSavedRoadmapsDropdown}
                 >
                   <Bookmark />
-
                   <span className={styles['label']}>
                     <span className={styles['label-inner']}>
                       <span>Saved Roadmaps</span>
-                      <span
-                        className={`${styles['arrow']} ${isSavedOpen ? styles['arrowOpen'] : ''
-                          }`}
-                      >
+                      <span className={`${styles['arrow']} ${isSavedOpen ? styles['arrowOpen'] : ''}`}>
                         <Arrow />
                       </span>
                     </span>
                   </span>
                 </div>
-
                 {isSavedOpen && isSidebarOpen && (
                   <div className={styles['chat-list']}>
                     {isRoadmapsFetching ? (
@@ -440,18 +491,13 @@ const Sidebar = () => {
                           </Link>
                         ))}
                         {savedRoadmaps.length > 0 && (
-                          <div
-                            className={styles['view-all']}
-                            onClick={handleSavedRoadmapViewAll}
-                          >
+                          <div className={styles['view-all']} onClick={handleSavedRoadmapViewAll}>
                             View All
                           </div>
                         )}
                       </>
                     ) : (
-                      <span className={styles['empty-span']}>
-                        No saved roadmap
-                      </span>
+                      <span className={styles['empty-span']}>No saved roadmap</span>
                     )}
                   </div>
                 )}
@@ -459,41 +505,22 @@ const Sidebar = () => {
             </div>
           </div>
 
+          {/* ── 4. PROJECTS Section at Bottom (as it was) ── */}
           <div className={styles['sidebar-section']}>
-            <div className={`${styles['section-title']} ${styles['label']}`}>
-              My Projects
+            <div className={`${styles['section-title']} ${styles['label']} ${styles['projects-section-title']}`}>
+              Projects
             </div>
 
             <div className={styles['sidebar-items']}>
-              {/* <div className={styles['sidebar-item']}>
-                <div
-                  className={`${styles['sidebar-item-head']}`}
-                  onClick={handleGoToDashboard}
-                >
-                  <Team />
-                  <span className={styles['label']}>Team Overview</span>
-                </div>
-              </div>*/}
-
               <div className={styles['sidebar-item']}>
                 <div
-                  className={`${styles['sidebar-item-head']} ${activeTab === 'project' ? styles['active-item'] : ''}`}
+                  className={`${styles['sidebar-item-head']} ${activeTab === 'project' ? styles['active-item-gold'] : ''}`}
                   onClick={handleGoToProject}
                 >
-                  <Project />
+                  <Dashboard />
                   <span className={styles['label']}>Projects</span>
                 </div>
               </div>
-
-              {/* <div className={styles['sidebar-item']}>
-                <div
-                  className={styles['sidebar-item-head']}
-                  onClick={handleGoToDashboard}
-                >
-                  <Help />
-                  <span className={styles['label']}>Question Bank</span>
-                </div>
-              </div>*/}
             </div>
           </div>
         </div>
@@ -576,25 +603,45 @@ const Step = () => {
     </svg>
   );
 };
-const Book = () => {
-  return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M12 20.8921C13.6484 19.4135 15.7856 18.597 18 18.6001C19.0218 18.599 20.0364 18.7721 21 19.1121V4.86211C20.062 4.53011 19.052 4.35011 18 4.35011C15.7856 4.34695 13.6483 5.16338 12 6.64211C10.3516 5.16346 8.2144 4.34705 6 4.35011C4.948 4.35011 3.938 4.53011 3 4.86211V19.1121C3.96362 18.7721 4.97816 18.599 6 18.6001C8.305 18.6001 10.408 19.4671 12 20.8921ZM12 6.64211V20.8921"
-        stroke="#929292"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-};
+const Book = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 20.8921C13.6484 19.4135 15.7856 18.597 18 18.6001C19.0218 18.599 20.0364 18.7721 21 19.1121V4.86211C20.062 4.53011 19.052 4.35011 18 4.35011C15.7856 4.34695 13.6483 5.16338 12 6.64211C10.3516 5.16346 8.2144 4.34705 6 4.35011C4.948 4.35011 3.938 4.53011 3 4.86211V19.1121C3.96362 18.7721 4.97816 18.599 6 18.6001C8.305 18.6001 10.408 19.4671 12 20.8921ZM12 6.64211V20.8921" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+/* Active gold version of the learn icon */
+const LearnIcon = ({ active }) => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M12 20.8921C13.6484 19.4135 15.7856 18.597 18 18.6001C19.0218 18.599 20.0364 18.7721 21 19.1121V4.86211C20.062 4.53011 19.052 4.35011 18 4.35011C15.7856 4.34695 13.6483 5.16338 12 6.64211C10.3516 5.16346 8.2144 4.34705 6 4.35011C4.948 4.35011 3.938 4.53011 3 4.86211V19.1121C3.96362 18.7721 4.97816 18.599 6 18.6001C8.305 18.6001 10.408 19.4671 12 20.8921ZM12 6.64211V20.8921"
+      stroke={active ? '#C9A84C' : 'currentColor'}
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+/* My Team icon (ant-design:team-outlined) */
+const TeamOutlineIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M17.9997 18.719L18.0007 18.75C18.0007 18.975 17.9887 19.197 17.9637 19.416C16.1491 20.4571 14.0928 21.0033 12.0007 21C9.83072 21 7.79372 20.424 6.03772 19.416C6.01201 19.1846 5.99965 18.9519 6.00072 18.719C6.00431 17.5857 6.33234 16.4769 6.94272 15.522C7.48472 14.6719 8.23235 13.9723 9.11645 13.4877C10.0005 13.0032 10.9926 12.7495 12.0007 12.75C13.009 12.7493 14.0013 13.003 14.8855 13.4875C15.7698 13.972 16.5176 14.6718 17.0597 15.522C17.6704 16.4768 17.9968 17.5866 18.0007 18.72C19.2675 18.8235 20.5419 18.6603 21.7417 18.241C21.7875 17.6764 21.6725 17.1104 21.4101 16.6084C21.1476 16.1064 20.7483 15.689 20.2585 15.4044C19.7687 15.1199 19.2084 14.9798 18.6423 15.0004C18.0762 15.0211 17.5275 15.2015 17.0597 15.521M6.00072 18.719C4.73435 18.8263 3.46063 18.6637 2.26172 18.242C2.21607 17.6776 2.33111 17.1117 2.59355 16.6099C2.85598 16.1081 3.25509 15.6908 3.74472 15.4063C4.23435 15.1218 4.79451 14.9817 5.36044 15.0021C5.92636 15.0226 6.47493 15.2028 6.94272 15.522M15.0007 6.75C15.0007 7.54565 14.6846 8.30871 14.122 8.87132C13.5594 9.43393 12.7964 9.75 12.0007 9.75C11.2051 9.75 10.442 9.43393 9.8794 8.87132C9.31679 8.30871 9.00072 7.54565 9.00072 6.75C9.00072 5.95435 9.31679 5.19129 9.8794 4.62868C10.442 4.06607 11.2051 3.75 12.0007 3.75C12.7964 3.75 13.5594 4.06607 14.122 4.62868C14.6846 5.19129 15.0007 5.95435 15.0007 6.75ZM21.0007 9.75C21.0007 10.3467 20.7637 10.919 20.3417 11.341C19.9198 11.7629 19.3475 12 18.7507 12C18.154 12 17.5817 11.7629 17.1597 11.341C16.7378 10.919 16.5007 10.3467 16.5007 9.75C16.5007 9.15326 16.7378 8.58097 17.1597 8.15901C17.5817 7.73705 18.154 7.5 18.7507 7.5C19.3475 7.5 19.9198 7.73705 20.3417 8.15901C20.7637 8.58097 21.0007 9.15326 21.0007 9.75ZM7.50072 9.75C7.50072 10.3467 7.26366 10.919 6.84171 11.341C6.41975 11.7629 5.84745 12 5.25072 12C4.65398 12 4.08168 11.7629 3.65973 11.341C3.23777 10.919 3.00072 10.3467 3.00072 9.75C3.00072 9.15326 3.23777 8.58097 3.65973 8.15901C4.08168 7.73705 4.65398 7.5 5.25072 7.5C5.84745 7.5 6.41975 7.73705 6.84171 8.15901C7.26366 8.58097 7.50072 9.15326 7.50072 9.75Z"
+      stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+    />
+  </svg>
+);
+
+/* My Organisation icon (octicon:organization-24) */
+const OrgIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M3 9C3 8.46957 3.21071 7.96086 3.58579 7.58579C3.96086 7.21071 4.46957 7 5 7H19C19.5304 7 20.0391 7.21071 20.4142 7.58579C20.7893 7.96086 21 8.46957 21 9V20H3V9ZM9 20V11H15V20M9 11H15"
+      stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+    />
+    <path d="M8 7V5C8 4.46957 8.21071 3.96086 8.58579 3.58579C8.96086 3.21071 9.46957 3 10 3H14C14.5304 3 15.0391 3.21071 15.4142 3.58579C15.7893 3.96086 16 4.46957 16 5V7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
 
 const Bell = () => {
   return (

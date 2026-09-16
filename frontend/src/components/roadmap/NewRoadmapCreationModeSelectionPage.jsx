@@ -30,18 +30,27 @@ const modalVariants = {
   },
 };
 
+import { usePromptSharingContext } from '@/context/PromptSharingContext';
+
 const NewRoadmapCreationModeSelectionPage = ({ projectId }) => {
   const router = useRouter();
+  const { handleGeneratePromptAndNavigate, isGenerating } = usePromptSharingContext();
 
-  const handleCreateWithShifu = () => {
-    router.push(`/project/${projectId}/shifu`);
-    // onClose();
+  const handleCreateWithShifu = async () => {
+    try {
+      await handleGeneratePromptAndNavigate(projectId);
+    } catch (err) {
+      console.error('Failed to generate prompt via Shifu:', err);
+      // Fallback navigation if API error
+      router.push(`/project/${projectId}/thread`);
+    }
   };
 
   const handleCreateManually = () => {
     router.push(`/project/${projectId}/create`);
     // onClose();
   };
+
 
   return (
     <motion.div

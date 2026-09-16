@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import classes from './newprojectDashboard.module.css';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import axios from '@/lib/axios';
 //change_by_rohan
 import { getOrgContext } from '@/lib/orgContext';
@@ -165,11 +165,14 @@ const formatDate = (dateString) => {
 
 const NewProjectDashboard = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const mandateParam = searchParams ? searchParams.get('mandate') : null;
+
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-  //change_by_rohan: Interactive Filter & Sort States
+  // Interactive Filter & Sort States
   const [sortOption, setSortOption] = useState('latest');
   const [typeFilter, setTypeFilter] = useState('all');
   const [designationFilter, setDesignationFilter] = useState('all');
@@ -218,7 +221,6 @@ const NewProjectDashboard = () => {
     router.push('/project/create-project');
   };
 
-  //change_by_rohan: Direct projects rendering (no frontend deduplication)
   const availableDesignations = Array.from(
     new Set(projects.map((p) => p.designation_name).filter(Boolean)),
   );
@@ -241,7 +243,14 @@ const NewProjectDashboard = () => {
       const matchesDesignation =
         designationFilter === 'all' || p.designation_name === designationFilter;
 
-      return matchesSearch && matchesType && matchesDesignation;
+      const pMandate = p.project_details?.project_mandate;
+      const matchesMandate =
+        !mandateParam ||
+        (mandateParam === 'organization' && (pMandate === 'organization' || !pMandate)) ||
+        (mandateParam === 'team' && pMandate === 'team') ||
+        (mandateParam === 'self' && pMandate === 'self');
+
+      return matchesSearch && matchesType && matchesDesignation && matchesMandate;
     })
     .sort((a, b) => {
       if (sortOption === 'latest') {
@@ -278,21 +287,42 @@ const NewProjectDashboard = () => {
     };
   };
 
+  const getSharedWithText = (project) => {
+    const mandate = project.project_details?.project_mandate;
+    if (mandate === 'organization') return 'Organization';
+    if (mandate === 'team') return 'Team';
+    if (mandate === 'self') return 'Self';
+    return 'Organization';
+  };
+
+  let pageTitle = 'Projects';
+  let pageSubtitle =
+    "Each project pairs a role's job description with a generated skill map, its question bank, and the people it is allocated to.";
+
+  if (mandateParam === 'organization') {
+    pageTitle = 'My Organisation';
+    pageSubtitle =
+      "Every project shared with your organisation — the role's skill map, question bank, and allocations.";
+  } else if (mandateParam === 'team') {
+    pageTitle = 'My Team';
+    pageSubtitle =
+      "Every project shared with your team — the role's skill map, question bank, and allocations.";
+  }
+
   return (
     <div className={classes.pageWrapper}>
       <div className={classes.container}>
         {/* Header */}
         <div className={classes.headerRow}>
           <div>
-            <h1 className={classes.title}>Projects</h1>
-            <p className={classes.subtitle}>
-              Each project pairs a role's job description with a generated
-              skill map, its question bank, and the people it is allocated to.
-            </p>
+            <h1 className={classes.title}>{pageTitle}</h1>
+            <p className={classes.subtitle}>{pageSubtitle}</p>
           </div>
-          <button className={classes.btnNew} onClick={handleNewProject}>
-            <PlusIcon /> Create New Project
-          </button>
+          {!mandateParam && (
+            <button className={classes.btnNew} onClick={handleNewProject}>
+              <PlusIcon /> Create New Project
+            </button>
+          )}
         </div>
 
         {/* Search, Sort & Filter Toolbar */}
@@ -435,7 +465,7 @@ const NewProjectDashboard = () => {
                   Clear All Filters
                 </button>
               )}
-              {!searchQuery && activeFiltersCount === 0 && (
+              {!searchQuery && activeFiltersCount === 0 && !mandateParam && (
                 <button className={classes.btnNew} onClick={handleNewProject}>
                   New Project <PlusIcon />
                 </button>
@@ -451,16 +481,20 @@ const NewProjectDashboard = () => {
               const { label: typeLabel, badgeClass, Icon: TypeIcon } = getProjectTypeBadge(project);
 
               return (
-                <div key={project.project_id} className={classes.card}>
+                <div
+                  key={project.project_id}
+                  className={classes.card}
+                  onClick={() => router.push(`/project/${project.project_id}`)}
+                >
                   <div className={classes.cardHeader}>
                     <div className={classes.cardHeaderLeft}>
                       <div className={classes.avatar}>
                         <span className={classes.avatarText}>{initials}</span>
                       </div>
                       <div className={classes.cardTitleGroup}>
-                        <h3 className={classes.cardTitle}>{project.project_name || 'Devops'}</h3>
+                        <h3 className={classes.cardTitle}>{project.project_name || 'Project'}</h3>
                         <p className={classes.cardSubtitle}>
-                          Shared by {project.organization_name || 'Setuschool'} · {createdDate}
+                          Shared by {project.organization_name || 'Organization'} · {createdDate}
                         </p>
                       </div>
                     </div>
@@ -479,23 +513,21 @@ const NewProjectDashboard = () => {
                       <div className={classes.sharedBox}>
                         Shared with{' '}
                         <span className={classes.sharedBoxBold}>
-                          {project.function_name || project.designation_name
-                            ? [project.function_name, project.designation_name].filter(Boolean).join(' — ')
-                            : 'Developer — Developer L2'}
+                          {getSharedWithText(project)}
                         </span>
                       </div>
-                      {/* #change_by_rohan: Commented out static Assessment Stat & Roadmap Stat pills until backend returns dynamic counts */}
-                      {/* <div className={classes.checklist}>
-                        <div className={classes.checkPill}>
-                          <span className={classes.checkPillText}>✓ 2/3 completed the assessment</span>
-                        </div>
-                        <div className={classes.checkPill}>
-                          <span className={classes.checkPillText}>1 personalised roadmap generated</span>
-                        </div>
-                      </div> */}
-                      <p className={classes.cardNote}>
-                        Members: each person who's assessed gets their own personalised roadmap
-                      </p>
+
+                      <div className={classes.cardFooter}>
+                        <button
+                          className={classes.openProjectBtn}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/project/${project.project_id}`);
+                          }}
+                        >
+                          Open Project ↗
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
