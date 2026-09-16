@@ -24,6 +24,7 @@ export const PromptSharingProvider = ({ children }) => {
         who_is_this_for: options.who_is_this_for || whoIsThisFor,
         what_to_create: options.what_to_create || whatToCreate,
         role_description_text: options.role_description_text || roleDescriptionText,
+        project_id: projectId || options.project_id,
       };
       const reqFile = file || uploadedFile;
 
@@ -31,12 +32,16 @@ export const PromptSharingProvider = ({ children }) => {
       setGeneratedData(resData);
 
       if (resData && resData.prompt) {
+        // Automatically persist in sessionStorage so it survives component mounting and navigation
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('pending_roadmap_prompt', resData.prompt);
+        }
         // Automatically populate the query input for EmptyState / Chat UI
         useThreadStore.getState().setQueryInput(resData.prompt);
       }
 
       if (projectId) {
-        router.push(`/project/${projectId}/thread`);
+        router.push(`/project/${projectId}/shifu`);
       } else {
         router.push('/threads');
       }

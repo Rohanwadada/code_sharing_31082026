@@ -37,12 +37,13 @@ const NewRoadmapCreationModeSelectionPage = ({ projectId }) => {
   const { handleGeneratePromptAndNavigate, isGenerating } = usePromptSharingContext();
 
   const handleCreateWithShifu = async () => {
+    if (isGenerating) return;
     try {
       await handleGeneratePromptAndNavigate(projectId);
     } catch (err) {
       console.error('Failed to generate prompt via Shifu:', err);
       // Fallback navigation if API error
-      router.push(`/project/${projectId}/thread`);
+      router.push(`/project/${projectId}/shifu`);
     }
   };
 
@@ -50,7 +51,6 @@ const NewRoadmapCreationModeSelectionPage = ({ projectId }) => {
     router.push(`/project/${projectId}/create`);
     // onClose();
   };
-
 
   return (
     <motion.div
@@ -90,6 +90,8 @@ const NewRoadmapCreationModeSelectionPage = ({ projectId }) => {
             <button
               className={styles['option-card']}
               onClick={handleCreateWithShifu}
+              disabled={isGenerating}
+              style={isGenerating ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
               custom={0}
             >
               <div className={styles['card-head']}>
@@ -97,15 +99,17 @@ const NewRoadmapCreationModeSelectionPage = ({ projectId }) => {
                   <Image src={shifuIcon} alt="shifu-icon" />
                 </div>
                 <span className={styles['option-label']}>
-                  Create with Shifu
+                  {isGenerating ? 'Generating Prompt...' : 'Create with Shifu'}
                 </span>
               </div>
               <div className={styles['option-desc']}>
-                AI-assisted roadmap generation tailored to your goals
+                {isGenerating
+                  ? 'Analyzing role & requirements to generate prompt...'
+                  : 'AI-assisted roadmap generation tailored to your goals'}
               </div>
               <div className={styles['option-arrow']}>
                 <div className={styles['arrow-btn']}>
-                  <ArrowRightIcon />
+                  {isGenerating ? '⏳' : <ArrowRightIcon />}
                 </div>
               </div>
               <div className={styles['option-badge']}>Recommended</div>

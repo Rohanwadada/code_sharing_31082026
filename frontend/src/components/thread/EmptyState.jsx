@@ -191,8 +191,28 @@ const EmptyState = ({projectId}) => {
   };
 
   useEffect(() => {
+    const pendingPrompt =
+      typeof window !== 'undefined'
+        ? sessionStorage.getItem('pending_roadmap_prompt')
+        : null;
+    const currentInput = useThreadStore.getState().queryInput;
+
     threadReset();
-  }, [threadReset, router]);
+
+    if (pendingPrompt) {
+      setQueryInput(pendingPrompt);
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('pending_roadmap_prompt');
+      }
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      }, 100);
+    } else if (currentInput) {
+      setQueryInput(currentInput);
+    }
+  }, []);
 
   return (
     <div className={`${styles['section']}`}>

@@ -13,6 +13,9 @@ export const generateRoadmapPrompt = async (options = {}, file = null) => {
   if (options.role_description_text) {
     formData.append("role_description_text", options.role_description_text);
   }
+  if (options.project_id) {
+    formData.append("project_id", options.project_id);
+  }
   if (file) {
     formData.append("file", file);
   }

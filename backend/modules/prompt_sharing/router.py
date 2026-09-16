@@ -2,7 +2,9 @@ import logging
 from typing import Optional
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from shared.db.dependencies import get_db
 from modules.prompt_sharing.schema import GenerateRoadmapPromptResponse
 from modules.prompt_sharing.service import PromptSharingService, get_prompt_sharing_service
 
@@ -20,15 +22,19 @@ async def generate_roadmap_prompt(
     who_is_this_for: Optional[str] = Form("Organization"),
     what_to_create: Optional[str] = Form("roadmap"),
     role_description_text: Optional[str] = Form(None),
+    project_id: Optional[str] = Form(None),
     file: Optional[UploadFile] = File(None),
+    db: AsyncSession = Depends(get_db),
     service: PromptSharingService = Depends(get_prompt_sharing_service),
 ):
     try:
         file_bytes = await file.read() if file else None
         return await service.generate_roadmap_prompt(
+            db=db,
             who_is_this_for=who_is_this_for or "Organization",
             what_to_create=what_to_create or "roadmap",
             role_description_text=role_description_text,
+            project_id=project_id,
             file_bytes=file_bytes,
         )
     except Exception as e:
@@ -37,3 +43,4 @@ async def generate_roadmap_prompt(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e),
         )
+
