@@ -7,7 +7,7 @@ import MemberDetailView from './MemberDetailView';
 const MyOrganization = ({ projectData }) => {
   const [activeTab, setActiveTab] = useState('assigned'); // 'overview' | 'assigned' | 'leaderboard'
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('all');
+  const [sortBy, setSortBy] = useState('progress_desc');
   const [statusFilter, setStatusFilter] = useState('all');
   const [expandedDepts, setExpandedDepts] = useState({});
   const [selectedMember, setSelectedMember] = useState(null);
@@ -31,43 +31,74 @@ const MyOrganization = ({ projectData }) => {
   const rawMembers = projectData?.assigned_members || [];
 
   const members = useMemo(() => {
-    return rawMembers.map((m, idx) => ({
-      id: m.id || idx + 1,
-      name: m.name || m.user_name || 'Currently unavailable',
-      email: m.email || 'Currently unavailable',
-      role: m.designation || m.role || 'Currently unavailable',
-      unit: m.department || m.unit || projectData?.function_name || 'Currently unavailable',
-      manager: m.manager || 'Currently unavailable',
-      assessmentStatus: m.status || m.assessmentStatus || 'Not started',
-      learningStatus: m.progress !== undefined ? `${m.progress}%` : 'Currently unavailable',
-      overallQuizScore: m.overallQuizScore || 'Currently unavailable',
-      overallCapstone: m.overallCapstone || 'Currently unavailable',
-      quizPercent: m.quizPercent || (m.status === 'Completed' ? 100 : m.progress || 0),
-      roadmapPercent: m.progress || m.roadmapPercent || 0,
-      assessmentPercent: m.assessmentPercent || (m.status === 'Completed' ? 100 : m.progress || 0),
-      allocationId: m.allocationId || m.allocation_id || m.assignment_id || m.access_id,
-      allocation_id: m.allocation_id || m.allocationId || m.assignment_id || m.access_id,
-      roadmap_id: m.roadmap_id || m.roadmapId,
-      roadmap_title: m.roadmap_title || m.roadmapTitle,
-      roadmap_chapters: m.roadmap_chapters || m.roadmapChapters || [],
-      completed_nodes: m.completed_nodes !== undefined ? m.completed_nodes : m.completedNodes,
-      total_nodes: m.total_nodes !== undefined ? m.total_nodes : m.totalNodes,
-      progress: m.progress !== undefined ? m.progress : 0,
-      user_quizzes: m.user_quizzes || [],
-      capstone_project: m.capstone_project,
-      capstonePercent: m.capstonePercent !== undefined ? m.capstonePercent : (m.capstone_project?.percent || 0),
-      capstoneStatus: m.capstoneStatus || m.capstone_project?.status || 'Not started',
-      total_quizzes_count: m.total_quizzes_count || (m.user_quizzes || []).length,
-      taken_quizzes_count: m.taken_quizzes_count || (m.user_quizzes || []).filter(q => q.status === 'Completed' || q.score > 0).length,
-      avg_quiz_score: m.avg_quiz_score,
-    }));
+    return rawMembers.map((m, idx) => {
+      const userQuizzes = m.user_quizzes || [];
+
+      // Skill-gap score: from the skill_gap_assessment quiz
+      const skillGapQuiz = userQuizzes.find(q => q.assessment_type === 'skill_gap_assessment' && q.status === 'Completed');
+      const skillGapScore = skillGapQuiz ? Math.round(skillGapQuiz.score) : null;
+
+      // Roadmap progress %
+      const roadmapPct = m.progress !== undefined ? Math.round(m.progress) : 0;
+
+      // Quiz avg: average score of all roadmap learning assessment quizzes
+      const learningQuizzes = userQuizzes.filter(q => q.assessment_type === 'roadmap_learning_assessment');
+      const quizAvgScore = learningQuizzes.length > 0
+        ? Math.round(learningQuizzes.reduce((sum, q) => sum + (q.score || 0), 0) / learningQuizzes.length)
+        : null;
+
+      // Capstone Project score (0% if none)
+      const capstoneScore = m.capstonePercent !== undefined ? Math.round(m.capstonePercent) : (m.capstone_project?.percent || 0);
+
+      // Overall %: average of all 4 components (Skill Gap, Roadmap, Quiz Avg, Capstone)
+      const sg = skillGapScore !== null ? skillGapScore : 0;
+      const rm = roadmapPct;
+      const qz = quizAvgScore !== null ? quizAvgScore : 0;
+      const cp = capstoneScore;
+      const overallPct = Math.round((sg + rm + qz + cp) / 4);
+
+      return {
+        id: m.id || idx + 1,
+        name: m.name || m.user_name || 'Unknown',
+        email: m.email || '',
+        role: m.designation || m.role || 'Learner',
+        unit: m.department || m.unit || projectData?.function_name || 'General',
+        manager: m.manager || '—',
+        assessmentStatus: m.status || m.assessmentStatus || 'Not started',
+        skillGapScore,
+        roadmapPct,
+        quizAvgScore,
+        learningQuizzesCount: learningQuizzes.length,
+        totalQuizzesCount: m.total_quizzes_count || userQuizzes.length,
+        capstoneScore,
+        capstone_project: m.capstone_project,
+        capstonePercent: capstoneScore,
+        capstoneStatus: m.capstoneStatus || m.capstone_project?.status || 'Not started',
+        total_quizzes_count: m.total_quizzes_count || userQuizzes.length,
+        taken_quizzes_count: m.taken_quizzes_count || userQuizzes.filter(q => q.status === 'Completed' || q.score > 0).length,
+        avg_quiz_score: m.avg_quiz_score !== undefined ? m.avg_quiz_score : quizAvgScore,
+        overallPct,
+        learningStatus: roadmapPct > 0 ? `${roadmapPct}%` : 'Not started',
+        overallQuizScore: quizAvgScore !== null ? `${quizAvgScore}%` : '—',
+        overallCapstone: capstoneScore > 0 ? `${capstoneScore}%` : '—',
+        allocationId: m.allocationId || m.allocation_id || m.assignment_id || m.access_id,
+        allocation_id: m.allocation_id || m.allocationId || m.assignment_id || m.access_id,
+        roadmap_id: m.roadmap_id || m.roadmapId,
+        roadmap_title: m.roadmap_title || m.roadmapTitle,
+        roadmap_chapters: m.roadmap_chapters || m.roadmapChapters || [],
+        completed_nodes: m.completed_nodes !== undefined ? m.completed_nodes : m.completedNodes,
+        total_nodes: m.total_nodes !== undefined ? m.total_nodes : m.totalNodes,
+        progress: roadmapPct,
+        user_quizzes: userQuizzes,
+      };
+    });
   }, [rawMembers, projectData]);
 
   // Dynamic Completion Calculations
   const totalAssigned = members.length;
-  const completedCount = members.filter((m) => m.assessmentStatus === 'Completed').length;
-  const inProgressCount = members.filter((m) => m.assessmentStatus === 'In progress').length;
-  const notStartedCount = members.filter((m) => m.assessmentStatus === 'Not started').length;
+  const completedCount = members.filter((m) => (m.assessmentStatus || '').toLowerCase() === 'completed').length;
+  const inProgressCount = members.filter((m) => (m.assessmentStatus || '').toLowerCase().includes('progress')).length;
+  const notStartedCount = members.filter((m) => (m.assessmentStatus || '').toLowerCase().includes('not started') || !m.assessmentStatus).length;
 
   const completedPct = totalAssigned > 0 ? Math.round((completedCount / totalAssigned) * 100) : 0;
   const inProgressPct = totalAssigned > 0 ? Math.round((inProgressCount / totalAssigned) * 100) : 0;
@@ -80,30 +111,84 @@ const MyOrganization = ({ projectData }) => {
     let filtered = members.filter((member) => {
       const matchesSearch =
         !q ||
-        member.name.toLowerCase().includes(q) ||
-        member.role.toLowerCase().includes(q) ||
-        member.unit.toLowerCase().includes(q);
+        (member.name || '').toLowerCase().includes(q) ||
+        (member.role || '').toLowerCase().includes(q) ||
+        (member.unit || '').toLowerCase().includes(q) ||
+        (member.email || '').toLowerCase().includes(q);
 
-      const matchesStatus =
-        statusFilter === 'all' ||
-        (statusFilter === 'completed' && member.assessmentStatus === 'Completed') ||
-        (statusFilter === 'in_progress' && member.assessmentStatus === 'In progress') ||
-        (statusFilter === 'not_started' && member.assessmentStatus === 'Not started');
+      const statusLower = (member.assessmentStatus || '').toLowerCase().replace(/\s+/g, '_');
+      const isCompleted = statusLower === 'completed';
+      const isInProgress = statusLower.includes('progress');
+      const isNotStarted = statusLower.includes('not_started') || !statusLower;
+      const hasProgress = (member.overallPct > 0) || (member.roadmapPct > 0) || ((member.quizAvgScore || 0) > 0) || ((member.skillGapScore || 0) > 0);
+
+      let matchesStatus = true;
+      if (statusFilter === 'completed') matchesStatus = isCompleted;
+      else if (statusFilter === 'in_progress') matchesStatus = isInProgress;
+      else if (statusFilter === 'not_started') matchesStatus = isNotStarted;
+      else if (statusFilter === 'has_progress') matchesStatus = hasProgress;
+      else if (statusFilter === 'no_progress') matchesStatus = !hasProgress;
 
       return matchesSearch && matchesStatus;
     });
 
-    if (sortBy === 'name') {
-      filtered.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortBy === 'status') {
-      filtered.sort((a, b) => a.assessmentStatus.localeCompare(b.assessmentStatus));
-    }
+    filtered.sort((a, b) => {
+      if (sortBy === 'progress_desc' || sortBy === 'all') {
+        const diffOverall = (b.overallPct || 0) - (a.overallPct || 0);
+        if (diffOverall !== 0) return diffOverall;
+        const diffRoadmap = (b.roadmapPct || 0) - (a.roadmapPct || 0);
+        if (diffRoadmap !== 0) return diffRoadmap;
+        const diffQuiz = (b.quizAvgScore || 0) - (a.quizAvgScore || 0);
+        if (diffQuiz !== 0) return diffQuiz;
+        const diffSG = (b.skillGapScore || 0) - (a.skillGapScore || 0);
+        if (diffSG !== 0) return diffSG;
+        return (a.name || '').localeCompare(b.name || '');
+      }
+      if (sortBy === 'progress_asc') {
+        const diffOverall = (a.overallPct || 0) - (b.overallPct || 0);
+        if (diffOverall !== 0) return diffOverall;
+        const diffRoadmap = (a.roadmapPct || 0) - (b.roadmapPct || 0);
+        if (diffRoadmap !== 0) return diffRoadmap;
+        return (a.name || '').localeCompare(b.name || '');
+      }
+      if (sortBy === 'roadmap_desc') {
+        const diff = (b.roadmapPct || 0) - (a.roadmapPct || 0);
+        if (diff !== 0) return diff;
+        return (b.overallPct || 0) - (a.overallPct || 0);
+      }
+      if (sortBy === 'quiz_desc') {
+        const diff = (b.quizAvgScore || 0) - (a.quizAvgScore || 0);
+        if (diff !== 0) return diff;
+        return (b.overallPct || 0) - (a.overallPct || 0);
+      }
+      if (sortBy === 'skillgap_desc') {
+        const diff = (b.skillGapScore || 0) - (a.skillGapScore || 0);
+        if (diff !== 0) return diff;
+        return (b.overallPct || 0) - (a.overallPct || 0);
+      }
+      if (sortBy === 'name_asc' || sortBy === 'name') {
+        return (a.name || '').localeCompare(b.name || '');
+      }
+      if (sortBy === 'name_desc') {
+        return (b.name || '').localeCompare(a.name || '');
+      }
+      if (sortBy === 'status') {
+        const statusOrder = { 'completed': 1, 'in_progress': 2, 'not_started': 3 };
+        const orderA = statusOrder[(a.assessmentStatus || '').toLowerCase().replace(/\s+/g, '_')] || 4;
+        const orderB = statusOrder[(b.assessmentStatus || '').toLowerCase().replace(/\s+/g, '_')] || 4;
+        if (orderA !== orderB) return orderA - orderB;
+        return (b.overallPct || 0) - (a.overallPct || 0);
+      }
+      return 0;
+    });
 
-    return filtered.reduce((acc, member) => {
+    const grouped = filtered.reduce((acc, member) => {
       if (!acc[member.unit]) acc[member.unit] = [];
       acc[member.unit].push(member);
       return acc;
     }, {});
+
+    return grouped;
   }, [members, searchQuery, sortBy, statusFilter]);
 
   const toggleDept = (dept) => {
@@ -268,20 +353,29 @@ const MyOrganization = ({ projectData }) => {
                   className={styles.selectInput}
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
+                  aria-label="Sort members"
                 >
-                  <option value="all">Sort</option>
-                  <option value="name">Name</option>
-                  <option value="status">Status</option>
+                  <option value="progress_desc">Sort: Highest Progress</option>
+                  <option value="progress_asc">Sort: Lowest Progress</option>
+                  <option value="roadmap_desc">Sort: Roadmap Progress</option>
+                  <option value="quiz_desc">Sort: Quiz Average</option>
+                  <option value="skillgap_desc">Sort: Skill Gap Score</option>
+                  <option value="name_asc">Sort: Name (A – Z)</option>
+                  <option value="name_desc">Sort: Name (Z – A)</option>
+                  <option value="status">Sort: Status</option>
                 </select>
                 <select
                   className={styles.selectInput}
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
+                  aria-label="Filter members"
                 >
-                  <option value="all">Filter</option>
-                  <option value="completed">Completed</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="not_started">Not Started</option>
+                  <option value="all">Filter: All Statuses</option>
+                  <option value="in_progress">Filter: In Progress</option>
+                  <option value="completed">Filter: Completed</option>
+                  <option value="not_started">Filter: Not Started</option>
+                  <option value="has_progress">Filter: Has Progress (&gt;0%)</option>
+                  <option value="no_progress">Filter: No Progress (0%)</option>
                 </select>
               </div>
 
@@ -293,12 +387,12 @@ const MyOrganization = ({ projectData }) => {
               <div className={styles.accordionList}>
                 {Object.keys(groupedMembers).length === 0 ? (
                   <div style={{ padding: '35px 20px', textAlign: 'center', color: '#666', fontSize: '15px', fontWeight: '500' }}>
-                    Currently unavailable
+                    No members match the search and filter criteria.
                   </div>
                 ) : (
                   Object.keys(groupedMembers).map((dept) => {
                     const deptMembers = groupedMembers[dept];
-                    const deptDone = deptMembers.filter((m) => m.assessmentStatus === 'Completed').length;
+                    const deptDone = deptMembers.filter((m) => (m.assessmentStatus || '').toLowerCase() === 'completed').length;
                     const isExpanded = expandedDepts[dept] !== false;
 
                     return (
@@ -331,11 +425,11 @@ const MyOrganization = ({ projectData }) => {
                               <thead>
                                 <tr>
                                   <th>Employee</th>
-                                  <th>Manager</th>
-                                  <th>Assessment</th>
-                                  <th>Learning Status</th>
-                                  <th>Overall Quiz Score</th>
-                                  <th>Overall Capstone</th>
+                                  <th>Status</th>
+                                  <th>Skill Gap</th>
+                                  <th>Roadmap</th>
+                                  <th>Quiz Avg</th>
+                                  <th>Overall %</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -352,13 +446,12 @@ const MyOrganization = ({ projectData }) => {
                                         </div>
                                       </div>
                                     </td>
-                                    <td>{member.manager}</td>
                                     <td>
                                       <span
                                         className={
-                                          member.assessmentStatus === 'Completed'
+                                          (member.assessmentStatus || '').toLowerCase() === 'completed'
                                             ? styles.badgeCompleted
-                                            : member.assessmentStatus === 'In progress'
+                                            : (member.assessmentStatus || '').toLowerCase().includes('progress')
                                             ? styles.badgeInProgress
                                             : styles.badgeNotStarted
                                         }
@@ -366,9 +459,26 @@ const MyOrganization = ({ projectData }) => {
                                         {member.assessmentStatus}
                                       </span>
                                     </td>
-                                    <td>{member.learningStatus}</td>
-                                    <td>{member.overallQuizScore}</td>
-                                    <td>{member.overallCapstone}</td>
+                                    <td style={{ color: member.skillGapScore !== null ? '#1D6A72' : '#9AA0B4', fontWeight: 600 }}>
+                                      {member.skillGapScore !== null ? `${member.skillGapScore}%` : '—'}
+                                    </td>
+                                    <td style={{ color: '#0F1117', fontWeight: 500 }}>
+                                      {member.roadmapPct}%
+                                    </td>
+                                    <td style={{ color: member.quizAvgScore !== null ? '#8A6A10' : '#9AA0B4', fontWeight: 600 }}>
+                                      {member.quizAvgScore !== null
+                                        ? `${member.quizAvgScore}% (${member.learningQuizzesCount}/${member.totalQuizzesCount})`
+                                        : '—'}
+                                    </td>
+                                    <td style={{
+                                      fontWeight: 700,
+                                      fontSize: '14px',
+                                      color: member.overallPct !== null
+                                        ? (member.overallPct >= 70 ? '#1D6A72' : member.overallPct >= 40 ? '#8A6A10' : '#C0392B')
+                                        : '#9AA0B4'
+                                    }}>
+                                      {member.overallPct !== null ? `${member.overallPct}%` : '—'}
+                                    </td>
                                   </tr>
                                 ))}
                               </tbody>
@@ -386,11 +496,104 @@ const MyOrganization = ({ projectData }) => {
 
         {/* LEADERBOARD TAB */}
         {activeTab === 'leaderboard' && (
-          <div className={styles.card}>
-            <h2 className={styles.aboutTitle}>Organization Leaderboard</h2>
-            <p className={styles.aboutText} style={{ marginTop: '12px', color: '#666' }}>
-              Currently unavailable
-            </p>
+          <div className={styles.membersCard}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 className={styles.membersHeader} style={{ margin: 0 }}>Organization Leaderboard</h2>
+              <span style={{ fontSize: '13px', color: '#64748B' }}>Ranked by overall completion and quiz scores</span>
+            </div>
+            {members.length === 0 ? (
+              <div style={{ padding: '35px 20px', textAlign: 'center', color: '#666', fontSize: '15px', fontWeight: '500' }}>
+                No members in this project.
+              </div>
+            ) : (
+              <div className={styles.membersTableWrapper}>
+                <table className={styles.membersTable}>
+                  <thead>
+                    <tr>
+                      <th style={{ width: '80px' }}>Rank</th>
+                      <th>Employee</th>
+                      <th>Department</th>
+                      <th>Status</th>
+                      <th>Skill Gap</th>
+                      <th>Roadmap</th>
+                      <th>Quiz Avg</th>
+                      <th>Overall %</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...members]
+                      .sort((a, b) => {
+                        const diffOverall = (b.overallPct || 0) - (a.overallPct || 0);
+                        if (diffOverall !== 0) return diffOverall;
+                        const diffRoadmap = (b.roadmapPct || 0) - (a.roadmapPct || 0);
+                        if (diffRoadmap !== 0) return diffRoadmap;
+                        return (b.quizAvgScore || 0) - (a.quizAvgScore || 0);
+                      })
+                      .map((member, idx) => {
+                        const rank = idx + 1;
+                        const rankBadge =
+                          rank === 1 ? '🥇 #1' : rank === 2 ? '🥈 #2' : rank === 3 ? '🥉 #3' : `#${rank}`;
+                        return (
+                          <tr key={member.id} onClick={() => setSelectedMember(member)}>
+                            <td>
+                              <span style={{
+                                fontWeight: 700,
+                                fontSize: rank <= 3 ? '15px' : '13px',
+                                color: rank === 1 ? '#D97706' : rank === 2 ? '#475569' : rank === 3 ? '#B45309' : '#94A3B8'
+                              }}>
+                                {rankBadge}
+                              </span>
+                            </td>
+                            <td>
+                              <div className={styles.userCell}>
+                                <div className={styles.avatarCircle}>
+                                  {member.name.slice(0, 2).toUpperCase()}
+                                </div>
+                                <div>
+                                  <div className={styles.userName}>{member.name}</div>
+                                  <div className={styles.userSubtext}>{member.role}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td style={{ color: '#475569', fontWeight: 500 }}>{member.unit}</td>
+                            <td>
+                              <span className={
+                                (member.assessmentStatus || '').toLowerCase() === 'completed'
+                                  ? styles.badgeCompleted
+                                  : (member.assessmentStatus || '').toLowerCase().includes('progress')
+                                  ? styles.badgeInProgress
+                                  : styles.badgeNotStarted
+                              }>
+                                {member.assessmentStatus}
+                              </span>
+                            </td>
+                            <td style={{ color: member.skillGapScore !== null ? '#1D6A72' : '#9AA0B4', fontWeight: 600 }}>
+                              {member.skillGapScore !== null ? `${member.skillGapScore}%` : '—'}
+                            </td>
+                            <td style={{ color: '#0F1117', fontWeight: 500 }}>
+                              {member.roadmapPct}%
+                            </td>
+                            <td style={{ color: member.quizAvgScore !== null ? '#8A6A10' : '#9AA0B4', fontWeight: 600 }}>
+                              {member.quizAvgScore !== null
+                                ? `${member.quizAvgScore}% (${member.learningQuizzesCount}/${member.totalQuizzesCount})`
+                                : '—'}
+                            </td>
+                            <td style={{
+                              fontWeight: 700,
+                              fontSize: '14px',
+                              color: member.overallPct !== null
+                                ? (member.overallPct >= 70 ? '#1D6A72' : member.overallPct >= 40 ? '#8A6A10' : '#C0392B')
+                                : '#9AA0B4'
+                            }}>
+                              {member.overallPct !== null ? `${member.overallPct}%` : '—'}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
       </div>
