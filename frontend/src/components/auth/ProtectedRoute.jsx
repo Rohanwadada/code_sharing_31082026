@@ -22,13 +22,15 @@ export default function ProtectedRoute({ children, allowedRoles }) {
       return;
     }
 
-    if (
-      allowedRoles &&
-      userDetails &&
-      !allowedRoles.includes(userDetails?.role)
-    ) {
-      router.replace('/dashboard');
+    // #changes 28-09-2026 - start: Normalized role matching with lowercase support
+    if (allowedRoles && userDetails) {
+      const userRole = (userDetails?.role || userDetails?.provided_role || '').toLowerCase().trim();
+      const normalizedAllowed = allowedRoles.map((r) => r.toLowerCase().trim());
+      if (!normalizedAllowed.includes(userRole)) {
+        router.replace('/dashboard');
+      }
     }
+    // #changes 28-09-2026 - end
   }, [isLoggedIn, isLoading, userDetails, allowedRoles, router, pathname]);
 
   if (isLoading) {

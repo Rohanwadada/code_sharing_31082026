@@ -597,120 +597,223 @@ const ShifuSkillGapAnalysis = ({ allocationId, embedded = false }) => {
           <p className={classes.kycSubtitle}>KYC = know your competency</p>
         </div>
       </div>
-        {/* Top Row: Gauge & Stats */}
-        <div className={classes.topRow}>
-          <div className={classes.gaugeContainer}>
-            <GaugeSVG score={overallScore} />
-          </div>
-
-          <div className={classes.statsGrid}>
-            <div className={classes.statCard}>
-              <p className={classes.statLabel}>
-                You tackled {totalQuestions} questions within
-              </p>
-              <div className={classes.statValueBox}>
-                <StopwatchIcon />{' '}
-                <span>
-                  {submission?.total_time_taken
-                    ? submission?.total_time_taken
-                    : '—'}
-                </span>
+        {/* Top Row / Gauge & Stats Layout */}
+        {result?.assessment_type === 'skill_gap_assessment' ? (
+          <>
+            {/* Top Row: Gauge on left & Stats on right */}
+            <div className={classes.topRow}>
+              <div className={classes.gaugeContainer}>
+                <GaugeSVG score={overallScore} />
               </div>
-            </div>
-            <div className={classes.statCard}>
-              <p className={classes.statLabel}>
-                Total number of correct answers
-              </p>
-              <div className={classes.statValueBox}>
-                <TargetIcon />{' '}
-                <span>
-                  {totalCorrect} / {totalQuestions || '—'}
-                </span>
-              </div>
-            </div>
-            <div className={classes.statCard}>
-              <p className={classes.statLabel}>You solved one question every</p>
-              <div className={classes.statValueBox}>
-                <FastIcon />{' '}
-                <span>
-                  {submission?.average_time_taken
-                    ? submission?.average_time_taken
-                    : '—'}
-                </span>
-              </div>
-            </div>
-            <div className={classes.statCard}>
-              <p className={classes.statLabel}>
-                Your best streak of correct answers
-              </p>
-              <div className={classes.statValueBox}>
-                <StreakIcon /> <span>{submission.best_streak ?? '—'}</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Middle Row: Performance & Skills */}
-        <div className={classes.middleRow}>
-          <div className={classes.card}>
-            <h3 className={classes.cardTitleGold}>Your performance</h3>
-            <p className={classes.cardDesc}>
-              In this test, some of your answers are correct, some are
-              incorrect, and some are partially correct.
-            </p>
-
-            <h4 className={classes.totalQs}>
-              Total {totalQuestions} questions
-            </h4>
-
-            <div className={classes.perfBars}>
-              {performanceData.map((item) => (
-                <div key={item.label} className={classes.perfRow}>
-                  <div className={classes.perfTrack}>
-                    <div
-                      className={classes.perfFill}
-                      style={{
-                        width: `${item.pct}%`,
-                        backgroundColor: item.color,
-                      }}
-                    ></div>
+              <div className={classes.statsGrid}>
+                <div className={classes.statCard}>
+                  <p className={classes.statLabel}>
+                    You tackled {totalQuestions} questions within
+                  </p>
+                  <div className={classes.statValueBox}>
+                    <StopwatchIcon />{' '}
+                    <span>
+                      {submission?.total_time_taken
+                        ? submission?.total_time_taken
+                        : '—'}
+                    </span>
                   </div>
-                  <span>{item.pct.toFixed(2)} %</span>
                 </div>
-              ))}
-            </div>
-
-            <div className={classes.perfLegend}>
-              {performanceData.map((item) => (
-                <span key={item.label}>
-                  {item.label}{' '}
-                  <div
-                    className={classes.legendBox}
-                    style={{ background: item.color }}
-                  ></div>
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {result?.assessment_type === 'skill_gap_assessment' && (
-            <div className={classes.card}>
-              <h3 className={classes.cardTitleGold}>Your Skills</h3>
-              <p className={classes.cardDesc}>
-                This chart outlines your proficiency in each of the key skills
-                assessed in this test.
-              </p>
-              <div className={classes.radarWrapper}>
-                <ReactApexChart
-                  options={radarOptions}
-                  series={radarSeries}
-                  type="radar"
-                  height={270}
-                />
+                <div className={classes.statCard}>
+                  <p className={classes.statLabel}>
+                    Total number of correct answers
+                  </p>
+                  <div className={classes.statValueBox}>
+                    <TargetIcon />{' '}
+                    <span>
+                      {totalCorrect} / {totalQuestions || '—'}
+                    </span>
+                  </div>
+                </div>
+                <div className={classes.statCard}>
+                  <p className={classes.statLabel}>You solved one question every</p>
+                  <div className={classes.statValueBox}>
+                    <FastIcon />{' '}
+                    <span>
+                      {submission?.average_time_taken
+                        ? submission?.average_time_taken
+                        : '—'}
+                    </span>
+                  </div>
+                </div>
+                <div className={classes.statCard}>
+                  <p className={classes.statLabel}>
+                    Your best streak of correct answers
+                  </p>
+                  <div className={classes.statValueBox}>
+                    <StreakIcon /> <span>{submission.best_streak ?? '—'}</span>
+                  </div>
+                </div>
               </div>
             </div>
-          )}
-        </div>
+
+            {/* Middle Row: Performance & Skills */}
+            <div className={classes.middleRow}>
+              <div className={classes.card}>
+                <h3 className={classes.cardTitleGold}>Your performance</h3>
+                <p className={classes.cardDesc}>
+                  In this test, some of your answers are correct, some are
+                  incorrect, and some are partially correct.
+                </p>
+
+                <h4 className={classes.totalQs}>
+                  Total {totalQuestions} questions
+                </h4>
+
+                <div className={classes.perfBars}>
+                  {performanceData.map((item) => (
+                    <div key={item.label} className={classes.perfRow}>
+                      <div className={classes.perfTrack}>
+                        <div
+                          className={classes.perfFill}
+                          style={{
+                            width: `${item.pct}%`,
+                            backgroundColor: item.color,
+                          }}
+                        ></div>
+                      </div>
+                      <span>{item.pct.toFixed(2)} %</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className={classes.perfLegend}>
+                  {performanceData.map((item) => (
+                    <span key={item.label}>
+                      {item.label}{' '}
+                      <div
+                        className={classes.legendBox}
+                        style={{ background: item.color }}
+                      ></div>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className={classes.card}>
+                <h3 className={classes.cardTitleGold}>Your Skills</h3>
+                <p className={classes.cardDesc}>
+                  This chart outlines your proficiency in each of the key skills
+                  assessed in this test.
+                </p>
+                <div className={classes.radarWrapper}>
+                  <ReactApexChart
+                    options={radarOptions}
+                    series={radarSeries}
+                    type="radar"
+                    height={270}
+                  />
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Crack It / Smash It: Centered Gauge */}
+            <div className={classes.centerGaugeRow}>
+              <div className={classes.gaugeContainerCentered}>
+                <GaugeSVG score={overallScore} />
+              </div>
+            </div>
+
+            {/* Middle Row: Performance on left, 4 Stat Cards on right */}
+            <div className={classes.middleRow}>
+              <div className={classes.card}>
+                <h3 className={classes.cardTitleGold}>Your performance</h3>
+                <p className={classes.cardDesc}>
+                  In this test, some of your answers are correct, some are
+                  incorrect, and some are partially correct.
+                </p>
+
+                <h4 className={classes.totalQs}>
+                  Total {totalQuestions} questions
+                </h4>
+
+                <div className={classes.perfBars}>
+                  {performanceData.map((item) => (
+                    <div key={item.label} className={classes.perfRow}>
+                      <div className={classes.perfTrack}>
+                        <div
+                          className={classes.perfFill}
+                          style={{
+                            width: `${item.pct}%`,
+                            backgroundColor: item.color,
+                          }}
+                        ></div>
+                      </div>
+                      <span>{item.pct.toFixed(2)} %</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className={classes.perfLegend}>
+                  {performanceData.map((item) => (
+                    <span key={item.label}>
+                      {item.label}{' '}
+                      <div
+                        className={classes.legendBox}
+                        style={{ background: item.color }}
+                      ></div>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* 4 Stats Cards placed beside Your Performance */}
+              <div className={classes.statsGrid}>
+                <div className={classes.statCard}>
+                  <p className={classes.statLabel}>
+                    You tackled {totalQuestions} questions within
+                  </p>
+                  <div className={classes.statValueBox}>
+                    <StopwatchIcon />{' '}
+                    <span>
+                      {submission?.total_time_taken
+                        ? submission?.total_time_taken
+                        : '—'}
+                    </span>
+                  </div>
+                </div>
+                <div className={classes.statCard}>
+                  <p className={classes.statLabel}>
+                    Total number of correct answers
+                  </p>
+                  <div className={classes.statValueBox}>
+                    <TargetIcon />{' '}
+                    <span>
+                      {totalCorrect} / {totalQuestions || '—'}
+                    </span>
+                  </div>
+                </div>
+                <div className={classes.statCard}>
+                  <p className={classes.statLabel}>You solved one question every</p>
+                  <div className={classes.statValueBox}>
+                    <FastIcon />{' '}
+                    <span>
+                      {submission?.average_time_taken
+                        ? submission?.average_time_taken
+                        : '—'}
+                    </span>
+                  </div>
+                </div>
+                <div className={classes.statCard}>
+                  <p className={classes.statLabel}>
+                    Your best streak of correct answers
+                  </p>
+                  <div className={classes.statValueBox}>
+                    <StreakIcon /> <span>{submission.best_streak ?? '—'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
 
         {result?.assessment_type === 'skill_gap_assessment' && (
           <>

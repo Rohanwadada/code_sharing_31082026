@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import classes from './newprojectDashboard.module.css';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from '@/lib/axios';
@@ -221,6 +221,18 @@ const NewProjectDashboard = () => {
     router.push('/project/create-project');
   };
 
+  const userDetails = useAuthStore((s) => s.userDetails);
+  // #changes 28-09-2026 - start: Admin role evaluation and mandate redirection for learners
+  const userRole = (userDetails?.role || userDetails?.provided_role || '').toLowerCase().trim();
+  const isAdmin = ['admin', 'superadmin', 'organization_admin'].includes(userRole);
+
+  useEffect(() => {
+    if (!isAdmin && userDetails && Object.keys(userDetails).length > 0 && (mandateParam === 'organization' || mandateParam === 'team')) {
+      router.replace('/dashboard');
+    }
+  }, [isAdmin, userDetails, mandateParam, router]);
+  // #changes 28-09-2026 - end
+
   const availableDesignations = Array.from(
     new Set(projects.map((p) => p.designation_name).filter(Boolean)),
   );
@@ -243,12 +255,16 @@ const NewProjectDashboard = () => {
       const matchesDesignation =
         designationFilter === 'all' || p.designation_name === designationFilter;
 
-      const pMandate = p.project_details?.project_mandate;
-      const matchesMandate =
-        !mandateParam ||
-        (mandateParam === 'organization' && (pMandate === 'organization' || !pMandate)) ||
-        (mandateParam === 'team' && pMandate === 'team') ||
-        (mandateParam === 'self' && pMandate === 'self');
+      const pMandate = (p.project_details?.project_mandate || 'self').toLowerCase().trim();
+
+      // #changes 28-09-2026 - start: Project mandate isolation (Learners only see self projects)
+      const matchesMandate = isAdmin
+        ? (!mandateParam ||
+            (mandateParam === 'organization' && (pMandate === 'organization' || !p.project_details?.project_mandate)) ||
+            (mandateParam === 'team' && pMandate === 'team') ||
+            (mandateParam === 'self' && pMandate === 'self'))
+        : (pMandate === 'self');
+      // #changes 28-09-2026 - end
 
       return matchesSearch && matchesType && matchesDesignation && matchesMandate;
     })
@@ -264,6 +280,18 @@ const NewProjectDashboard = () => {
       }
       return 0;
     });
+
+  const displayProjects = useMemo(() => {
+    const seen = new Set();
+    return filteredProjects.filter((p) => {
+      const pMandate = (p.project_details?.project_mandate || 'self').toLowerCase().trim();
+      const cleanName = (p.project_name || '').toLowerCase().trim();
+      const key = `${cleanName}__${pMandate}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [filteredProjects]);
 
   const getProjectTypeBadge = (project) => {
     const pType = project.project_details?.project_type || 'skill_gap_assessment';
@@ -288,16 +316,16 @@ const NewProjectDashboard = () => {
   };
 
   const getSharedWithText = (project) => {
-    const mandate = project.project_details?.project_mandate;
+    const mandate = (project.project_details?.project_mandate || '').toLowerCase().trim();
     if (mandate === 'organization') return 'Organization';
     if (mandate === 'team') return 'Team';
     if (mandate === 'self') return 'Self';
-    return 'Organization';
+    return 'Self';
   };
 
-  let pageTitle = 'Projects';
+  let pageTitle = 'My Projects';
   let pageSubtitle =
-    "Each project pairs a role's job description with a generated skill map, its question bank, and the people it is allocated to.";
+    "Projects assigned to you — your skill map, question bank, and personal learning path.";
 
   if (mandateParam === 'organization') {
     pageTitle = 'My Organisation';
@@ -307,6 +335,10 @@ const NewProjectDashboard = () => {
     pageTitle = 'My Team';
     pageSubtitle =
       "Every project shared with your team — the role's skill map, question bank, and allocations.";
+  } else if (mandateParam === 'self') {
+    pageTitle = 'My Projects';
+    pageSubtitle =
+      "Projects assigned to you — your skill map, question bank, and personal learning path.";
   }
 
   return (
@@ -449,7 +481,7 @@ const NewProjectDashboard = () => {
               <div className={classes.spinner}></div>
               <p>Loading projects...</p>
             </div>
-          ) : filteredProjects.length === 0 ? (
+          ) : displayProjects.length === 0 ? (
             <div className={classes.emptyState}>
               <h3 className={classes.emptyTitle}>No Projects Found</h3>
               <p className={classes.emptySubtitle}>
@@ -472,7 +504,7 @@ const NewProjectDashboard = () => {
               )}
             </div>
           ) : (
-            filteredProjects.map((project) => {
+            displayProjects.map((project) => {
               const initials = getInitials(project.project_name || project.function_name);
               const statusText = typeof project.project_status === 'object'
                 ? project.project_status?.status || 'active'
@@ -480,58 +512,61 @@ const NewProjectDashboard = () => {
               const createdDate = formatDate(project.created_at);
               const { label: typeLabel, badgeClass, Icon: TypeIcon } = getProjectTypeBadge(project);
 
-              return (
-                <div
-                  key={project.project_id}
-                  className={classes.card}
-                  onClick={() => router.push(`/project/${project.project_id}`)}
-                >
-                  <div className={classes.cardHeader}>
-                    <div className={classes.cardHeaderLeft}>
-                      <div className={classes.avatar}>
-                        <span className={classes.avatarText}>{initials}</span>
+                const targetMandate = mandateParam || project.project_details?.project_mandate;
+                const projectUrl = targetMandate ? `/project/${project.project_id}?mandate=${targetMandate}` : `/project/${project.project_id}`;
+
+                return (
+                  <div
+                    key={project.project_id}
+                    className={classes.card}
+                    onClick={() => router.push(projectUrl)}
+                  >
+                    <div className={classes.cardHeader}>
+                      <div className={classes.cardHeaderLeft}>
+                        <div className={classes.avatar}>
+                          <span className={classes.avatarText}>{initials}</span>
+                        </div>
+                        <div className={classes.cardTitleGroup}>
+                          <h3 className={classes.cardTitle}>{project.project_name || 'Project'}</h3>
+                          <p className={classes.cardSubtitle}>
+                            Shared by {project.organization_name || 'Organization'} · {createdDate}
+                          </p>
+                        </div>
                       </div>
-                      <div className={classes.cardTitleGroup}>
-                        <h3 className={classes.cardTitle}>{project.project_name || 'Project'}</h3>
-                        <p className={classes.cardSubtitle}>
-                          Shared by {project.organization_name || 'Organization'} · {createdDate}
-                        </p>
+                      <div className={`${classes.statusPill} ${statusText.toLowerCase() !== 'active' ? classes.statusPillInactive : ''}`}>
+                        {statusText}
                       </div>
                     </div>
-                    <div className={`${classes.statusPill} ${statusText.toLowerCase() !== 'active' ? classes.statusPillInactive : ''}`}>
-                      {statusText}
+
+                    <div className={classes.cardBody}>
+                      <div className={badgeClass}>
+                        <TypeIcon />
+                        <span className={classes.typeText}>{typeLabel}</span>
+                      </div>
+
+                      <div className={classes.innerWrapper}>
+                        <div className={classes.sharedBox}>
+                          Shared with{' '}
+                          <span className={classes.sharedBoxBold}>
+                            {getSharedWithText(project)}
+                          </span>
+                        </div>
+
+                        <div className={classes.cardFooter}>
+                          <button
+                            className={classes.openProjectBtn}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(projectUrl);
+                            }}
+                          >
+                            Open Project ↗
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
-
-                  <div className={classes.cardBody}>
-                    <div className={badgeClass}>
-                      <TypeIcon />
-                      <span className={classes.typeText}>{typeLabel}</span>
-                    </div>
-
-                    <div className={classes.innerWrapper}>
-                      <div className={classes.sharedBox}>
-                        Shared with{' '}
-                        <span className={classes.sharedBoxBold}>
-                          {getSharedWithText(project)}
-                        </span>
-                      </div>
-
-                      <div className={classes.cardFooter}>
-                        <button
-                          className={classes.openProjectBtn}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/project/${project.project_id}`);
-                          }}
-                        >
-                          Open Project ↗
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
+                );
             })
           )}
         </div>

@@ -2,7 +2,7 @@ from typing import Optional
 import json
 import logging
 from uuid import UUID
-
+import uuid
 from core.security.dependencies import get_current_user
 
 from azure.storage.blob import BlobServiceClient, ContentSettings
@@ -82,6 +82,8 @@ async def create_project(
             
         project_dict = json.loads(project_data)
         project_in = ProjectCreate(**project_dict)
+        project_in.created_by = uuid.UUID(user.user_id)
+
         #change_by_rohan (Set created_by to logged-in user_id)
         if hasattr(user, 'user_id') and user.user_id:
             project_in.created_by = user.user_id
@@ -117,10 +119,10 @@ async def create_project(
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         await db.rollback()
-        # raise HTTPException(
-        #     status_code=400, detail=f"Failed to create project: {str(e)}"
-        # )
-        raise e
+        logger.error(f"Error creating project: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to create project: {str(e)}"
+        )
 
 
 @router.put("/projects/{project_id}", status_code=status.HTTP_200_OK)
@@ -231,25 +233,46 @@ async def duplicate_project_route(project_id: UUID, db: AsyncSession = Depends(g
 
 
 
-#change_by_rohan
+# #changes 28-09-2026 - start: Make user_id mandatory/primary and organization_id optional
+# @router.get("/get-all-projects", response_model=list[ProjectResponse], status_code=status.HTTP_200_OK)
+# async def get_projects(
+#     organization_id: str,
+#     db: AsyncSession = Depends(get_db),
+#     user: UserDetails = Depends(get_current_user)
+# ):
+#     try:
+#         current_user_id = str(user.user_id)
+#         projects = await get_all_projects_async(
+#             db=db, 
+#             organization_id=organization_id, 
+#             current_user_id=current_user_id,
+#         )
+#         return projects
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Failed to fetch projects: {str(e)}")
+
 @router.get("/get-all-projects", response_model=list[ProjectResponse], status_code=status.HTTP_200_OK)
 async def get_projects(
-    organization_id: str ,
-    
+    organization_id: Optional[str] = None,  #changes 28-09-2026 - was mandatory `str`, now Optional
     db: AsyncSession = Depends(get_db),
-    user: UserDetails = Depends(get_current_user)
+    user: UserDetails = Depends(get_current_user)  #changes 28-09-2026 - added auth dependency
 ):
     try:
-        current_user_id = user.user_id
+        if not user or not user.user_id:  #changes 28-09-2026 - added user validation guard
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User authentication required")
+            
+        current_user_id = str(user.user_id)  #changes 28-09-2026 - cast to str for consistency
         projects = await get_all_projects_async(
             db=db, 
-            organization_id=organization_id, 
-            current_user_id=current_user_id,
-         
+            current_user_id=current_user_id,  #changes 28-09-2026 - user_id is now primary filter
+            organization_id=organization_id,  #changes 28-09-2026 - org_id is now optional secondary filter
         )
         return projects
+    except HTTPException:  #changes 28-09-2026 - re-raise HTTPException without wrapping
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch projects: {str(e)}")
+# #changes 28-09-2026 - end
 
 @router.post(
     "/project/details", response_model=ProjectResponse, status_code=status.HTTP_200_OK

@@ -577,3 +577,84 @@ Subtopic: "Distinguish -- path parameter type validation | scenario: a FastAPI i
 Complexity: "beginner"
 Solution Explanation: "1. Correct: FastAPI returns a 422 because the type annotation item_id: int triggers automatic Pydantic validation against the incoming string. 2. Top Distractor: 'automatically casts to integer 0' fails because FastAPI does not silently coerce invalid values -- it validates and rejects them. 3. Discrimination Insight: Strong candidates recognize that a type hint in a FastAPI route signature is a runtime validation contract, not just documentation."
 """
+
+
+FINAL_ROADMAP_CODING_QUESTION_ADDENDUM_PROMPT = """
+# Technical & Coding-Based Question Requirement for Final Roadmap Assessment
+
+This roadmap ("{roadmap_name}") covers technical/coding topics. Therefore, a MINIMUM of
+{coding_count} out of {count} questions (~{coding_ratio_percent}% ratio) MUST be code-based
+questions containing a real, syntactically valid code snippet in the "code_snippet" JSON field.
+The remaining {mcq_count} questions MUST be conceptual scenario questions with "code_snippet"
+set to null.
+
+All Phase 4 Question Design Rules, the Bloom's Taxonomy Rules, the subtopic tag format,
+and the Phase 4b Judge self-audit above apply identically to coding questions -- a coding
+question is not exempt from option length parity, reasoning-path uniqueness, or the
+three-part solution_explanation.
+
+## MANDATORY CODING QUESTION RULES:
+
+1. MINIMUM CODING RATIO IS NON-NEGOTIABLE:
+   - You MUST generate at least {coding_count} questions with a populated "code_snippet" field.
+   - If the batch has {count} questions, at least {coding_count} MUST have real code snippets.
+   - Failing to meet this minimum is a HARD FAILURE -- re-generate until met.
+
+2. Code-Based Questions ({coding_count} minimum):
+   - Provide a 2-3 sentence workplace problem stem describing a bug, bottleneck, validation
+     rule, or feature requirement.
+   - Provide a real, syntactically valid code snippet (4-20 lines) in the "code_snippet" field.
+   - The snippet MUST be written in a programming language relevant to the roadmap curriculum
+     (e.g., if roadmap is "Ruby on Rails", use Ruby; if "Python Backend", use Python).
+   - The snippet MUST be directly tied to the scenario's constraint or failure -- never decorative.
+   - Do NOT paste the code snippet inside the "question" text stem; it lives only in "code_snippet".
+   - Code snippets should test practical skills: debugging, output prediction, refactoring,
+     identifying errors, understanding framework behavior, or choosing the right implementation.
+
+3. Conceptual Scenario Questions ({mcq_count} maximum):
+   - Provide a 2-3 sentence workplace scenario stem describing real-world technical trade-offs,
+     architecture decisions, or system design constraints.
+   - Set the "code_snippet" JSON field to null.
+
+4. Distribution Across Difficulty Levels:
+   - Coding questions should span all difficulty levels (easy, moderate, complex).
+   - Do NOT cluster all coding questions at one difficulty level.
+
+5. Distractor Quality for Coding Questions:
+   - Options must represent plausible code behaviors, outputs, or fixes.
+   - Each distractor should reflect a common misconception or mistake developers make.
+   - Options should be similar in length and technical vocabulary.
+
+## Few-Shot Examples for Final Roadmap Coding Questions:
+
+Example 1 -- Coding Question (easy difficulty):
+Stem: "A junior developer on a payment processing team writes a function to validate credit card numbers. The function should return True only for strings that are exactly 16 digits. QA reports that the function incorrectly accepts inputs like '1234-5678-9012-3456'. What is the root cause based on the implementation?"
+Code Snippet:
+def validate_card(number: str) -> bool:
+    return len(number) == 16
+Options:
+- "The function checks string length but does not verify all characters are digits"
+- "The function fails because len() cannot handle string inputs in Python"
+- "The function raises a TypeError when non-numeric strings are passed"
+- "The function returns None instead of False for invalid inputs"
+Answer: "The function checks string length but does not verify all characters are digits"
+Complexity: "easy"
+
+Example 2 -- Coding Question (complex difficulty):
+Stem: "A backend team implements a caching layer for a product catalog API. Under load testing, they observe that cache entries are being evicted prematurely despite sufficient memory. The team suspects the TTL configuration is conflicting with the eviction policy. Based on the configuration, what is causing the premature evictions?"
+Code Snippet:
+import redis
+
+cache = redis.Redis(host='localhost', port=6379)
+
+def cache_product(product_id, data):
+    cache.setex(f"product:{{product_id}}", 30, json.dumps(data))
+    cache.config_set('maxmemory-policy', 'allkeys-lru')
+Options:
+- "The allkeys-lru policy evicts any key under memory pressure regardless of remaining TTL"
+- "The setex TTL of 30 seconds is too short and causes natural expiration before access"
+- "Redis does not support combining TTL-based expiry with LRU eviction policies"
+- "The config_set call on every write resets the eviction policy and clears existing keys"
+Answer: "The allkeys-lru policy evicts any key under memory pressure regardless of remaining TTL"
+Complexity: "complex"
+"""

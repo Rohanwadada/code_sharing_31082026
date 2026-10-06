@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 from typing import Any, Dict
 from uuid import uuid4
 
@@ -18,7 +19,7 @@ from modules.roadmap_agent.utils import (
     get_time_commitment_by_id,
 )
 from modules.thread.schema import ThreadUpdate
-from shared.llm.gemini import get_gemini_instance
+from shared.llm.gemini import get_gemini_instance, log_token_usage
 from shared.pii_analyzer import pii_analyzer
 
 
@@ -102,7 +103,7 @@ async def analyze_intent(
         logger.info(f"PII MAPPING: {pii_mapping}")
 
         llm = get_gemini_instance()
-        structured_llm = llm.with_structured_output(IntentExtraction, strict=True)
+        structured_llm = llm.with_structured_output(IntentExtraction, strict=True, include_raw=True)
 
         current_extras_str = json.dumps(state.get("extra_requirements", {}), indent=2)
 
@@ -144,7 +145,18 @@ EXTRA_REQUIREMENTS:
         # print("\n\nPROMPT MESSAGE\n\n")
         # print(prompt_messages)
 
-        result = structured_llm.invoke(prompt_messages)
+        t0 = time.time()
+        res_output = structured_llm.invoke(prompt_messages)
+        raw_msg = res_output.get("raw") if isinstance(res_output, dict) else None
+        result: IntentExtraction = res_output.get("parsed") if isinstance(res_output, dict) else res_output
+
+        if raw_msg:
+            log_token_usage(
+                raw_msg,
+                feature_name=f"Roadmap Intent Analysis ({getattr(result, 'intent', 'intent')})",
+                model_name="gemini-2.5-flash",
+                latency=f"{time.time() - t0:.2f}s",
+            )
 
         # de-anonymize the result
         result = pii_analyzer.deanonymize_value(result, pii_mapping)

@@ -1049,7 +1049,8 @@ export const RoadmapHeroSection = ({
               <div className={styles['roadmap-title']}>
                 {roadmapTitle}
                 {mode === 'live' &&
-                  // userDetails?.role === ADMIN_ROLE &&
+                  // #changes_05_10_2026: only owner and editor can edit the roadmap
+                  ['owner', 'editor'].includes(roadmapAccessLevel) &&
                   !isMobile && (
                     <button
                       title="edit roadmap"

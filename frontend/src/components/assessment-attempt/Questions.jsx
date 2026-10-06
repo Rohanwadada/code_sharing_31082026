@@ -41,6 +41,24 @@ import Header from './Header';
 
 const SERVER_URL = process.env.NEXT_PUBLIC_API_SERVER_URL;
 
+const cleanCode = (code) => {
+  if (!code) return null;
+  const trimmed = String(code).trim();
+  if (['null', 'none', 'nan', 'undefined', 'null\n'].includes(trimmed.toLowerCase())) {
+    return null;
+  }
+  return trimmed;
+};
+
+const cleanHint = (hint) => {
+  if (!hint) return null;
+  const trimmed = String(hint).trim();
+  if (['null', 'none', 'nan', 'undefined', 'null\n'].includes(trimmed.toLowerCase())) {
+    return null;
+  }
+  return trimmed;
+};
+
 const Questions = ({
   ref,
   // setShowModal,
@@ -217,13 +235,13 @@ const Questions = ({
 
     if (questions?.length > 0) {
       const formattedQuestions = questions.map((q, index) => ({
-        code: q.question_code || q.code,
+        code: cleanCode(q.question_code || q.code),
         id: index + 1,
         question_id: q.question_id || null,
         question: q.question_text || q.question || `Question ${index + 1}`,
         options: q.options || [],
         attempted: q.attempted || false,
-        hints: q.question_hints || null,
+        hints: cleanHint(q.question_hints),
         marks: q.question_marks || '1',
         type: q.type,
         competency: q.competency,
@@ -840,8 +858,9 @@ const Questions = ({
   });
 
   const renderedCode = useMemo(() => {
-    const code = isQuestions[currentIndex]?.code || '';
-    if (!code || code === 'NaN') return null;
+    const rawCode = isQuestions[currentIndex]?.code;
+    const code = cleanCode(rawCode);
+    if (!code) return null;
 
     if (isProbablyTable(code)) {
       return <TableFromText text={code} />;
@@ -1083,8 +1102,7 @@ const Questions = ({
                       [{isQuestions[currentIndex]?.marks || 1} points]
                     </span>
 
-                    {isQuestions[currentIndex]?.hints &&
-                      isQuestions[currentIndex]?.hints !== 'NaN' && (
+                    {cleanHint(isQuestions[currentIndex]?.hints) && (
                         <button
                           type="button"
                           onClick={() => handleShowHints(currentIndex)}

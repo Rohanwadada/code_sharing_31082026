@@ -103,6 +103,7 @@ const ShifuSendAssessment = ({projectId, assessmentId}) => {
   const [activeTab, setActiveTab] = useState('upload'); // 'upload' or 'browse'
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [candidates, setCandidates] = useState([]);
   const fileInputRef = useRef(null);
   const fileReaderRef = useRef(null);
@@ -129,7 +130,9 @@ const ShifuSendAssessment = ({projectId, assessmentId}) => {
   };
 
   const handleSendAssessment = async () => {
+    if (isSending) return;
     try {
+      setIsSending(true);
       const data = {
         assessment_id: assessmentId,
         candidates: candidates.filter((c) => c.status === 'matched'),
@@ -139,6 +142,8 @@ const ShifuSendAssessment = ({projectId, assessmentId}) => {
       setShowSuccessModal(true);
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -208,7 +213,7 @@ const ShifuSendAssessment = ({projectId, assessmentId}) => {
         setCandidates([]);
         setIsFileUploaded(false);
 
-        showNotification('error', 'Name and email columns are required!');
+        alert('Name and email columns are required!');
 
         return;
       }
@@ -261,7 +266,7 @@ const ShifuSendAssessment = ({projectId, assessmentId}) => {
       setIsFileUploaded(false);
       fileReaderRef.current = null;
 
-      showNotification('error', 'Unable to read the CSV file.');
+      alert('Unable to read the CSV file.');
     };
 
     reader.onabort = () => {
@@ -297,8 +302,8 @@ const ShifuSendAssessment = ({projectId, assessmentId}) => {
             business unit and service line below.
           </p>
         </div>
-        <button className={classes.sendBtn} onClick={handleSendAssessment} disabled={validCandidates === 0}>
-          Send Assessment to Candidates
+        <button className={classes.sendBtn} onClick={handleSendAssessment} disabled={validCandidates === 0 || isSending}>
+          {isSending ? 'Sending Assessment...' : 'Send Assessment to Candidates'}
         </button>
       </div>
 

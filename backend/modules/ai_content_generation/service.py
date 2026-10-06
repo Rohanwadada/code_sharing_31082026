@@ -124,13 +124,8 @@ class ContentGenerationService:
         ]
         response = gemini.invoke(message)
 
-        # Log exact token counts to terminal:
-        if hasattr(response, 'usage_metadata') and response.usage_metadata:
-            input_t = response.usage_metadata.get('input_tokens', 0)
-            output_t = response.usage_metadata.get('output_tokens', 0)
-            total_t = response.usage_metadata.get('total_tokens', 0)
-            logger.info(f"[GEMINI LOG - Content Generation] Input: {input_t} tokens | Output: {output_t} tokens | Total: {total_t} tokens")
-            print(f"[GEMINI LOG - Content Generation] Input: {input_t} tokens | Output: {output_t} tokens | Total: {total_t} tokens")
+        # Log exact token counts to terminal and live telemetry store:
+        log_token_usage(response, feature_name=f"Roadmap Chapter: {node_title}", model_name="gemini-2.5-flash")
 
         result = response.content.strip("`").lstrip("json").strip()  # type: ignore
 

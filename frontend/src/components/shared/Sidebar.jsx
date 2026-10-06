@@ -50,6 +50,11 @@ const Sidebar = () => {
   const setUserDetails = useAuthStore((s) => s.setUserDetails);
   const setIsLoggedIn = useAuthStore((s) => s.setIsLoggedIn);
 
+  // #changes 28-09-2026 - start: Role and Admin status determination
+  const userRole = (userDetails?.role || userDetails?.provided_role || '').toLowerCase().trim();
+  const isAdmin = ['admin', 'superadmin', 'organization_admin'].includes(userRole);
+  // #changes 28-09-2026 - end
+
   const artifactStoreReset = useArtifactStore((s) => s.reset);
 
   const { width: windowWidth, isMobile } = useWindowDimensions();
@@ -108,7 +113,9 @@ const Sidebar = () => {
   };
 
   const handleGoToProject = () => {
-    // if(userDetails?.role != ADMIN_ROLE) return;
+    // #changes 28-09-2026 - start: Admin guard for project navigation
+    if (!isAdmin) return;
+    // #changes 28-09-2026 - end
     setActiveTab('project');
     router.push('/project');
     setTimeout(() => {
@@ -264,7 +271,7 @@ const Sidebar = () => {
         setActiveTab('team-projects');
       } else if (mandate === 'organization') {
         setActiveTab('org-projects');
-      } else {
+      } else if (pathname === '/project' || pathname === '/project/') {
         setActiveTab('project');
       }
     } else if (pathname?.startsWith('/dashboard') || pathname === '/') {
@@ -358,14 +365,9 @@ const Sidebar = () => {
             </button>
           </div>
 
-          {/* ── 2. PROJECTS Section (My Learning, My Team, My Organisation) ── */}
-          <div className={styles['sidebar-section']}>
-            <div className={`${styles['section-title']} ${styles['label']} ${styles['projects-section-title']}`}>
-              Projects
-            </div>
-
+          {/* #changes 28-09-2026 - start: Normal User (Learner) Standalone My Learning item */}
+          {!isAdmin && (
             <div className={styles['sidebar-items']}>
-              {/* My Learning */}
               <div className={styles['sidebar-item']}>
                 <div
                   className={`${styles['sidebar-item-head']} ${activeTab === 'dashboard' ? styles['active-item'] : ''}`}
@@ -375,36 +377,60 @@ const Sidebar = () => {
                   <span className={styles['label']}>My Learning</span>
                 </div>
               </div>
+            </div>
+          )}
+          {/* #changes 28-09-2026 - end */}
 
-              {/* My Team */}
-              <div className={styles['sidebar-item']}>
-                <div
-                  className={`${styles['sidebar-item-head']} ${activeTab === 'team-projects' ? styles['active-item'] : ''}`}
-                  onClick={() => {
-                    setActiveTab('team-projects');
-                    router.push('/project?mandate=team');
-                  }}
-                >
-                  <TeamOutlineIcon />
-                  <span className={styles['label']}>My Team</span>
-                </div>
+          {/* #changes 28-09-2026 - start: Admin Only PROJECTS Section (Projects heading, My Learning, My Team, My Organisation) */}
+          {isAdmin && (
+            <div className={styles['sidebar-section']}>
+              <div className={`${styles['section-title']} ${styles['label']} ${styles['projects-section-title']}`}>
+                Projects
               </div>
 
-              {/* My Organisation */}
-              <div className={styles['sidebar-item']}>
-                <div
-                  className={`${styles['sidebar-item-head']} ${activeTab === 'org-projects' ? styles['active-item'] : ''}`}
-                  onClick={() => {
-                    setActiveTab('org-projects');
-                    router.push('/project?mandate=organization');
-                  }}
-                >
-                  <OrgIcon />
-                  <span className={styles['label']}>My Organisation</span>
+              <div className={styles['sidebar-items']}>
+                {/* My Learning */}
+                <div className={styles['sidebar-item']}>
+                  <div
+                    className={`${styles['sidebar-item-head']} ${activeTab === 'dashboard' ? styles['active-item'] : ''}`}
+                    onClick={handleGoToDashboard}
+                  >
+                    <Book />
+                    <span className={styles['label']}>My Learning</span>
+                  </div>
+                </div>
+
+                {/* My Team */}
+                <div className={styles['sidebar-item']}>
+                  <div
+                    className={`${styles['sidebar-item-head']} ${activeTab === 'team-projects' ? styles['active-item'] : ''}`}
+                    onClick={() => {
+                      setActiveTab('team-projects');
+                      router.push('/project?mandate=team');
+                    }}
+                  >
+                    <TeamOutlineIcon />
+                    <span className={styles['label']}>My Team</span>
+                  </div>
+                </div>
+
+                {/* My Organisation */}
+                <div className={styles['sidebar-item']}>
+                  <div
+                    className={`${styles['sidebar-item-head']} ${activeTab === 'org-projects' ? styles['active-item'] : ''}`}
+                    onClick={() => {
+                      setActiveTab('org-projects');
+                      router.push('/project?mandate=organization');
+                    }}
+                  >
+                    <OrgIcon />
+                    <span className={styles['label']}>My Organisation</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
+          {/* #changes 28-09-2026 - end */}
 
           {/* ── 3. ROADMAP Section (Roadmap Chats, Saved Roadmaps) ── */}
           <div className={styles['sidebar-section']}>
@@ -505,24 +531,27 @@ const Sidebar = () => {
             </div>
           </div>
 
-          {/* ── 4. PROJECTS Section at Bottom (as it was) ── */}
-          <div className={styles['sidebar-section']}>
-            <div className={`${styles['section-title']} ${styles['label']} ${styles['projects-section-title']}`}>
-              Projects
-            </div>
+          {/* #changes 28-09-2026 - start: Bottom PROJECTS Section (Admin Only) */}
+          {isAdmin && (
+            <div className={styles['sidebar-section']}>
+              <div className={`${styles['section-title']} ${styles['label']} ${styles['projects-section-title']}`}>
+                Projects
+              </div>
 
-            <div className={styles['sidebar-items']}>
-              <div className={styles['sidebar-item']}>
-                <div
-                  className={`${styles['sidebar-item-head']} ${activeTab === 'project' ? styles['active-item-gold'] : ''}`}
-                  onClick={handleGoToProject}
-                >
-                  <Dashboard />
-                  <span className={styles['label']}>Projects</span>
+              <div className={styles['sidebar-items']}>
+                <div className={styles['sidebar-item']}>
+                  <div
+                    className={`${styles['sidebar-item-head']} ${activeTab === 'project' ? styles['active-item-gold'] : ''}`}
+                    onClick={handleGoToProject}
+                  >
+                    <Dashboard />
+                    <span className={styles['label']}>Projects</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
+          {/* #changes 28-09-2026 - end */}
         </div>
 
         <div className={styles['sidebar-bottom']} ref={userMenuRef}>

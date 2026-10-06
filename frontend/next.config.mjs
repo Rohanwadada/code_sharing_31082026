@@ -17,6 +17,10 @@ const nextConfig = {
         destination: '/project/:projectId/thread/:threadId',
       },
       {
+        source: '/login',
+        destination: '/auth',
+      },
+      {
         source: '/login/:path*',
         destination: '/auth/:path*',
       },

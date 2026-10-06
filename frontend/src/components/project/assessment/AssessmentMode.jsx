@@ -2,7 +2,7 @@
 
 // for choosing between static and randomized
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import classes from './AssessmentMode.module.css';
 import { useRouter } from 'next/navigation';
 import {
@@ -17,10 +17,18 @@ import { useProjectStore } from '@/store/projectStore';
 
 const AssessmentMode = ({ projectId, assessmentId }) => {
   const projectName = useProjectStore((s) => s.currentProjectName);
+  const fetchProjectDetails = useProjectStore((s) => s.fetchProjectDetails);
+
+  useEffect(() => {
+    if (projectId) {
+      fetchProjectDetails(projectId);
+    }
+  }, [projectId, fetchProjectDetails]);
 
   const assessmentFormationId = useAssessmentFormationStore(
     (s) => s.assessmentFormationId,
   );
+
   const assessmentFormationDetails = useAssessmentFormationStore(
     (s) => s.assessmentFormationDetails,
   );

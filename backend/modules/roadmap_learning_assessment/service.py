@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import random
@@ -21,6 +22,7 @@ from modules.roadmap_learning_assessment.model import (
 )
 from modules.roadmap_learning_assessment.prompt import (
     CODING_QUESTION_ADDENDUM_PROMPT,
+    FINAL_ROADMAP_CODING_QUESTION_ADDENDUM_PROMPT,
     FINAL_ROADMAP_QUIZ_SYSTEM_INSTRUCTION,
     QUIZ_GENERATION_SYSTEM_INSTRUCTION,
 )
@@ -29,6 +31,9 @@ from modules.roadmap_learning_assessment.schema import (
     QuizAutoGenerateRequest,
 )
 from shared.llm.gemini import get_gemini_instance, log_token_usage
+
+from langsmith import traceable
+
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +49,10 @@ async def generate_learning_assessment_for_module(
             Roadmap.roadmap_id == data.roadmap_id, Roadmap.user_id == user_id
         )
     )
+    if not roadmap:
+        roadmap = await db.scalar(
+            select(Roadmap).where(Roadmap.roadmap_id == data.roadmap_id)
+        )
 
     if not roadmap:
         raise ForbiddenException("Access denied")
@@ -142,7 +151,9 @@ async def generate_learning_assessment_for_module(
         )
     return response
 
-
+@traceable(
+    name="Generate Final Assessment for Roadmap",
+    )
 async def generate_final_assessment_for_roadmap(
     user_id: str,
     data: GenerateAssessmentForAssessmentNode,
@@ -156,24 +167,30 @@ async def generate_final_assessment_for_roadmap(
         )
     )
     if not roadmap:
+        roadmap = await db.scalar(
+            select(Roadmap).where(Roadmap.roadmap_id == data.roadmap_id)
+        )
+    if not roadmap:
         raise ForbiddenException("Access denied")
 
-    existing_assessment = await db.scalar(select(RoadmapLearningAssessment).where(RoadmapLearningAssessment.roadmap_id == data.roadmap_id, RoadmapLearningAssessment.node_id == data.node_id))
-
-    if existing_assessment:
-        logger.info(f"Existing assessment present with assessment_id: {existing_assessment.assessment_id}")
-        return {'title': existing_assessment.title, 'assessment_url': existing_assessment.assessment_url}
-
-    roadmap_title = roadmap.title
-    roadmap_graph = roadmap.roadmap_graph
-
-    target_node = next(
-        (node for node in roadmap_graph.get("nodes", []) if node["id"] == data.node_id),
-        None,
+    existing_assessment = await db.scalar(
+        select(RoadmapLearningAssessment).where(
+            RoadmapLearningAssessment.roadmap_id == data.roadmap_id,
+            RoadmapLearningAssessment.node_id == data.node_id,
+        )
     )
 
-    if not target_node or target_node.get("parentId"):
-        raise BadRequestException("Invalid assessment node")
+    if existing_assessment:
+        logger.info(
+            f"Existing assessment present with assessment_id: {existing_assessment.assessment_id}"
+        )
+        return {
+            "title": existing_assessment.title,
+            "assessment_url": existing_assessment.assessment_url,
+        }
+
+    roadmap_title = roadmap.title or "Roadmap"
+    roadmap_graph = roadmap.roadmap_graph or {}
 
     modules_input = build_topic_tree(
         roadmap_graph.get("nodes", []), roadmap_graph.get("edges", [])
@@ -188,6 +205,12 @@ async def generate_final_assessment_for_roadmap(
     )
 
     assessment_id = str(uuid.uuid4())
+    org_id = (
+        str(data.organization_id)
+        if data.organization_id and str(data.organization_id).strip()
+        else None
+    )
+
     assessment_url = f"{settings.site_base_url}/assessment/roadmap-learning-assessment/{assessment_id}?r={data.roadmap_id}&n={data.node_id}"
     excel_export_url = f"/api/quizzes/{assessment_id}/export-excel"
 
@@ -197,10 +220,8 @@ async def generate_final_assessment_for_roadmap(
         roadmap_id=data.roadmap_id,
         node_id=data.node_id,
         created_by=user_id,
-        # time_limit_mins=payload.time_limit_mins or 0,
-        # question_time_limit_secs=payload.question_time_limit_secs or 0
         duration=len(questions),
-        organization_id=data.organization_id,
+        organization_id=org_id,
         assessment_url=assessment_url,
         excel_export_url=excel_export_url,
         assessment_details={"total_questions": len(questions)},
@@ -212,15 +233,28 @@ async def generate_final_assessment_for_roadmap(
 
     for q_item in questions:
         options = q_item.get("options", [])
+        raw_code = q_item.get("code_snippet") or q_item.get("code_snippets")
+        raw_hint = q_item.get("hints_text")
+        code_snip_val = (
+            str(raw_code).strip()
+            if (raw_code and str(raw_code).strip().lower() not in ["null", "none", "nan", "undefined", ""])
+            else None
+        )
+        hint_val = (
+            str(raw_hint).strip()
+            if (raw_hint and str(raw_hint).strip().lower() not in ["null", "none", "nan", "undefined", ""])
+            else None
+        )
+
         question = RoadmapLearningAssessmentQuestions(
             assessment_id=quiz.assessment_id,
             question_text=q_item.get("question", ""),
-            option_1=options[0] if 0 <= 0 < len(options) else None,
-            option_2=options[1] if 0 <= 1 < len(options) else None,
-            option_3=options[2] if 0 <= 2 < len(options) else None,
-            option_4=options[3] if 0 <= 3 < len(options) else None,
-            code_snippets=str(q_item.get("code_snippet") or "null"),
-            hints_text=str(q_item.get("hints_text") or "null"),
+            option_1=options[0] if 0 < len(options) else None,
+            option_2=options[1] if 1 < len(options) else None,
+            option_3=options[2] if 2 < len(options) else None,
+            option_4=options[3] if 3 < len(options) else None,
+            code_snippets=code_snip_val,
+            hints_text=hint_val,
             correct_option_text=q_item.get("answer"),
             topic=q_item.get("topic", None),
             subtopic=q_item.get("subtopic", None),
@@ -232,7 +266,7 @@ async def generate_final_assessment_for_roadmap(
             source_of_question="ai-generated",
             question_status="active",
             question_details={},
-            organization_id=data.organization_id,
+            organization_id=org_id,
             created_by=user_id,
         )
         db.add(question)
@@ -256,14 +290,12 @@ async def generate_final_assessment_for_roadmap(
         "questions": formatted_questions,
     }
 
-    status = response.get("status", None)
-
-    if status == "success":
+    try:
         node_content = {
             "title": response["title"],
             "description": response["title"],
             "links": [],
-            "assessment": {"id": response["assessment_id"]},
+            "assessment": {"id": response["assessment_id"], "name": response["title"], "url": response["assessment_url"]},
             "created_at": get_current_timestamp().isoformat(),
             "generation_type": "ai",
         }
@@ -275,6 +307,8 @@ async def generate_final_assessment_for_roadmap(
             node_id=data.node_id,
             new_content=node_content,
         )
+    except Exception as e:
+        logger.warning(f"Could not update node content: {e}")
 
     return response
 
@@ -335,6 +369,19 @@ async def generate_and_save_quiz(
 
         for q_item in questions:
             options = q_item.get("options", [])
+            raw_code = q_item.get("code_snippet") or q_item.get("code_snippets")
+            raw_hint = q_item.get("hints_text")
+            code_snip_val = (
+                str(raw_code).strip()
+                if (raw_code and str(raw_code).strip().lower() not in ["null", "none", "nan", "undefined", ""])
+                else None
+            )
+            hint_val = (
+                str(raw_hint).strip()
+                if (raw_hint and str(raw_hint).strip().lower() not in ["null", "none", "nan", "undefined", ""])
+                else None
+            )
+
             question = RoadmapLearningAssessmentQuestions(
                 assessment_id=quiz.assessment_id,
                 question_text=q_item.get("question", ""),
@@ -342,8 +389,8 @@ async def generate_and_save_quiz(
                 option_2=options[1] if 0 <= 1 < len(options) else None,
                 option_3=options[2] if 0 <= 2 < len(options) else None,
                 option_4=options[3] if 0 <= 3 < len(options) else None,
-                code_snippets=str(q_item.get("code_snippet") or "null"),
-                hints_text=str(q_item.get("hints_text") or "null"),
+                code_snippets=code_snip_val,
+                hints_text=hint_val,
                 correct_option_text=q_item.get("answer"),
                 topic=q_item.get("topic", chapter_name),
                 subtopic=q_item.get("subtopic", module_name),
@@ -400,21 +447,84 @@ async def generate_and_save_quiz(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-async def generate_final_assessment_of_roadmap_questions(
-    roadmap_title: str, modules_input: list[dict], count: int = 50
-):
-    curriculum_tree, all_modules, all_chapters, chapter_details = (
-        format_curriculum_tree(modules_input)
-    )
-    total_modules = len(all_modules) or 1
-    total_chapters = len(all_chapters) or 1
+def partition_modules_for_batches(modules_input: list[dict], total_batches: int) -> list[list[dict]]:
+    """
+    Partitions the curriculum modules/chapters evenly across batches.
+    - If num_modules >= total_batches: divides modules into balanced slices.
+    - If num_modules < total_batches: divides chapters across batches so each batch focuses on a distinct curriculum slice.
+    """
+    if not modules_input or total_batches <= 1:
+        return [modules_input] * total_batches
 
-    easy_count = max(1, int(round(count * 0.30)))
-    complex_count = max(1, int(round(count * 0.30)))
-    medium_count = max(1, count - easy_count - complex_count)
+    num_mods = len(modules_input)
+    if num_mods >= total_batches:
+        batches = []
+        k, m = divmod(num_mods, total_batches)
+        start = 0
+        for i in range(total_batches):
+            end = start + k + (1 if i < m else 0)
+            batches.append(modules_input[start:end])
+            start = end
+        return batches
+    else:
+        # Fewer modules than batches -> split chapters across batches
+        all_flattened_chapters = []
+        for mod in modules_input:
+            mod_name = getattr(mod, "module_name", None) or (
+                mod.get("module_name") if isinstance(mod, dict) else "Module"
+            )
+            chapters = getattr(mod, "chapters", None) or (
+                mod.get("chapters", []) if isinstance(mod, dict) else []
+            )
+            for ch in chapters:
+                all_flattened_chapters.append((mod_name, ch))
+
+        if len(all_flattened_chapters) >= total_batches:
+            k, m = divmod(len(all_flattened_chapters), total_batches)
+            batches = []
+            start = 0
+            for i in range(total_batches):
+                end = start + k + (1 if i < m else 0)
+                batch_ch_items = all_flattened_chapters[start:end]
+                mod_map = {}
+                for m_name, ch_obj in batch_ch_items:
+                    if m_name not in mod_map:
+                        mod_map[m_name] = []
+                    mod_map[m_name].append(ch_obj)
+                batch_mods = [
+                    {"module_name": m_name, "chapters": chs}
+                    for m_name, chs in mod_map.items()
+                ]
+                batches.append(batch_mods)
+                start = end
+            return batches
+        else:
+            # Fallback: cycle through modules
+            batches = []
+            for i in range(total_batches):
+                batches.append([modules_input[i % num_mods]])
+            return batches
+
+
+@traceable(name="Final Assessment Batch")
+async def _generate_single_final_assessment_batch(
+    roadmap_title: str,
+    total_modules: int,
+    total_chapters: int,
+    curriculum_tree: str,
+    batch_count: int,
+    batch_idx: int,
+    total_batches: int,
+) -> tuple[list[dict], dict | None]:
+    """Generates a small batch of questions (e.g. 10 questions) in parallel and logs token usage."""
+    easy_count = max(1, int(round(batch_count * 0.30)))
+    complex_count = max(1, int(round(batch_count * 0.30)))
+    medium_count = max(1, batch_count - easy_count - complex_count)
+
+    print(f"\n{'='*20} [BATCH {batch_idx}/{total_batches}] CURRICULUM TREE INPUT {'='*20}\n{curriculum_tree}\n{'='*65}\n")
 
     system_instruction = FINAL_ROADMAP_QUIZ_SYSTEM_INSTRUCTION.format(
-        count=count,
+        count=batch_count,
         roadmap_name=roadmap_title,
         total_modules=total_modules,
         total_chapters=total_chapters,
@@ -424,33 +534,109 @@ async def generate_final_assessment_of_roadmap_questions(
         complex_count=complex_count,
     )
 
-    logger.info(f"[SYSTEM INSTRUCTION]: {system_instruction}")
-
-    all_generated = []
-    llm_error_detail = None
+    # Check if the curriculum covers technical/coding topics and enforce coding questions
+    curriculum_topics = [line.strip() for line in curriculum_tree.split('\n') if line.strip()]
+    if topic_is_coding_related(curriculum_topics):
+        coding_count = max(1, round(batch_count * 0.45))
+        mcq_count = max(0, batch_count - coding_count)
+        coding_ratio_percent = round((coding_count / batch_count) * 100) if batch_count > 0 else 45
+        coding_addendum = FINAL_ROADMAP_CODING_QUESTION_ADDENDUM_PROMPT.format(
+            roadmap_name=roadmap_title,
+            count=batch_count,
+            coding_count=coding_count,
+            mcq_count=mcq_count,
+            coding_ratio_percent=coding_ratio_percent,
+        )
+        system_instruction = system_instruction + "\n\n" + coding_addendum
+        logger.info(f"[Batch {batch_idx}/{total_batches}] Technical roadmap detected — enforcing {coding_count}/{batch_count} coding questions (~{coding_ratio_percent}%)")
 
     try:
         chat = get_gemini_instance()
-
-        response = chat.invoke(system_instruction)
-        log_token_usage(response, "Final Roadmap Assessment (50 Qs)")
-        logger.info(f"LLM Response: {response}")
-        content = response.content.strip()  # type: ignore
+        response = await chat.ainvoke(system_instruction)
+        token_usage = log_token_usage(response, f"Final Roadmap Assessment [Batch {batch_idx}/{total_batches}]")
+        content = response.content.strip() if hasattr(response, "content") else str(response).strip()
         parsed = clean_and_parse_json(content)
 
-        if parsed and isinstance(parsed, list) and len(parsed) > 0:
-            all_generated = parsed
-        else:
-            llm_error_detail = "Failed to parse valid questions from Gemini AI response."
-    except Exception as e:
-        print(f"Final Quiz Gemini AI Error: {e}")
-        llm_error_detail = str(e)
+        # Support both {"questions": [...]} and [...] outputs
+        if isinstance(parsed, dict):
+            q_list = parsed.get("questions") or parsed.get("data") or parsed.get("items") or []
+            if isinstance(q_list, list) and len(q_list) > 0:
+                return q_list, token_usage
+        elif isinstance(parsed, list) and len(parsed) > 0:
+            return parsed, token_usage
 
-    if not all_generated:
-        raise RuntimeError(
-            f"Gemini AI Server is currently busy or rate-limited. Please try again later. ({llm_error_detail or 'No questions generated'})"
+        logger.warning(f"Final Assessment Batch {batch_idx}/{total_batches} returned non-list or empty response.")
+        return [], token_usage
+    except Exception as e:
+        logger.error(f"Error in Final Assessment Batch {batch_idx}/{total_batches}: {e}", exc_info=True)
+        return [], None
+
+
+@traceable(name="Generate Final Assessment Questions")
+async def generate_final_assessment_of_roadmap_questions(
+    roadmap_title: str, modules_input: list[dict], count: int = 50
+):
+
+    curriculum_tree, all_modules, all_chapters, chapter_details = (
+        format_curriculum_tree(modules_input)
+    )
+
+    # Split generation into chunks of 10 questions each
+    batch_size = 10
+    total_batches = (count + batch_size - 1) // batch_size
+    module_partitions = partition_modules_for_batches(modules_input, total_batches)
+    tasks = []
+
+    print(f"\n=======================================================")
+    print(f"[FINAL ROADMAP ASSESSMENT] Starting batch generation for {count} questions across {total_batches} parallel batches (batch_size={batch_size})...")
+    print(f"[FINAL ROADMAP ASSESSMENT] Partitioned {len(modules_input)} total curriculum modules across {total_batches} dedicated batch streams.")
+    print(f"=======================================================")
+
+    for i in range(total_batches):
+        batch_count = min(batch_size, count - (i * batch_size))
+        batch_mods_subset = module_partitions[i]
+        batch_tree, b_mods, b_chaps, _ = format_curriculum_tree(batch_mods_subset)
+
+        tasks.append(
+            _generate_single_final_assessment_batch(
+                roadmap_title=roadmap_title,
+                total_modules=len(b_mods) or 1,
+                total_chapters=len(b_chaps) or 1,
+                curriculum_tree=batch_tree,
+                batch_count=batch_count,
+                batch_idx=i + 1,
+                total_batches=total_batches,
+            )
         )
 
+    # Execute all batches in parallel
+    results = await asyncio.gather(*tasks)
+
+
+    all_generated = []
+    total_input_tokens = 0
+    total_output_tokens = 0
+    total_tokens = 0
+
+    for batch_questions, token_usage in results:
+        all_generated.extend(batch_questions)
+        if token_usage:
+            total_input_tokens += token_usage.get("input_tokens", 0)
+            total_output_tokens += token_usage.get("output_tokens", 0)
+            total_tokens += token_usage.get("total_tokens", 0)
+
+    # Output aggregated token consumption in console
+    print(f"\n=======================================================")
+    print(f"[FINAL ROADMAP ASSESSMENT - TOKEN USAGE REPORT]")
+    print(f"Roadmap Title:                {roadmap_title}")
+    print(f"Total Questions Generated:    {len(all_generated)} / {count}")
+    print(f"Total Input Tokens Consumed:  {total_input_tokens:,}")
+    print(f"Total Output Tokens Consumed: {total_output_tokens:,}")
+    print(f"Total Tokens Consumed:        {total_tokens:,}")
+    print(f"=======================================================\n")
+
+    easy_count = max(1, int(round(count * 0.30)))
+    complex_count = max(1, int(round(count * 0.30)))
     formatted_questions = []
 
     # Map AI generated questions
@@ -483,14 +669,23 @@ async def generate_final_assessment_of_roadmap_questions(
         )
 
         code_snip = q.get("code_snippet")
-        if not code_snip or code_snip == "null" or code_snip is None:
+        if not code_snip or str(code_snip).strip().lower() in ["null", "none", "nan", "undefined", ""]:
             m = re.search(
                 r"```(?:[a-zA-Z]*\n)?(.*?)```", str(q.get("question", "")), re.DOTALL
             )
-            code_snip = m.group(1).strip() if m else "null"
+            code_snip = m.group(1).strip() if m else None
+        else:
+            code_snip = str(code_snip).strip()
+
+        raw_hint = q.get("hints_text")
+        hint_val = (
+            str(raw_hint).strip()
+            if (raw_hint and str(raw_hint).strip().lower() not in ["null", "none", "nan", "undefined", ""])
+            else None
+        )
 
         sol_val = q.get("solution_explanation")
-        if not sol_val or "This option is correct because" not in sol_val:
+        if not sol_val or "This option is correct because" not in str(sol_val):
             sol_val = f"The correct option is '{ans}'. This option is correct because it directly satisfies the core architecture principles of {mod_tag}."
 
         formatted_questions.append(
@@ -504,15 +699,56 @@ async def generate_final_assessment_of_roadmap_questions(
                 "topic_priority": p_val,
                 "complexity": c_val,
                 "chapter_name": ch_tag,
-                "key_competency": "null",
-                "sub_competency": "null",
-                "code_snippet": str(code_snip),
-                "hints_text": str(q.get("hints_text") or "null"),
-                "solution_explanation": sol_val,
+                "key_competency": None,
+                "sub_competency": None,
+                "code_snippet": code_snip,
+                "hints_text": hint_val,
+                "solution_explanation": str(sol_val),
             }
         )
 
-    return formatted_questions, False, None
+    # Top up remaining questions if AI generated fewer than requested count
+    p_schedule, c_schedule = build_schedules(count)
+    while len(formatted_questions) < count:
+        idx = len(formatted_questions)
+        topic_name = all_chapters[idx % len(all_chapters)] if all_chapters else "Core Architecture"
+        mod_name = all_modules[idx % len(all_modules)] if all_modules else "System Design"
+        c_val = c_schedule[idx] if idx < len(c_schedule) else "moderate"
+        p_val = p_schedule[idx] if idx < len(p_schedule) else "Must Know"
+
+        sample_code = f"def handle_{topic_name.lower().replace(' ', '_')}_pipeline(context: dict):\n    # Production execution strategy for {topic_name}\n    return execute_workflow(context)"
+        opts = [
+            f"Implement distributed idempotent processing and health monitoring for {topic_name}",
+            f"Execute blocking sequential synchronous polling for {topic_name}",
+            f"Disable retry handlers and execute unbuffered writes for {topic_name}",
+            f"Rely on client-side caching without server validation for {topic_name}",
+        ]
+        ans = opts[0]
+        random.shuffle(opts)
+
+        formatted_questions.append(
+            {
+                "id": f"gen-{idx + 1}",
+                "question": f"In an enterprise production workload, how should the engineering team architect {topic_name} to guarantee high availability and fault tolerance under high traffic?",
+                "options": opts,
+                "answer": ans,
+                "topic": mod_name,
+                "subtopic": topic_name,
+                "topic_priority": p_val,
+                "complexity": c_val,
+                "chapter_name": topic_name,
+                "key_competency": None,
+                "sub_competency": None,
+                "code_snippet": sample_code,
+                "hints_text": f"Consider distributed resilience patterns for {topic_name}.",
+                "solution_explanation": f"The correct option is '{ans}'. This option is correct because distributed idempotent processing guarantees fault tolerance and data consistency for {topic_name}.",
+            }
+        )
+
+    is_fallback = (len(all_generated) < count)
+    warning_msg = "Generated with hybrid fallback due to AI capacity limit." if is_fallback else None
+
+    return formatted_questions, is_fallback, warning_msg
 
 
 def calculate_smart_count(

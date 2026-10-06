@@ -199,13 +199,26 @@ class ExamAllocationService:
             if not question:
                 raise AppException("Something went wrong. Please try again later")
 
+            raw_code = question.code_snippets
+            clean_code = (
+                str(raw_code).strip()
+                if (raw_code and str(raw_code).strip().lower() not in ["null", "none", "nan", "undefined", ""])
+                else None
+            )
+            raw_hint = question.hints_text
+            clean_hint = (
+                str(raw_hint).strip()
+                if (raw_hint and str(raw_hint).strip().lower() not in ["null", "none", "nan", "undefined", ""])
+                else None
+            )
+
             question_details = {
                 "question_id": question.mcq_question_id,
                 "question_text": question.question_text,
                 "question_type": question.question_type or "mcq",
                 "question_marks": 1,
-                "question_code": question.code_snippets,
-                "question_hints": question.hints_text,
+                "question_code": clean_code,
+                "question_hints": clean_hint,
                 "options": [
                     question.option_1,
                     question.option_2,
@@ -240,14 +253,27 @@ class ExamAllocationService:
             if not q:
                 raise AppException("Something went wrong. Please try again later")
 
+            raw_code = q.code_snippets
+            clean_code = (
+                str(raw_code).strip()
+                if (raw_code and str(raw_code).strip().lower() not in ["null", "none", "nan", "undefined", ""])
+                else None
+            )
+            raw_hint = q.hints_text
+            clean_hint = (
+                str(raw_hint).strip()
+                if (raw_hint and str(raw_hint).strip().lower() not in ["null", "none", "nan", "undefined", ""])
+                else None
+            )
+
             questions.append(
                 {
                     "question_id": q.question_id,
                     "question_text": q.question_text,
                     "question_type": q.question_type or "mcq",
                     "question_marks": 1,
-                    "question_code": q.code_snippets,
-                    "question_hints": q.hints_text,
+                    "question_code": clean_code,
+                    "question_hints": clean_hint,
                     "options": [q.option_1, q.option_2, q.option_3, q.option_4]
                     if q.question_type in ["mcq", "moq"]
                     else [],

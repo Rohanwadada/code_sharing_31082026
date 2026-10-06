@@ -37,6 +37,7 @@ import {
 } from '@/service/aiContentGeneration.service';
 import Button from '../ui/Button';
 import { Sparkles } from 'lucide-react';
+import NodeContentAiLoader from './NodeContentAiLoader';
 
 const MotionImage = motion.create(Image);
 
@@ -353,7 +354,15 @@ const NodeContentViewer = ({
   return (
     <div className={styles['node-content-viewer']} ref={contentContainerRef}>
       {isContentFetching ? (
-        <NodeContentViewerSkeletonLoader />
+        <>
+          {/* Previous skeleton loader kept commented out as requested */}
+          {/* <NodeContentViewerSkeletonLoader /> */}
+          <NodeContentAiLoader
+            selectedNode={selectedNode}
+            parentModule={nodes?.find((n) => n.id === selectedNode?.parentId)}
+            closePopup={closePopup}
+          />
+        </>
       ) : showAiContentGenComponent ? (
         <AiNodeContentGenerator
           selectedNode={selectedNode}

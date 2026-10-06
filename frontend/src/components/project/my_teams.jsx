@@ -1,10 +1,15 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import styles from './my_teams.module.css';
 import MemberDetailView from './MemberDetailView';
+import { useAuthStore } from '@/store/authStore';
 
 const MyTeams = ({ projectData }) => {
+  const searchParams = useSearchParams();
+  const userDetails = useAuthStore((s) => s.userDetails);
+
   const [activeTab, setActiveTab] = useState('assigned'); // 'overview' | 'assigned' | 'leaderboard'
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('progress_desc');
@@ -23,73 +28,174 @@ const MyTeams = ({ projectData }) => {
   }
 
   const projectName = projectData?.project_name || 'Currently unavailable';
-  const createdBy = projectData?.created_by_name || projectData?.organization_name || 'Currently unavailable';
+  const createdBy = projectData?.created_by_email || projectData?.created_by_name || projectData?.organization_name || 'Currently unavailable';
   const createdOn = projectData?.created_at
     ? new Date(projectData.created_at).toLocaleDateString('en-GB')
     : 'Currently unavailable';
 
-  const rawMembers = projectData?.assigned_members || [];
+  const mandateParam = searchParams ? searchParams.get('mandate') : null;
+  const isSelfMandate = (projectData?.project_details?.project_mandate || mandateParam || '').toLowerCase() === 'self';
+
+  const rawMembers = useMemo(() => {
+    const list = projectData?.assigned_members || [];
+
+    const currentUserId = userDetails?.id || userDetails?.user_id;
+    const currentUserEmail = (userDetails?.email || '').toLowerCase().trim();
+    const currentUserName = userDetails?.name || userDetails?.user_name || (currentUserEmail ? currentUserEmail.split('@')[0] : 'Learner');
+
+    // #changes 28-09-2026 - start: Isolate member data for non-admins (Learner only sees self)
+    const userRole = (userDetails?.role || userDetails?.provided_role || '').toLowerCase().trim();
+    const isAdmin = ['admin', 'superadmin', 'organization_admin'].includes(userRole);
+
+    // 1. Admin: Return full team list
+    if (isAdmin && list.length > 0) {
+      return list;
+    }
+
+    // 2. Non-Admin (Learner): Return only their own record
+    if (!isAdmin && list.length > 0) {
+      const ownRecord = list.find((m) => {
+        if (currentUserId && (String(m.id) === String(currentUserId) || String(m.user_id) === String(currentUserId))) return true;
+        if (currentUserEmail && m.email && m.email.toLowerCase().trim() === currentUserEmail) return true;
+        return false;
+      });
+
+      if (ownRecord) {
+        return [ownRecord];
+      }
+    }
+    // #changes 28-09-2026 - end
+
+    return [{
+      id: currentUserId || projectData?.created_by || '1',
+      name: currentUserName,
+      email: currentUserEmail || projectData?.created_by_email || '',
+      role: projectData?.designation_name || userDetails?.designation || 'Learner',
+      unit: projectData?.function_name || 'General',
+      manager: '—',
+      status: 'Not started',
+      progress: 0,
+      completed_nodes: 0,
+      total_nodes: 0,
+      user_quizzes: [],
+    }];
+  }, [projectData, userDetails]);
+
+  const projectType = (projectData?.project_details?.project_type || projectData?.project_type || '').toLowerCase();
+  const isSkillGapOnly = projectType === 'skill_gap_assessment';
+  const isRoadmapOnly = projectType === 'roadmap';
+  const isBoth = !isSkillGapOnly && !isRoadmapOnly;
 
   const members = useMemo(() => {
     return rawMembers.map((m, idx) => {
       const userQuizzes = m.user_quizzes || [];
 
       // Skill-gap score: from the skill_gap_assessment quiz
-      const skillGapQuiz = userQuizzes.find(q => q.assessment_type === 'skill_gap_assessment' && q.status === 'Completed');
-      const skillGapScore = skillGapQuiz ? Math.round(skillGapQuiz.score) : null;
+      const skillGapQuiz = userQuizzes.find(
+        q => q.assessment_type === 'skill_gap_assessment' && (q.status === 'Completed' || q.submission_time || (q.score !== null && q.score !== undefined && q.score > 0))
+      );
+      const isSkillGapDone = Boolean(skillGapQuiz && (skillGapQuiz.status === 'Completed' || skillGapQuiz.submission_time || (skillGapQuiz.score !== null && skillGapQuiz.score !== undefined && skillGapQuiz.score > 0)));
+      const skillGapScore = isSkillGapDone ? Math.round(skillGapQuiz.score || 0) : null;
+
+      const rawSkillGapQuiz = userQuizzes.find(q => q.assessment_type === 'skill_gap_assessment');
+      const isSkillGapInProgress = Boolean(rawSkillGapQuiz && rawSkillGapQuiz.status === 'In Progress' && !isSkillGapDone);
 
       // Roadmap progress %
       const roadmapPct = m.progress !== undefined ? Math.round(m.progress) : 0;
+      const completedNodesCount = m.completed_nodes !== undefined ? m.completed_nodes : (m.completedNodes || 0);
 
-      // Quiz avg: average score of all roadmap learning assessment quizzes
+      // Quiz avg: average score of only TAKEN roadmap learning assessment quizzes
       const learningQuizzes = userQuizzes.filter(q => q.assessment_type === 'roadmap_learning_assessment');
-      const quizAvgScore = learningQuizzes.length > 0
-        ? Math.round(learningQuizzes.reduce((sum, q) => sum + (q.score || 0), 0) / learningQuizzes.length)
+      const takenLearningQuizzes = learningQuizzes.filter(
+        q => q.status === 'Completed' || q.submission_time || (q.score !== null && q.score !== undefined && q.score > 0)
+      );
+      const quizAvgScore = takenLearningQuizzes.length > 0
+        ? Math.round(takenLearningQuizzes.reduce((sum, q) => sum + (q.score || 0), 0) / takenLearningQuizzes.length)
         : null;
 
       // Capstone Project score (0% if none)
       const capstoneScore = m.capstonePercent !== undefined ? Math.round(m.capstonePercent) : (m.capstone_project?.percent || 0);
 
-      // Overall %: average of all 4 components (Skill Gap, Roadmap, Quiz Avg, Capstone)
-      const sg = skillGapScore !== null ? skillGapScore : 0;
-      const rm = roadmapPct;
-      const qz = quizAvgScore !== null ? quizAvgScore : 0;
-      const cp = capstoneScore;
-      const overallPct = Math.round((sg + rm + qz + cp) / 4);
+      // Overall % calculation based on project entry type:
+      let overallPct = 0;
+      if (isSkillGapOnly) {
+        overallPct = skillGapScore !== null ? skillGapScore : 0;
+      } else if (isRoadmapOnly) {
+        overallPct = roadmapPct;
+      } else {
+        const sg = skillGapScore !== null ? skillGapScore : 0;
+        const rm = roadmapPct;
+        const qz = quizAvgScore !== null ? quizAvgScore : 0;
+        const cp = capstoneScore;
+        overallPct = Math.round((sg + rm + qz + cp) / 4);
+      }
+
+      // Assessment Status calculation:
+      let calculatedStatus = 'Not started';
+      if (isSkillGapOnly) {
+        if (isSkillGapDone) {
+          calculatedStatus = 'Completed';
+        } else if (isSkillGapInProgress) {
+          calculatedStatus = 'In progress';
+        } else {
+          calculatedStatus = 'Not started';
+        }
+      } else if (isRoadmapOnly) {
+        const hasStarted = roadmapPct > 0 || completedNodesCount > 0 || takenLearningQuizzes.length > 0 || capstoneScore > 0;
+        if (roadmapPct >= 100) {
+          calculatedStatus = 'Completed';
+        } else if (hasStarted) {
+          calculatedStatus = 'In progress';
+        } else {
+          calculatedStatus = 'Not started';
+        }
+      } else {
+        // Both Roadmap & Skill Gap
+        const sgDone = isSkillGapDone;
+        const rmDone = roadmapPct >= 100;
+        const hasStarted = sgDone || isSkillGapInProgress || roadmapPct > 0 || completedNodesCount > 0 || takenLearningQuizzes.length > 0 || capstoneScore > 0;
+        if (sgDone && rmDone) {
+          calculatedStatus = 'Completed';
+        } else if (hasStarted) {
+          calculatedStatus = 'In progress';
+        } else {
+          calculatedStatus = 'Not started';
+        }
+      }
 
       return {
         id: m.id || idx + 1,
         name: m.name || m.user_name || 'Unknown',
         email: m.email || '',
-        role: m.designation || m.role || 'Learner',
+        role: m.designation || projectData?.designation_name || m.role || 'Learner',
         unit: m.department || m.unit || projectData?.function_name || 'General',
         manager: m.manager || '—',
-        assessmentStatus: m.status || m.assessmentStatus || 'Not started',
+        assessmentStatus: calculatedStatus,
         skillGapScore,
         roadmapPct,
         quizAvgScore,
         learningQuizzesCount: learningQuizzes.length,
-        totalQuizzesCount: m.total_quizzes_count || userQuizzes.length,
+        totalQuizzesCount: learningQuizzes.length,
         capstoneScore,
         capstone_project: m.capstone_project,
         capstonePercent: capstoneScore,
         capstoneStatus: m.capstoneStatus || m.capstone_project?.status || 'Not started',
-        total_quizzes_count: m.total_quizzes_count || userQuizzes.length,
-        taken_quizzes_count: m.taken_quizzes_count || userQuizzes.filter(q => q.status === 'Completed' || q.score > 0).length,
-        avg_quiz_score: m.avg_quiz_score !== undefined ? m.avg_quiz_score : quizAvgScore,
+        total_quizzes_count: learningQuizzes.length,
+        taken_quizzes_count: takenLearningQuizzes.length,
+        avg_quiz_score: quizAvgScore !== null ? quizAvgScore : 0,
         overallPct,
         allocationId: m.allocationId || m.allocation_id || m.assignment_id || m.access_id,
         allocation_id: m.allocation_id || m.allocationId || m.assignment_id || m.access_id,
         roadmap_id: m.roadmap_id || m.roadmapId,
         roadmap_title: m.roadmap_title || m.roadmapTitle,
         roadmap_chapters: m.roadmap_chapters || m.roadmapChapters || [],
-        completed_nodes: m.completed_nodes !== undefined ? m.completed_nodes : m.completedNodes,
+        completed_nodes: completedNodesCount,
         total_nodes: m.total_nodes !== undefined ? m.total_nodes : m.totalNodes,
         progress: roadmapPct,
         user_quizzes: userQuizzes,
       };
     });
-  }, [rawMembers, projectData]);
+  }, [rawMembers, projectData, isSkillGapOnly, isRoadmapOnly, isBoth]);
 
   // Dynamic Completion Calculations
   const totalAssigned = members.length;
@@ -377,7 +483,9 @@ const MyTeams = ({ projectData }) => {
               </div>
 
               <div className={styles.membersSubtitle}>
-                {totalAssigned} people across team business units. Expand a group to see individuals.
+                {isSelfMandate
+                  ? '1 person assigned (Self).'
+                  : `${totalAssigned} people across team business units. Expand a group to see individuals.`}
               </div>
 
               {/* Department Accordions */}
@@ -423,9 +531,9 @@ const MyTeams = ({ projectData }) => {
                                 <tr>
                                   <th>Employee</th>
                                   <th>Status</th>
-                                  <th>Skill Gap</th>
-                                  <th>Roadmap</th>
-                                  <th>Quiz Avg</th>
+                                  {(isSkillGapOnly || isBoth) && <th>Skill Gap</th>}
+                                  {(isRoadmapOnly || isBoth) && <th>Roadmap</th>}
+                                  {(isRoadmapOnly || isBoth) && <th>Quiz Avg</th>}
                                   <th>Overall %</th>
                                 </tr>
                               </thead>
@@ -452,17 +560,23 @@ const MyTeams = ({ projectData }) => {
                                         {member.assessmentStatus}
                                       </span>
                                     </td>
-                                    <td style={{ color: member.skillGapScore !== null ? '#1D6A72' : '#9AA0B4', fontWeight: 600 }}>
-                                      {member.skillGapScore !== null ? `${member.skillGapScore}%` : '—'}
-                                    </td>
-                                    <td style={{ color: '#0F1117', fontWeight: 500 }}>
-                                      {member.roadmapPct}%
-                                    </td>
-                                    <td style={{ color: member.quizAvgScore !== null ? '#8A6A10' : '#9AA0B4', fontWeight: 600 }}>
-                                      {member.quizAvgScore !== null
-                                        ? `${member.quizAvgScore}% (${member.learningQuizzesCount}/${member.totalQuizzesCount})`
-                                        : '—'}
-                                    </td>
+                                    {(isSkillGapOnly || isBoth) && (
+                                      <td style={{ color: member.skillGapScore !== null ? '#1D6A72' : '#9AA0B4', fontWeight: 600 }}>
+                                        {member.skillGapScore !== null ? `${member.skillGapScore}%` : '—'}
+                                      </td>
+                                    )}
+                                    {(isRoadmapOnly || isBoth) && (
+                                      <td style={{ color: '#0F1117', fontWeight: 500 }}>
+                                        {member.roadmapPct}%
+                                      </td>
+                                    )}
+                                    {(isRoadmapOnly || isBoth) && (
+                                      <td style={{ color: member.quizAvgScore !== null ? '#8A6A10' : '#9AA0B4', fontWeight: 600 }}>
+                                        {member.quizAvgScore !== null
+                                          ? `${member.quizAvgScore}% (${member.learningQuizzesCount}/${member.totalQuizzesCount})`
+                                          : '—'}
+                                      </td>
+                                    )}
                                     <td style={{
                                       fontWeight: 700,
                                       fontSize: '14px',
@@ -507,9 +621,9 @@ const MyTeams = ({ projectData }) => {
                       <th>Employee</th>
                       <th>Department</th>
                       <th>Status</th>
-                      <th>Skill Gap</th>
-                      <th>Roadmap</th>
-                      <th>Quiz Avg</th>
+                      {(isSkillGapOnly || isBoth) && <th>Skill Gap</th>}
+                      {(isRoadmapOnly || isBoth) && <th>Roadmap</th>}
+                      {(isRoadmapOnly || isBoth) && <th>Quiz Avg</th>}
                       <th>Overall %</th>
                     </tr>
                   </thead>
@@ -518,6 +632,9 @@ const MyTeams = ({ projectData }) => {
                       .sort((a, b) => {
                         const diffOverall = (b.overallPct || 0) - (a.overallPct || 0);
                         if (diffOverall !== 0) return diffOverall;
+                        if (isSkillGapOnly) {
+                          return (b.skillGapScore || 0) - (a.skillGapScore || 0);
+                        }
                         const diffRoadmap = (b.roadmapPct || 0) - (a.roadmapPct || 0);
                         if (diffRoadmap !== 0) return diffRoadmap;
                         return (b.quizAvgScore || 0) - (a.quizAvgScore || 0);
@@ -558,17 +675,23 @@ const MyTeams = ({ projectData }) => {
                                 {member.assessmentStatus}
                               </span>
                             </td>
-                            <td style={{ color: member.skillGapScore !== null ? '#1D6A72' : '#9AA0B4', fontWeight: 600 }}>
-                              {member.skillGapScore !== null ? `${member.skillGapScore}%` : '—'}
-                            </td>
-                            <td style={{ color: '#0F1117', fontWeight: 500 }}>
-                              {member.roadmapPct}%
-                            </td>
-                            <td style={{ color: member.quizAvgScore !== null ? '#8A6A10' : '#9AA0B4', fontWeight: 600 }}>
-                              {member.quizAvgScore !== null
-                                ? `${member.quizAvgScore}% (${member.learningQuizzesCount}/${member.totalQuizzesCount})`
-                                : '—'}
-                            </td>
+                            {(isSkillGapOnly || isBoth) && (
+                              <td style={{ color: member.skillGapScore !== null ? '#1D6A72' : '#9AA0B4', fontWeight: 600 }}>
+                                {member.skillGapScore !== null ? `${member.skillGapScore}%` : '—'}
+                              </td>
+                            )}
+                            {(isRoadmapOnly || isBoth) && (
+                              <td style={{ color: '#0F1117', fontWeight: 500 }}>
+                                {member.roadmapPct}%
+                              </td>
+                            )}
+                            {(isRoadmapOnly || isBoth) && (
+                              <td style={{ color: member.quizAvgScore !== null ? '#8A6A10' : '#9AA0B4', fontWeight: 600 }}>
+                                {member.quizAvgScore !== null
+                                  ? `${member.quizAvgScore}% (${member.learningQuizzesCount}/${member.totalQuizzesCount})`
+                                  : '—'}
+                              </td>
+                            )}
                             <td style={{
                               fontWeight: 700,
                               fontSize: '14px',

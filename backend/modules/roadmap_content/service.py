@@ -44,13 +44,14 @@ class RoadmapContentService:
 
         # roadmap = await self.roadmap_service.get_by_id(roadmap_id=roadmap_id)
 
-        roadmap = await self.db.scalar(
-            select(Roadmap).where(
-                Roadmap.roadmap_id == roadmap_id,
-                Roadmap.organization_id == organization_id,
-                Roadmap.team_id == team_id,
-            )
-        )
+        roadmap_stmt = select(Roadmap).where(Roadmap.roadmap_id == roadmap_id)
+        if organization_id:
+            roadmap_stmt = roadmap_stmt.where(Roadmap.organization_id == organization_id)
+        if team_id is not None:
+            roadmap_stmt = roadmap_stmt.where(Roadmap.team_id == team_id)
+        roadmap = await self.db.scalar(roadmap_stmt)
+        if not roadmap:
+            roadmap = await self.db.scalar(select(Roadmap).where(Roadmap.roadmap_id == roadmap_id))
         if not roadmap:
             raise BadRequestException("Roadmap not found")
 
@@ -70,24 +71,14 @@ class RoadmapContentService:
         roadmap_id: str,
         node_id: str,
     ) -> dict:
-        # await self.organization_service.get_organization_by_id(
-        #     organization_id=organization_id
-        # )
-
-        # if team_id:
-        #     await self.team_service.get_team_by_id(
-        #         team_id=team_id, organization_id=organization_id, user_id=user_id
-        #     )
-
-        # roadmap = await self.roadmap_service.get_by_id(roadmap_id=roadmap_id)
-
-        roadmap = await self.db.scalar(
-            select(Roadmap).where(
-                Roadmap.roadmap_id == roadmap_id,
-                Roadmap.organization_id == organization_id,
-                Roadmap.team_id == team_id,
-            )
-        )
+        roadmap_stmt = select(Roadmap).where(Roadmap.roadmap_id == roadmap_id)
+        if organization_id:
+            roadmap_stmt = roadmap_stmt.where(Roadmap.organization_id == organization_id)
+        if team_id is not None:
+            roadmap_stmt = roadmap_stmt.where(Roadmap.team_id == team_id)
+        roadmap = await self.db.scalar(roadmap_stmt)
+        if not roadmap:
+            roadmap = await self.db.scalar(select(Roadmap).where(Roadmap.roadmap_id == roadmap_id))
         if not roadmap:
             raise BadRequestException("Roadmap not found")
 
@@ -141,24 +132,14 @@ class RoadmapContentService:
         node_id: str,
         new_content: dict[str, Any],
     ) -> dict:
-        # await self.organization_service.get_organization_by_id(
-        #     organization_id=organization_id
-        # )
-
-        # if team_id:
-        #     await self.team_service.get_team_by_id(
-        #         team_id=team_id, organization_id=organization_id, user_id=user_id
-        #     )
-
-        # roadmap = await self.roadmap_service.get_by_id(roadmap_id=roadmap_id)
-
-        roadmap = await self.db.scalar(
-            select(Roadmap).where(
-                Roadmap.roadmap_id == roadmap_id,
-                Roadmap.organization_id == organization_id,
-                Roadmap.team_id == team_id,
-            )
-        )
+        roadmap_stmt = select(Roadmap).where(Roadmap.roadmap_id == roadmap_id)
+        if organization_id:
+            roadmap_stmt = roadmap_stmt.where(Roadmap.organization_id == organization_id)
+        if team_id is not None:
+            roadmap_stmt = roadmap_stmt.where(Roadmap.team_id == team_id)
+        roadmap = await self.db.scalar(roadmap_stmt)
+        if not roadmap:
+            roadmap = await self.db.scalar(select(Roadmap).where(Roadmap.roadmap_id == roadmap_id))
         if not roadmap:
             raise BadRequestException("Roadmap not found")
 

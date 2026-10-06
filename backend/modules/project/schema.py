@@ -109,6 +109,8 @@ class ProjectResponse(BaseModel):
     project_status: Optional[Dict[str, Any]] = None
     created_at: datetime
     created_by: Optional[UUID] = None
+    created_by_name: Optional[str] = None
+    created_by_email: Optional[str] = None
     project_details: Optional[Dict[str, Any]] = None
     
     # Extra fields for UI cards (default to null)

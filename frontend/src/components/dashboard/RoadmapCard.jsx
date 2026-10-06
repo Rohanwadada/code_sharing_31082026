@@ -119,15 +119,16 @@ const RoadmapCard = ({
             </span>
           </div>
           <div className={styles['action-ct']}>
-            {/* {userDetails?.role === ADMIN_ROLE && (*/}
-            <button
-              className={styles['action-btn']}
-              onClick={(e) => onCloneClick(e, cardData)}
-              title="clone roadmap"
-            >
-              <Branch width={16} height={16} />
-            </button>
-            {/* )}*/}
+            {/* #changes_05_10_2026: Only editor and owner can clone */}
+            {['editor', 'owner'].includes(cardData?.access) && (
+              <button
+                className={styles['action-btn']}
+                onClick={(e) => onCloneClick(e, cardData)}
+                title="clone roadmap"
+              >
+                <Branch width={16} height={16} />
+              </button>
+            )}
             {['editor', 'owner'].includes(cardData?.access) && (
               <button
                 className={styles['action-btn']}

@@ -19,7 +19,7 @@ from modules.roadmap_agent.utils import (
     pseudo_stream_text,
 )
 from modules.thread.schema import ThreadUpdate
-from shared.llm.gemini import get_gemini_instance
+from shared.llm.gemini import get_gemini_instance, log_token_usage
 from shared.sse_stream import publish_content_block
 from modules.roadmap_agent.nodes.utils.dsl_augmenter import augment_dsl
 
@@ -255,7 +255,9 @@ async def generate_roadmap(data: Dict, artifact_service: ArtifactService):
             ),
             HumanMessage(content=human_message),
         ]
+        t0 = time.time()
         response = gemini.invoke(message)
+        gen_latency = f"{time.time() - t0:.2f}s"
         print(response)
         result = response.content.strip("`").lstrip("json").strip()  # type: ignore
 
@@ -266,6 +268,15 @@ async def generate_roadmap(data: Dict, artifact_service: ArtifactService):
 
         # create artifact in DB
         artifact_title = get_roadmap_title(augmented_dsl)
+
+        # Log exact real token consumption for this individual roadmap generation
+        log_token_usage(
+            response,
+            feature_name=f"Roadmap Generation: {artifact_title}",
+            model_name="gemini-2.5-flash",
+            latency=gen_latency,
+        )
+
         artifact_data = {
             "dsl": augmented_dsl,
             "prompt": roadmap_generation_prompt,

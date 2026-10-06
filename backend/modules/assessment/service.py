@@ -182,12 +182,21 @@ class AssessmentService:
         user_id = user.user_id
         user_name = user.user_name
         user_email = user.user_email
-        organization_id = data.organization_id
+        # #changes 28-09-2026 - start: Sanitize organization_id to prevent UUID DataError with empty strings
+        # organization_id = data.organization_id
         project_id = data.project_id
 
         project = await self.db.scalar(select(Project).where(Project.project_id == project_id))
         if not project:
             raise BadRequestException("Invalid project")
+
+        raw_org = data.organization_id
+        organization_id = (
+            str(raw_org).strip()
+            if raw_org and str(raw_org).strip()
+            else (str(project.organization_id) if project and project.organization_id else None)
+        )
+        # #changes 28-09-2026 - end
 
         # competency_subcompetency_priority = defaultdict(dict)
 
@@ -344,24 +353,58 @@ class AssessmentService:
         sub_competency_id: str,
         data: dict[str, Any],
     ):
+        # #changes 28-09-2026 - start: Safe dictionary access for uploaded question fields
+        # new_question = McqQuestion(
+        #     question_text=data["question_text"],
+        #     option_1=data["option_1"],
+        #     option_2=data["option_2"],
+        #     option_3=data["option_3"],
+        #     option_4=data["option_4"],
+        #     correct_option_text=data["correct_option_text"],
+        #     competency_id=competency_id,
+        #     subcompetency_id=sub_competency_id,
+        #     organization_id=organization_id,
+        #     hints_text=data["hints_text"],
+        #     code_snippets=data["code_snippets"],
+        #     marks=data["marks"],
+        #     source_of_question=data["source"],
+        #     question_status="active",
+        #     question_details=data.get("question_details", {}),
+        #     created_by=user_id,
+        #     updated_by=user_id,
+        # )
+        raw_marks = data.get("marks") if isinstance(data, dict) else getattr(data, "marks", 1)
+        try:
+            marks = int(float(raw_marks)) if raw_marks is not None and str(raw_marks).strip() else 1
+        except (ValueError, TypeError):
+            marks = 1
+
+        def clean_uuid(val):
+            if val is None:
+                return None
+            s = str(val).strip()
+            return s if s and s.lower() not in {"null", "none", "undefined", ""} else None
+
+        q_text = data.get("question_text") or data.get("question") or ""
+
         new_question = McqQuestion(
-            question_text=data["question_text"],
-            option_1=data["option_1"],
-            option_2=data["option_2"],
-            option_3=data["option_3"],
-            option_4=data["option_4"],
-            correct_option_text=data["correct_option_text"],
-            competency_id=competency_id,
-            subcompetency_id=sub_competency_id,
-            organization_id=organization_id,
-            hints_text=data["hints_text"],
-            code_snippets=data["code_snippets"],
-            marks=data["marks"],
-            source_of_question=data["source"],
+            question_text=q_text,
+            option_1=data.get("option_1", "") or "",
+            option_2=data.get("option_2", "") or "",
+            option_3=data.get("option_3", "") or "",
+            option_4=data.get("option_4", "") or "",
+            correct_option_text=data.get("correct_option_text", "") or "",
+            competency_id=clean_uuid(competency_id),
+            subcompetency_id=clean_uuid(sub_competency_id),
+            organization_id=clean_uuid(organization_id),
+            hints_text=data.get("hints_text") or "",
+            code_snippets=data.get("code_snippets") or "",
+            marks=marks,
+            source_of_question=data.get("source") or "self",
             question_status="active",
-            question_details=data.get("question_details", {}),
-            created_by=user_id,
-            updated_by=user_id,
+            question_details=data.get("question_details", {}) or {},
+            created_by=clean_uuid(user_id),
+            updated_by=clean_uuid(user_id),
         )
 
         self.db.add(new_question)
@@ -369,7 +412,7 @@ class AssessmentService:
         await self.db.refresh(new_question)
 
         logger.info(
-            f"Created new question: {new_question.mcq_question_id} :: Text: {data['question_text']}"
+            f"Created new question: {new_question.mcq_question_id} :: Text: {q_text[:50]}"
         )
 
         return new_question

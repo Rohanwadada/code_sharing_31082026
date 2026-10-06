@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import classes from './AssessmentSteps.module.css';
 import aiInterView from '@/assets/assessment/ai-interview.svg';
 import useCase from '@/assets/assessment/use-case.svg';
@@ -10,18 +10,33 @@ import Image from 'next/image';
 
 const AssessmentTypes = ({ projectId }) => {
   const currentProjectName = useProjectStore((s) => s.currentProjectName);
+  const fetchProjectDetails = useProjectStore((s) => s.fetchProjectDetails);
+  const saveWizardStep = useProjectStore((s) => s.saveWizardStep);
   const router = useRouter();
 
+  useEffect(() => {
+    if (projectId) {
+      fetchProjectDetails(projectId);
+    }
+  }, [projectId, fetchProjectDetails]);
+
   const handleCardClick = (type) => {
+    if (projectId) {
+      saveWizardStep(
+        projectId,
+        'step_2_assessment_type',
+        `/project/${projectId}/assessment/assessment-types`,
+        {
+          route: `/project/${projectId}/assessment/assessment-types`,
+          is_completed: true,
+          data: { selected_type: type, is_auto_scored: type === 'MCQ' },
+        }
+      );
+    }
+
     if (type === 'MCQ') {
       router.push(`/project/${projectId}/assessment/question-source`);
     }
-
-    // if (type === 'AI') {
-    //   router.push(
-    //     `/project/${projectId}/assessment/question-source-ai-interview`,
-    //   );
-    // }
   };
 
   return (

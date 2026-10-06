@@ -48,39 +48,34 @@ class RoadmapAccessService:
             roadmap_project_id = granting_user_roadmap.roadmap.project_id
             
             access_details = data.access
+            seen_emails = set()
+            unique_access = []
+            for a in access_details:
+                e = a.email.strip().lower()
+                if e not in seen_emails:
+                    seen_emails.add(e)
+                    unique_access.append(a)
+            access_details = unique_access
 
-            new_users = []
             for access in access_details:
                 # check user exists in db
-                user_email = access.email.lower()
-                user = await self.db.scalar(
+                user_email = access.email.strip().lower()
+                user_res = await self.db.execute(
                     select(UserDetails).where(
-                        UserDetails.email == hash_entity(user_email)
-                    )
+                        (func.lower(UserDetails.user_email) == user_email) |
+                        (UserDetails.email == hash_entity(user_email))
+                    ).limit(1)
                 )
+                user = user_res.scalars().first()
 
-                access_role = access.level
-                sharing_mode = access.sharing_mode
+                access_role = access.level if hasattr(access, 'level') else "viewer"
+                sharing_mode = access.sharing_mode if hasattr(access, 'sharing_mode') else "basic_sharing"
 
-                if user:
-                    await self.add_or_update_roadmap_access(
-                        user_id=user.user_id,
-                        granting_user_id=granting_user_id,
-                        roadmap_id=roadmap_id,
-                        role=access_role,
-                        sharing_mode=sharing_mode,
-                    )
-                else:
-                    new_user = UserDetails(user_email=user_email)
-                    self.db.add(new_user)
-                    new_users.append((new_user, access))
-            await self.db.commit()
+                if not user:
+                    user = UserDetails(user_email=user_email)
+                    self.db.add(user)
+                    await self.db.flush()
 
-            # access for new user
-            print(new_users)
-            for user, access in new_users:
-                access_role = access.get("level", "viewer")
-                sharing_mode = access.get("sharing_mode", "basic_sharing")
                 await self.add_or_update_roadmap_access(
                     user_id=user.user_id,
                     granting_user_id=granting_user_id,
@@ -140,12 +135,12 @@ class RoadmapAccessService:
         sharing_mode: str = "basic_sharing",
     ) -> bool:
         try:
-            print(user_id)
-            user_roadmap = await self.db.scalar(
+            user_roadmap_res = await self.db.execute(
                 select(UserRoadmap).where(
                     UserRoadmap.user_id == user_id, UserRoadmap.roadmap_id == roadmap_id
-                )
+                ).limit(1)
             )
+            user_roadmap = user_roadmap_res.scalars().first()
 
             if user_roadmap:
                 print("Updating existing access")

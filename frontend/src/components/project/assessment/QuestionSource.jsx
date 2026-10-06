@@ -1,34 +1,55 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import classes from './AssessmentSteps.module.css';
 import aiInterView from '@/assets/assessment/ai-interview.svg';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useProjectStore } from '@/store/projectStore';
 import {
   assessmentFormationSourceType,
   useAssessmentFormationStore,
 } from '@/store/assessmentFormationStore';
 
 const QuestionSource = ({ projectId }) => {
+  const fetchProjectDetails = useProjectStore((s) => s.fetchProjectDetails);
+  const saveWizardStep = useProjectStore((s) => s.saveWizardStep);
   const setAssessmentFormationSource = useAssessmentFormationStore(
     (s) => s.setAssessmentFormationSource,
   );
 
   const router = useRouter();
 
+  useEffect(() => {
+    if (projectId) {
+      fetchProjectDetails(projectId);
+    }
+  }, [projectId, fetchProjectDetails]);
+
   const handleCardClick = (source) => {
+    if (projectId) {
+      saveWizardStep(
+        projectId,
+        'step_3_question_source',
+        `/project/${projectId}/assessment/question-source`,
+        {
+          route: `/project/${projectId}/assessment/question-source`,
+          is_completed: true,
+          data: { question_source: source },
+        }
+      );
+    }
+
     if (source === 'ai') {
-      // Adjust this route to match your App.js routing setup
       router.push(`/project/${projectId}/assessment/source-competency`);
     } else if (source === 'manual') {
       setAssessmentFormationSource(
         assessmentFormationSourceType.QUESTION_UPLOAD,
       );
-      // Adjust this route to match your App.js routing setup
       router.push(`/project/${projectId}/assessment/upload-questions`);
     }
   };
+
 
   return (
     <div className={classes['page-container']}>

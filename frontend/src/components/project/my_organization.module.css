@@ -1,14 +1,21 @@
 .pageWrapper {
+  width: 100%;
   min-height: 100vh;
   background-color: #f7f5f0;
-  padding: 24px 32px 60px 32px;
+  padding: 24px 40px 60px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   color: #1a1d2e;
 }
 
 .container {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1280px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 /* Header Info */

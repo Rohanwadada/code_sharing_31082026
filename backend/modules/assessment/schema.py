@@ -34,18 +34,32 @@ class QuestionGroup(BaseModel):
     sub_competency_id: Optional[str] = None
 
 
+# #changes 28-09-2026 - start: Make organization_id optional for learner/self projects
+# class CreateAssessment(BaseModel):
+#     organization_id: str
+#     project_id: str
+#     items: list[QuestionGroup]
+#     source: str
+#
+#
+# class UpdateAssessment(BaseModel):
+#     organization_id: str
+#     allocation_mode: AssessmentAllocationMode | None = None
+#     shuffle: bool | None = None
+#     items: list[QuestionGroup] | None = None
 class CreateAssessment(BaseModel):
-    organization_id: str
+    organization_id: Optional[str] = None
     project_id: str
     items: list[QuestionGroup]
     source: str
 
 
 class UpdateAssessment(BaseModel):
-    organization_id: str
+    organization_id: Optional[str] = None
     allocation_mode: AssessmentAllocationMode | None = None
     shuffle: bool | None = None
     items: list[QuestionGroup] | None = None
+# #changes 28-09-2026 - end
 
     @model_validator(mode="after")
     def validate_shuffle(self) -> "UpdateAssessment":

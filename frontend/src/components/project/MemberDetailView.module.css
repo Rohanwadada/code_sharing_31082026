@@ -3,13 +3,19 @@
   min-height: 100vh;
   background-color: #FBF9F5;
   padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #1A1A1A;
 }
 
 .container {
-  max-width: 1160px;
+  width: 100%;
+  max-width: 1280px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .headerBar {
@@ -1070,7 +1076,7 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   padding: 22px 24px;
   gap: 16px;
   width: 100%;
@@ -1343,6 +1349,35 @@
   color: #1D6A72;
 }
 
+.quizActionBtnLocked {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px 10px;
+  height: 28px;
+  background: #F4F1EA;
+  border: 1px solid #E3DFD5;
+  border-radius: 7px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 14px;
+  letter-spacing: 0.2px;
+  color: #A09D94;
+  cursor: not-allowed;
+  user-select: none;
+  opacity: 0.85;
+  transition: all 0.15s ease;
+}
+
+.quizActionBtnLocked:hover {
+  background: #EFECE3;
+  border-color: #D8D4C7;
+  color: #8C8980;
+}
+
 /* Quiz Review Modal Styles */
 .modalOverlay {
   position: fixed;
@@ -1590,6 +1625,8 @@
   gap: 12px;
   margin-bottom: 16px;
   flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .quizViewToggleGroup {
@@ -1621,6 +1658,8 @@
 }
 
 .quizChapterGroup {
+  width: 100%;
+  box-sizing: border-box;
   background: #FFFFFF;
   border: 1px solid #EAE6DF;
   border-radius: 14px;
@@ -1636,6 +1675,8 @@
   padding: 16px 20px;
   background: #F7F5F0;
   border-bottom: 1px solid #EAE6DF;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .quizChapterTitleGroup {

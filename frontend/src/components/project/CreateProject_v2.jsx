@@ -165,6 +165,7 @@ const CreateProject = () => {
   const projectStore = useProjectStore();
   const setProjectData = useProjectStore((s) => s.setProjectData);
   const resetProjectStore = useProjectStore((s) => s.resetProjectStore);
+  const saveWizardStep = useProjectStore((s) => s.saveWizardStep);
 
   const isAdmin = userDetails?.role && userDetails?.role === ADMIN_ROLE;
 
@@ -349,7 +350,7 @@ const CreateProject = () => {
       project_type: PROJECT_TYPES[formData.creationType],
       project_mandate: formData.whoFor.toLowerCase(),
       jd_data: formData.roleDescription.trim() || null,
-      created_by: organizationId || null,
+      //created_by: organizationId || null,
       project_status: { status: 'active' },
     };
 
@@ -365,6 +366,27 @@ const CreateProject = () => {
         currentProjectId: response.project_id,
         currentProjectName: formData.projectName,
       });
+
+      if (saveWizardStep) {
+        saveWizardStep(
+          response.project_id,
+          'step_1_project_details',
+          `/project/${response.project_id}/assessment/assessment-types`,
+          {
+            route: `/project/create-project`,
+            is_completed: true,
+            data: {
+              project_name: formData.projectName,
+              project_mandate: formData.whoFor.toLowerCase(),
+              hiring_goal: formData.hiringGoal || 1,
+              jd_uploaded: !!jdFile,
+              function_name: projectData.function_name,
+              designation_name: projectData.designation_name,
+            },
+          }
+        );
+      }
+
       if (
         formData.creationType === 'assessment' ||
         formData.creationType === 'both'

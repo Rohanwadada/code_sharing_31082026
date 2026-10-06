@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import classes from './AssessmentSteps.module.css';
 import aiInterView from '@/assets/assessment/ai-interview.svg';
 import Image from 'next/image';
@@ -13,10 +13,18 @@ import {
 
 const SourceOfCompetencies = ({ projectId }) => {
   const currentProjectName = useProjectStore((s) => s.currentProjectName);
+  const fetchProjectDetails = useProjectStore((s) => s.fetchProjectDetails);
+
+  useEffect(() => {
+    if (projectId) {
+      fetchProjectDetails(projectId);
+    }
+  }, [projectId, fetchProjectDetails]);
 
   const setAssessmentFormationSource = useAssessmentFormationStore(
     (s) => s.setAssessmentFormationSource,
   );
+
 
   const router = useRouter();
 

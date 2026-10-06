@@ -41,15 +41,28 @@ async def grant_assessment_access(
         raise BadRequestException("Invalid assessment")
 
     new_emails = []
+    seen_candidate_emails = set()
     
     for candidate in request.candidates:
         email = candidate.email.strip()
         email_lower = email.lower()
         user_name = candidate.name
         
-        # Check existing access entry
-        access_entry = await db.scalar(select(UserAssessmentAccess).where(UserAssessmentAccess.assessment_id == request.assessment_id,
-        func.lower(UserAssessmentAccess.user_email) == email_lower))
+        if email_lower in seen_candidate_emails:
+            continue
+        seen_candidate_emails.add(email_lower)
+
+        # Check existing access entry using limit(1) to avoid MultipleResultsFound
+        access_res = await db.execute(
+            select(UserAssessmentAccess)
+            .where(
+                UserAssessmentAccess.assessment_id == str(request.assessment_id),
+                func.lower(func.trim(UserAssessmentAccess.user_email)) == email_lower
+            )
+            .order_by(UserAssessmentAccess.granted_at.desc())
+            .limit(1)
+        )
+        access_entry = access_res.scalars().first()
 
         now = get_current_timestamp()
         if access_entry:
@@ -64,7 +77,7 @@ async def grant_assessment_access(
             new_access_id = str(uuid.uuid4())
             record = UserAssessmentAccess(
                 access_id=new_access_id,
-                assessment_id=request.assessment_id,
+                assessment_id=str(request.assessment_id),
                 user_email=email,
                 user_name=user_name or "Candidate",
                 organization_id=request.organization_id,

@@ -92,4 +92,7 @@ async def generate_learning_assessment_for_module_route(
         response = await generate_learning_assessment_for_module(
             data=data, user_id=user.user_id, db=db, roadmap_content_service=roadmap_content_service
         )
-    return GenerateAssessmentForAssessmentNodeResponse(status='success', assessment=AssessmentResponse(name=response['title'], url=response['assessment_url']))
+    title = response.get('title') or 'Assessment'
+    url = response.get('assessment_url') or ''
+    return GenerateAssessmentForAssessmentNodeResponse(status='success', assessment=AssessmentResponse(name=title, url=url))
+

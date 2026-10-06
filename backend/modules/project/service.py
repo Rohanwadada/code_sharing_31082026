@@ -4,7 +4,7 @@ from typing import Optional
 from uuid import UUID
 from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, func, or_
 from sqlalchemy.orm.attributes import flag_modified
 
 logger = logging.getLogger(__name__)
@@ -56,9 +56,9 @@ async def create_project_async(db: AsyncSession, project_in: ProjectCreate) -> P
             Function.organization_id == org.organization_id,
         )
         func_result = await db.execute(func_stmt)
-        func = func_result.scalars().first()
-        if func:
-            func_id = func.function_id
+        func_obj = func_result.scalars().first()
+        if func_obj:
+            func_id = func_obj.function_id
         elif is_active:
             new_func = Function(
                 organization_id=org.organization_id,
@@ -99,20 +99,49 @@ async def create_project_async(db: AsyncSession, project_in: ProjectCreate) -> P
         "project_mandate": project_in.project_mandate
     }
 
-    db_project = Project(
-        project_name=project_in.project_name,
-        organization_id=org.organization_id,
-        function_id=func_id,
-        designation_id=desig_id,
-        hiring_goal=project_in.hiring_goal,
-        jd_url=project_in.jd_url,
-        project_status=status_data,
-        created_by=project_in.created_by,
-        project_details=project_details,
-    )
+    # Check if project with same name, organization, and mandate already exists
+    clean_pname = (project_in.project_name or "").strip().lower()
+    existing_projects = []
+    if clean_pname:
+        existing_stmt = select(Project).where(
+            func.lower(func.trim(Project.project_name)) == clean_pname,
+            Project.organization_id == org.organization_id
+        ).order_by(Project.created_at.desc())
+        existing_res = await db.execute(existing_stmt)
+        existing_projects = existing_res.scalars().all()
 
-    db.add(db_project)
-    await db.flush()
+    existing_project = None
+    for ep in existing_projects:
+        ep_mandate = (ep.project_details or {}).get("project_mandate")
+        if ep_mandate == project_in.project_mandate or not project_in.project_mandate:
+            existing_project = ep
+            break
+
+    if existing_project:
+        existing_project.function_id = func_id or existing_project.function_id
+        existing_project.designation_id = desig_id or existing_project.designation_id
+        existing_project.hiring_goal = project_in.hiring_goal or existing_project.hiring_goal
+        existing_project.jd_url = project_in.jd_url or existing_project.jd_url
+        existing_project.project_status = status_data
+        curr_det = dict(existing_project.project_details or {})
+        curr_det.update(project_details)
+        existing_project.project_details = curr_det
+        db_project = existing_project
+        await db.flush()
+    else:
+        db_project = Project(
+            project_name=project_in.project_name,
+            organization_id=org.organization_id,
+            function_id=func_id,
+            designation_id=desig_id,
+            hiring_goal=project_in.hiring_goal,
+            jd_url=project_in.jd_url,
+            project_status=status_data,
+            created_by=project_in.created_by,
+            project_details=project_details,
+        )
+        db.add(db_project)
+        await db.flush()
 
     if project_in.hiring_managers:
         hm_stmt = select(UserDetails).where(
@@ -461,69 +490,166 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
 
     from modules.roadmap.model import Roadmap, UserRoadmap
     from modules.roadmap_learning_assessment.model import RoadmapLearningAssessment
+    from modules.assessment.model import ProjectAssessmentMap
+    from modules.assessment.assessment_access.model import UserAssessmentAccess
+    from modules.assessment_attempt.model import AllocatedExams, Submissions
+    from modules.assessment_attempt.encryption import encrypt_allocation_id
+
     rm_stmt = select(Roadmap).where(Roadmap.project_id == str(project_id))
     rm_res = await db.execute(rm_stmt)
     roadmaps = rm_res.scalars().all()
     roadmap_ids = [rm.roadmap_id for rm in roadmaps]
-
-    from modules.assessment.model import ProjectAssessmentMap
-    from modules.assessment_attempt.model import AllocatedExams, Submissions
-    from modules.assessment_attempt.encryption import encrypt_allocation_id
 
     pa_stmt = select(ProjectAssessmentMap).where(ProjectAssessmentMap.project_id == str(project_id))
     pa_res = await db.execute(pa_stmt)
     pa_maps = pa_res.scalars().all()
     assessment_ids = [str(p.assessment_formation_id) for p in pa_maps if p.assessment_formation_id]
 
-    if roadmap_ids:
-        ur_stmt = select(UserRoadmap).where(UserRoadmap.roadmap_id.in_(roadmap_ids))
-        ur_res = await db.execute(ur_stmt)
-        user_roadmaps = ur_res.scalars().all()
+    mandate = ((project.project_details or {}).get("project_mandate") or "").lower().strip()
 
-        for ur in user_roadmaps:
-            u_stmt = select(UserDetails).where(UserDetails.user_id == ur.user_id)
+    # Collect candidate user objects & mappings
+    candidate_user_ids = set()
+    candidate_emails = set()
+    user_roadmap_map = {}
+
+    if mandate == "self":
+        if project.created_by:
+            candidate_user_ids.add(str(project.created_by))
+        if roadmap_ids:
+            ur_stmt = select(UserRoadmap).where(UserRoadmap.roadmap_id.in_(roadmap_ids), UserRoadmap.user_id == str(project.created_by))
+            ur_res = await db.execute(ur_stmt)
+            for ur in ur_res.scalars().all():
+                user_roadmap_map[str(ur.user_id)] = ur
+    else:
+        if roadmap_ids:
+            ur_stmt = select(UserRoadmap).where(UserRoadmap.roadmap_id.in_(roadmap_ids))
+            ur_res = await db.execute(ur_stmt)
+            user_roadmaps = ur_res.scalars().all()
+            for ur in user_roadmaps:
+                candidate_user_ids.add(str(ur.user_id))
+                user_roadmap_map[str(ur.user_id)] = ur
+
+        if assessment_ids:
+            uass_stmt = select(UserAssessmentAccess).where(UserAssessmentAccess.assessment_id.in_(assessment_ids))
+            uass_res = await db.execute(uass_stmt)
+            for uas in uass_res.scalars().all():
+                if uas.user_email:
+                    candidate_emails.add(uas.user_email.lower().strip())
+
+            alloc_user_stmt = select(AllocatedExams.user_id).where(AllocatedExams.exam_id.in_(assessment_ids))
+            alloc_user_res = await db.execute(alloc_user_stmt)
+            for uid in alloc_user_res.scalars().all():
+                if uid:
+                    candidate_user_ids.add(str(uid))
+
+    # Fetch UserDetails for candidate IDs & emails
+    all_users_dict = {}
+    if candidate_user_ids:
+        u_stmt = select(UserDetails).where(UserDetails.user_id.in_(list(candidate_user_ids)))
+        u_res = await db.execute(u_stmt)
+        for u in u_res.scalars().all():
+            all_users_dict[str(u.user_id)] = u
+            if u.user_email:
+                all_users_dict[u.user_email.lower().strip()] = u
+
+    if candidate_emails:
+        missing_emails = [e for e in candidate_emails if e not in all_users_dict]
+        if missing_emails:
+            u_stmt = select(UserDetails).where(func.lower(UserDetails.user_email).in_(missing_emails))
             u_res = await db.execute(u_stmt)
-            user = u_res.scalars().first()
+            for u in u_res.scalars().all():
+                all_users_dict[str(u.user_id)] = u
+                all_users_dict[u.user_email.lower().strip()] = u
 
-            rm_obj = await db.scalar(select(Roadmap).where(Roadmap.roadmap_id == ur.roadmap_id))
-            rm_title = rm_obj.title if rm_obj else None
-            rm_graph = rm_obj.roadmap_graph if rm_obj else {}
+    # Build unique candidate list: (user_obj, user_id_str, user_email_str, ur_obj)
+    processed_candidate_keys = set()
+    candidate_items = []
 
-            data = ur.user_roadmap_data or {}
-            lp = data.get("learning_progress", {})
+    for uid_str in candidate_user_ids:
+        if uid_str in processed_candidate_keys:
+            continue
+        processed_candidate_keys.add(uid_str)
+        u_obj = all_users_dict.get(uid_str)
+        email_str = u_obj.user_email if u_obj else None
+        if email_str:
+            processed_candidate_keys.add(email_str.lower().strip())
+        ur_obj = user_roadmap_map.get(uid_str)
+        candidate_items.append((u_obj, uid_str, email_str, ur_obj))
 
-            # Fetch all RoadmapLearningAssessment for this roadmap
-            rla_stmt = select(RoadmapLearningAssessment).where(RoadmapLearningAssessment.roadmap_id == ur.roadmap_id)
-            rla_res = await db.execute(rla_stmt)
-            rla_rows = rla_res.scalars().all()
-            rla_by_node = {r.node_id: r for r in rla_rows if r.node_id}
-            rla_by_id = {str(r.assessment_id): r for r in rla_rows}
+    for email_str in candidate_emails:
+        if email_str in processed_candidate_keys:
+            continue
+        processed_candidate_keys.add(email_str)
+        u_obj = all_users_dict.get(email_str)
+        uid_str = str(u_obj.user_id) if u_obj else email_str
+        ur_obj = user_roadmap_map.get(uid_str) if u_obj else None
+        candidate_items.append((u_obj, uid_str, email_str, ur_obj))
 
-            # Query real user quiz submissions and allocations
+    for user, target_user_id, candidate_email_val, ur in candidate_items:
+        # Determine candidate identity
+        user_id_val = target_user_id
+        project_designation = desig_name or (project.project_details or {}).get("designation_name")
+        if user:
+            name = (user.user_name if user.user_name else user.user_email.split("@")[0]).title()
+            email = user.user_email
+            designation = project_designation or user.designation_specialization or "Software Developer"
+            role = user.provided_role or "Learner"
+        else:
+            name = candidate_email_val.split("@")[0].title() if candidate_email_val else "Candidate"
+            email = candidate_email_val or "member@organization.com"
+            designation = project_designation or "Software Developer"
+            role = "Learner"
+
+        # Query user's quiz submissions & allocations
+        user_subs_rows = []
+        user_allocs = []
+        if user:
             user_subs_stmt = (
                 select(Submissions, AllocatedExams)
                 .join(AllocatedExams, Submissions.allocation_id == AllocatedExams.allocation_id)
-                .where(AllocatedExams.user_id == str(ur.user_id))
+                .where(AllocatedExams.user_id == str(user.user_id))
                 .order_by(Submissions.submission_time.desc())
             )
             user_subs_res = await db.execute(user_subs_stmt)
             user_subs_rows = user_subs_res.all()
 
-            subs_by_exam_id = {}
-            for sub_obj, alloc_obj in user_subs_rows:
-                subs_by_exam_id[str(alloc_obj.exam_id)] = (sub_obj, alloc_obj)
-
-            alloc_stmt = select(AllocatedExams).where(AllocatedExams.user_id == str(ur.user_id))
+            alloc_stmt = select(AllocatedExams).where(AllocatedExams.user_id == str(user.user_id))
             alloc_res = await db.execute(alloc_stmt)
             user_allocs = alloc_res.scalars().all()
-            alloc_by_exam_id = {str(a.exam_id): a for a in user_allocs}
 
-            # Parse graph nodes and subtopic nodes
+        subs_by_exam_id = {str(alloc_obj.exam_id): (sub_obj, alloc_obj) for sub_obj, alloc_obj in user_subs_rows}
+        alloc_by_exam_id = {str(a.exam_id): a for a in user_allocs}
+
+        # Roadmap processing if ur exists
+        rm_title = None
+        parsed_chapters = []
+        capstone_data = None
+        done_nodes = 0
+        total_nodes = 0
+        progress_pct = 0
+        rla_rows = []
+        rla_by_node = {}
+        lp = {}
+        assignment_nodes = []
+        groups = []
+        node_map = {}
+
+        if ur:
+            rm_obj = await db.scalar(select(Roadmap).where(Roadmap.roadmap_id == ur.roadmap_id))
+            rm_title = rm_obj.title if rm_obj else None
+            rm_graph = rm_obj.roadmap_graph if rm_obj else {}
+            data = ur.user_roadmap_data or {}
+            lp = data.get("learning_progress", {})
+
+            rla_stmt = select(RoadmapLearningAssessment).where(RoadmapLearningAssessment.roadmap_id == ur.roadmap_id)
+            rla_res = await db.execute(rla_stmt)
+            rla_rows = rla_res.scalars().all()
+            rla_by_node = {r.node_id: r for r in rla_rows if r.node_id}
+
             nodes = rm_graph.get("nodes", []) if isinstance(rm_graph, dict) else []
             edges = rm_graph.get("edges", []) if isinstance(rm_graph, dict) else []
             node_map = {n.get("id"): n for n in nodes if n.get("id")}
 
-            # Build parent_map from explicit parentId on nodes
             parent_map = {}
             for n in nodes:
                 p_id = n.get("parentId")
@@ -532,7 +658,6 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
                         parent_map[p_id] = []
                     parent_map[p_id].append(n)
 
-            # Also build parent_map from graph edges (source → target) when parentId is absent
             if not parent_map and edges:
                 for e in edges:
                     src = e.get("source")
@@ -543,8 +668,6 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
                         if node_map[tgt] not in parent_map[src]:
                             parent_map[src].append(node_map[tgt])
 
-            # Identify group/chapter nodes
-            groups = []
             for n in nodes:
                 n_id = n.get("id")
                 n_type = str(n.get("type", "")).lower()
@@ -557,11 +680,8 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
             if not groups and nodes:
                 groups = [n for n in nodes if not n.get("parentId") and str(n.get("type", "")).lower() not in ("title", "titlenode")]
 
-            # Assignment nodes
             assignment_nodes = [n for n in nodes if str(n.get("type", "")) == "assignmentNode"]
 
-            # Detect Capstone Project
-            capstone_data = None
             capstone_node = None
             for an in assignment_nodes:
                 an_data = an.get("data", {})
@@ -576,7 +696,6 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
                 c_label = capstone_node.get("data", {}).get("label") or "Capstone Project"
                 lp_cap = lp.get(c_id, {})
                 c_status_raw = lp_cap.get("status") if isinstance(lp_cap, dict) else "not_started"
-                
                 sub_info = subs_by_exam_id.get(c_id)
                 if sub_info:
                     s_obj, a_obj = sub_info
@@ -602,7 +721,6 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
 
                 p_node = node_map.get(capstone_node.get("parentId"))
                 cap_chapter_name = p_node.get("data", {}).get("label") if p_node else "Roadmap Capstone"
-
                 capstone_data = {
                     "node_id": c_id,
                     "title": c_label,
@@ -616,74 +734,68 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
                     "description": "Comprehensive practical capstone project demonstrating mastery across roadmap competencies."
                 }
 
-            # Build all real quizzes
-            quizzes_list = []
-            quiz_seen_ids = set()
+        # Build quizzes list
+        quizzes_list = []
+        quiz_seen_ids = set()
 
-            # 1. Skill Gap Baseline Assessment (strictly for this project's assessment_ids)
-            if assessment_ids:
-                sg_sub = next(((s, a) for s, a in user_subs_rows if str(a.exam_id) in assessment_ids), None)
-                if not sg_sub:
-                    sg_sub = next(((s, a) for s, a in user_subs_rows if a.assessment_type == "skill_gap_assessment" and str(a.exam_id) in assessment_ids), None)
-
-                if sg_sub:
-                    s_obj, a_obj = sg_sub
+        if assessment_ids:
+            sg_sub = next(((s, a) for s, a in user_subs_rows if str(a.exam_id) in assessment_ids), None)
+            if sg_sub:
+                s_obj, a_obj = sg_sub
+                quizzes_list.append({
+                    "id": f"sg_{a_obj.allocation_id}",
+                    "title": "Skill-Gap Baseline Assessment",
+                    "chapter_name": "Baseline Assessment",
+                    "module_name": "Skill-Gap Baseline",
+                    "assessment_type": "skill_gap_assessment",
+                    "status": "Completed",
+                    "score": round(s_obj.obtained_percentage),
+                    "correct_answers": s_obj.total_number_of_correct_answer,
+                    "total_questions": a_obj.total_questions,
+                    "correctText": f"{s_obj.total_number_of_correct_answer}/{a_obj.total_questions} correct",
+                    "allocation_id": encrypt_allocation_id(a_obj.allocation_id),
+                    "submission_time": s_obj.submission_time.strftime("%Y-%m-%d %H:%M:%S") if s_obj.submission_time else None
+                })
+                quiz_seen_ids.add(str(a_obj.exam_id))
+            else:
+                sg_alloc = next((a for a in user_allocs if str(a.exam_id) in assessment_ids), None)
+                if sg_alloc:
                     quizzes_list.append({
-                        "id": f"sg_{a_obj.allocation_id}",
+                        "id": f"sg_{sg_alloc.allocation_id}",
                         "title": "Skill-Gap Baseline Assessment",
                         "chapter_name": "Baseline Assessment",
                         "module_name": "Skill-Gap Baseline",
                         "assessment_type": "skill_gap_assessment",
-                        "status": "Completed",
-                        "score": round(s_obj.obtained_percentage),
-                        "correct_answers": s_obj.total_number_of_correct_answer,
-                        "total_questions": a_obj.total_questions,
-                        "correctText": f"{s_obj.total_number_of_correct_answer}/{a_obj.total_questions} correct",
-                        "allocation_id": encrypt_allocation_id(a_obj.allocation_id),
-                        "submission_time": s_obj.submission_time.strftime("%Y-%m-%d %H:%M:%S") if s_obj.submission_time else None
+                        "status": "In Progress",
+                        "score": 0,
+                        "correct_answers": 0,
+                        "total_questions": sg_alloc.total_questions or 60,
+                        "correctText": f"0/{sg_alloc.total_questions or 60} correct",
+                        "allocation_id": encrypt_allocation_id(sg_alloc.allocation_id),
+                        "submission_time": None
                     })
-                    quiz_seen_ids.add(str(a_obj.exam_id))
+                    quiz_seen_ids.add(str(sg_alloc.exam_id))
                 else:
-                    # Check if allocated for this project
-                    sg_alloc = next((a for a in user_allocs if str(a.exam_id) in assessment_ids), None)
-                    if sg_alloc:
-                        quizzes_list.append({
-                            "id": f"sg_{sg_alloc.allocation_id}",
-                            "title": "Skill-Gap Baseline Assessment",
-                            "chapter_name": "Baseline Assessment",
-                            "module_name": "Skill-Gap Baseline",
-                            "assessment_type": "skill_gap_assessment",
-                            "status": "In Progress",
-                            "score": 0,
-                            "correct_answers": 0,
-                            "total_questions": sg_alloc.total_questions or 60,
-                            "correctText": f"0/{sg_alloc.total_questions or 60} correct",
-                            "allocation_id": encrypt_allocation_id(sg_alloc.allocation_id),
-                            "submission_time": None
-                        })
-                        quiz_seen_ids.add(str(sg_alloc.exam_id))
-                    else:
-                        quizzes_list.append({
-                            "id": "sg_not_started",
-                            "title": "Skill-Gap Baseline Assessment",
-                            "chapter_name": "Baseline Assessment",
-                            "module_name": "Skill-Gap Baseline",
-                            "assessment_type": "skill_gap_assessment",
-                            "status": "Not Started",
-                            "score": 0,
-                            "correct_answers": 0,
-                            "total_questions": 60,
-                            "correctText": "0/60 correct",
-                            "allocation_id": None,
-                            "submission_time": None
-                        })
+                    quizzes_list.append({
+                        "id": "sg_not_started",
+                        "title": "Skill-Gap Baseline Assessment",
+                        "chapter_name": "Baseline Assessment",
+                        "module_name": "Skill-Gap Baseline",
+                        "assessment_type": "skill_gap_assessment",
+                        "status": "Not Started",
+                        "score": 0,
+                        "correct_answers": 0,
+                        "total_questions": 60,
+                        "correctText": "0/60 correct",
+                        "allocation_id": None,
+                        "submission_time": None
+                    })
 
-            # 2. RoadmapLearningAssessment entries (Crack it / Smash it)
+        if ur:
             for rla in rla_rows:
                 rla_id_str = str(rla.assessment_id)
                 node = node_map.get(rla.node_id)
                 parent_mod = node_map.get(node.get("parentId")) if node else None
-                
                 mod_name = parent_mod.get("data", {}).get("label") if parent_mod else (node.get("data", {}).get("label") if node else "Roadmap Module")
                 ch_name = "Roadmap Quizzes"
                 if parent_mod and parent_mod.get("parentId") and parent_mod.get("parentId") in node_map:
@@ -745,16 +857,13 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
                 if rla.node_id:
                     quiz_seen_ids.add(rla.node_id)
 
-            # 3. Add any assignmentNode assessments not covered by RLA (e.g. Final Assessment or Module Assessment)
             for an in assignment_nodes:
                 an_id = an.get("id")
                 an_data = an.get("data", {})
                 an_label = an_data.get("label", "Assessment")
                 an_sem_type = str(an_data.get("semanticType", "")).lower()
 
-                if an_sem_type == "project" or "capstone" in an_label.lower():
-                    continue  # already handled in capstone_data
-                if an_id in quiz_seen_ids:
+                if an_sem_type == "project" or "capstone" in an_label.lower() or an_id in quiz_seen_ids:
                     continue
 
                 parent = node_map.get(an.get("parentId"))
@@ -810,8 +919,6 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
                 })
                 quiz_seen_ids.add(an_id)
 
-            # Build parsed_chapters with nested quizzes and capstone
-            parsed_chapters = []
             total_leaf_nodes = 0
             done_leaf_nodes = 0
 
@@ -826,7 +933,6 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
                     c_id = child.get("id")
                     c_label = child.get("data", {}).get("label") or "Module"
                     c_status_raw = lp.get(c_id, {})
-
                     c_status = "not_started"
                     alloc_id_sub = None
                     if isinstance(c_status_raw, dict):
@@ -845,8 +951,6 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
                         status_label = "Not Started"
 
                     total_leaf_nodes += 1
-
-                    # Match any quiz for this sub-module
                     mod_quiz = next((q for q in quizzes_list if q.get("node_id") == c_id or q.get("module_name") == c_label), None)
 
                     sub_modules.append({
@@ -858,8 +962,6 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
                     })
 
                 group_status = "Done" if (len(children) > 0 and done_in_group == len(children)) else ("In Progress" if done_in_group > 0 else "Not Started")
-
-                # Chapter quizzes
                 chapter_quizzes = [q for q in quizzes_list if q.get("chapter_name") == g_label or any(sm.get("name") == q.get("module_name") for sm in sub_modules)]
 
                 parsed_chapters.append({
@@ -874,95 +976,137 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
 
             total_nodes = total_leaf_nodes if total_leaf_nodes > 0 else len(lp)
             done_nodes = done_leaf_nodes if total_leaf_nodes > 0 else sum(1 for v in lp.values() if isinstance(v, dict) and v.get("status") in ("done", "completed"))
-
-            if total_nodes > 0 and done_nodes == total_nodes:
-                member_status = "Completed"
-            elif done_nodes > 0 or total_nodes > 0:
-                member_status = "In progress"
-            else:
-                member_status = "Not started"
-
             progress_pct = round((done_nodes / total_nodes * 100)) if total_nodes > 0 else 0
 
-            name = (user.user_name if user and user.user_name else (user.user_email.split("@")[0] if user else "Team Member")).title()
-            email = user.user_email if user else "member@organization.com"
-            designation = (user.designation_specialization if user and user.designation_specialization else "Software Developer")
-            role = (user.provided_role if user and user.provided_role else "Learner")
+        # Calculate member_status
+        if ur and total_nodes > 0 and done_nodes == total_nodes:
+            member_status = "Completed"
+        elif any(q.get("status") == "Completed" for q in quizzes_list) or (ur and (done_nodes > 0 or total_nodes > 0)):
+            member_status = "In progress"
+        elif any(q.get("status") == "In Progress" for q in quizzes_list):
+            member_status = "In progress"
+        else:
+            member_status = "Not started"
 
-            alloc_id = None
-            if assessment_ids:
-                alloc_stmt = select(AllocatedExams).where(
-                    AllocatedExams.user_id == str(ur.user_id),
-                    AllocatedExams.exam_id.in_(assessment_ids)
-                ).order_by(AllocatedExams.allocated_date.desc())
-                alloc_res = await db.execute(alloc_stmt)
-                alloc = alloc_res.scalars().first()
-                if alloc:
-                    alloc_id = encrypt_allocation_id(alloc.allocation_id)
+        alloc_id = None
+        if user and assessment_ids:
+            alloc_stmt = select(AllocatedExams).where(
+                AllocatedExams.user_id == str(user.user_id),
+                AllocatedExams.exam_id.in_(assessment_ids)
+            ).order_by(AllocatedExams.allocated_date.desc())
+            alloc_res = await db.execute(alloc_stmt)
+            alloc = alloc_res.scalars().first()
+            if alloc:
+                alloc_id = encrypt_allocation_id(alloc.allocation_id)
 
+        taken_quizzes = [q for q in quizzes_list if q.get("status") == "Completed" or (q.get("score") and q.get("score") > 0)]
+        taken_quizzes_count = len(taken_quizzes)
+        avg_quiz_score = round(sum(q["score"] for q in taken_quizzes) / taken_quizzes_count) if taken_quizzes_count > 0 else 0
+        capstone_percent = capstone_data.get("percent", 0) if capstone_data else 0
+        capstone_status_str = capstone_data.get("status", "Not started") if capstone_data else "Not started"
 
-            # Quiz summary metrics
-            taken_quizzes = [q for q in quizzes_list if q.get("status") == "Completed" or (q.get("score") and q.get("score") > 0)]
-            taken_quizzes_count = len(taken_quizzes)
-            avg_quiz_score = round(sum(q["score"] for q in taken_quizzes) / taken_quizzes_count) if taken_quizzes_count > 0 else 0
+        assigned_members_dict[user_id_val] = {
+            "id": user_id_val,
+            "name": name,
+            "email": email,
+            "role": role,
+            "designation": designation,
+            "department": func_name or "Engineering",
+            "status": member_status,
+            "progress": progress_pct,
+            "completed_nodes": done_nodes,
+            "total_nodes": total_nodes,
+            "allocation_id": alloc_id,
+            "allocationId": alloc_id,
+            "roadmap_id": ur.roadmap_id if ur else None,
+            "roadmap_title": rm_title,
+            "roadmap_chapters": parsed_chapters,
+            "user_quizzes": quizzes_list,
+            "capstone_project": capstone_data,
+            "capstonePercent": capstone_percent,
+            "capstoneStatus": capstone_status_str,
+            "total_quizzes_count": len(quizzes_list),
+            "taken_quizzes_count": taken_quizzes_count,
+            "avg_quiz_score": avg_quiz_score,
+        }
 
-            capstone_percent = capstone_data.get("percent", 0) if capstone_data else 0
-            capstone_status_str = capstone_data.get("status", "Not started") if capstone_data else "Not started"
-
-            assigned_members_dict[ur.user_id] = {
-                "id": ur.user_id,
-                "name": name,
-                "email": email,
-                "role": role,
-                "designation": designation,
-                "department": func_name or "Engineering",
-                "status": member_status,
-                "progress": progress_pct,
-                "completed_nodes": done_nodes,
-                "total_nodes": total_nodes,
-                "allocation_id": alloc_id,
-                "allocationId": alloc_id,
-                "roadmap_id": ur.roadmap_id,
-                "roadmap_title": rm_title,
-                "roadmap_chapters": parsed_chapters,
-                "user_quizzes": quizzes_list,
-                "capstone_project": capstone_data,
-                "capstonePercent": capstone_percent,
-                "capstoneStatus": capstone_status_str,
-                "total_quizzes_count": len(quizzes_list),
-                "taken_quizzes_count": taken_quizzes_count,
-                "avg_quiz_score": avg_quiz_score,
-            }
 
     details = project.project_details or {}
-    hiring_managers = details.get("hiring_managers", [])
-    for hm_email in hiring_managers:
-        u_stmt = select(UserDetails).where(UserDetails.user_email == hm_email)
-        u_res = await db.execute(u_stmt)
-        user = u_res.scalars().first()
-        if user and user.user_id not in assigned_members_dict:
-            alloc_id = None
-            if user:
-                alloc_stmt = select(AllocatedExams).where(AllocatedExams.user_id == str(user.user_id)).order_by(AllocatedExams.allocated_date.desc())
-                alloc_res = await db.execute(alloc_stmt)
-                alloc = alloc_res.scalars().first()
-                if alloc:
-                    alloc_id = encrypt_allocation_id(alloc.allocation_id)
+    if mandate != "self":
+        hiring_managers = details.get("hiring_managers", [])
+        for hm_email in hiring_managers:
+            u_stmt = select(UserDetails).where(UserDetails.user_email == hm_email)
+            u_res = await db.execute(u_stmt)
+            user = u_res.scalars().first()
+            if user and user.user_id not in assigned_members_dict:
+                alloc_id = None
+                if user:
+                    alloc_stmt = select(AllocatedExams).where(AllocatedExams.user_id == str(user.user_id)).order_by(AllocatedExams.allocated_date.desc())
+                    alloc_res = await db.execute(alloc_stmt)
+                    alloc = alloc_res.scalars().first()
+                    if alloc:
+                        alloc_id = encrypt_allocation_id(alloc.allocation_id)
 
-            assigned_members_dict[user.user_id] = {
-                "id": user.user_id,
-                "name": (user.user_name or hm_email.split("@")[0]).title(),
-                "email": hm_email,
-                "role": user.provided_role or "Hiring Manager",
-                "designation": user.designation_specialization or "Manager",
-                "department": func_name or "Management",
-                "status": "Not started",
-                "progress": 0,
-                "completed_nodes": 0,
-                "total_nodes": 0,
-                "allocation_id": alloc_id,
-                "allocationId": alloc_id,
-            }
+                assigned_members_dict[user.user_id] = {
+                    "id": user.user_id,
+                    "name": (user.user_name or hm_email.split("@")[0]).title(),
+                    "email": hm_email,
+                    "role": user.provided_role or "Hiring Manager",
+                    "designation": user.designation_specialization or "Manager",
+                    "department": func_name or "Management",
+                    "status": "Not started",
+                    "progress": 0,
+                    "completed_nodes": 0,
+                    "total_nodes": 0,
+                    "allocation_id": alloc_id,
+                    "allocationId": alloc_id,
+                }
+    elif mandate == "self" and not assigned_members_dict:
+        creator_user = None
+        if project.created_by:
+            creator_stmt = select(UserDetails).where(UserDetails.user_id == project.created_by)
+            creator_res = await db.execute(creator_stmt)
+            creator_user = creator_res.scalars().first()
+        
+        c_name = (creator_user.user_name if creator_user and creator_user.user_name else (creator_user.user_email.split("@")[0] if creator_user and creator_user.user_email else "Learner")).title()
+        c_email = creator_user.user_email if creator_user else ""
+        c_desig = desig_name or (creator_user.designation_specialization if creator_user else "Software Developer")
+        c_role = (creator_user.provided_role if creator_user else "Learner") or "Learner"
+
+        assigned_members_dict[str(project.created_by) if project.created_by else "self"] = {
+            "id": str(project.created_by) if project.created_by else "self",
+            "name": c_name,
+            "email": c_email,
+            "role": c_role,
+            "designation": c_desig,
+            "department": func_name or "General",
+            "status": "Not started",
+            "progress": 0,
+            "completed_nodes": 0,
+            "total_nodes": 0,
+            "allocation_id": None,
+            "allocationId": None,
+            "user_quizzes": [],
+            "capstone_project": None,
+            "capstonePercent": 0,
+            "capstoneStatus": "Not started",
+            "total_quizzes_count": 0,
+            "taken_quizzes_count": 0,
+            "avg_quiz_score": 0,
+        }
+
+    creator_name = None
+    creator_email = None
+    if project.created_by:
+        try:
+            creator_stmt = select(UserDetails).where(UserDetails.user_id == project.created_by)
+            creator_res = await db.execute(creator_stmt)
+            creator = creator_res.scalars().first()
+            if creator:
+                creator_email = creator.user_email
+                creator_name = creator.user_name or (creator.user_email.split("@")[0].title() if creator.user_email else None)
+        except Exception:
+            pass
 
     members_list = list(assigned_members_dict.values())
 
@@ -977,6 +1121,8 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
         "project_status": project.project_status,
         "created_at": project.created_at,
         "created_by": project.created_by,
+        "created_by_name": creator_name or creator_email,
+        "created_by_email": creator_email,
         "project_details": project.project_details,
         "profiles_count": len(members_list),
         "avg_score": None,
@@ -1027,12 +1173,113 @@ async def get_project_by_id_async(db: AsyncSession, project_id: UUID):
 # async def get_all_projects_async(db: AsyncSession, organization_id: Optional[UUID] = None, user_email: Optional[str] = None):
 
 #change_by_rohan
+# #changes 28-09-2026 - start: Make current_user_id mandatory/primary and organization_id optional in get_all_projects_async
+# async def get_all_projects_async(
+#     db: AsyncSession, 
+#     organization_id: str, 
+#     current_user_id: str,
+# ):
+#     from modules.roadmap.model import Roadmap, UserRoadmap
+#     from modules.assessment.model import ProjectAssessmentMap
+#     from modules.assessment_attempt.model import AllocatedExams
+#     from modules.project.model import ProjectHiringManager
+# 
+#     user_id_str = str(current_user_id)
+# 
+#     # 1. Projects with roadmaps assigned to user by ID
+#     rm_proj_subq = (
+#         select(Roadmap.project_id)
+#         .join(UserRoadmap, Roadmap.roadmap_id == UserRoadmap.roadmap_id)
+#         .where(UserRoadmap.user_id == user_id_str)
+#     )
+# 
+#     # 2. Projects with assessments allocated to user by ID via AllocatedExams
+#     pa_alloc_subq = (
+#         select(ProjectAssessmentMap.project_id)
+#         .join(AllocatedExams, ProjectAssessmentMap.assessment_formation_id == AllocatedExams.exam_id)
+#         .where(AllocatedExams.user_id == user_id_str)
+#     )
+# 
+#     # 3. Projects with user as hiring manager by ID
+#     hm_proj_subq = (
+#         select(ProjectHiringManager.project_id)
+#         .where(ProjectHiringManager.user_id == user_id_str)
+#     )
+# 
+#     assigned_conditions = [
+#         Project.created_by == user_id_str,
+#         Project.project_id.in_(rm_proj_subq),
+#         Project.project_id.in_(pa_alloc_subq),
+#         Project.project_id.in_(hm_proj_subq),
+#     ]
+# 
+#     stmt = (
+#         select(
+#             Project,
+#             Organization.organization_name,
+#             Function.function_name,
+#             Designation.designation_name
+#         )
+#         .outerjoin(Organization, Project.organization_id == Organization.organization_id)
+#         .outerjoin(Function, Project.function_id == Function.function_id)
+#         .outerjoin(Designation, Project.designation_id == Designation.designation_id)
+#         .where(
+#             Project.organization_id == organization_id,
+#             or_(*assigned_conditions)
+#         )
+#         .order_by(Project.created_at.desc())
+#     )
+
 async def get_all_projects_async(
     db: AsyncSession, 
-    organization_id: str, 
-    current_user_id: str,
-
+    current_user_id: str,  #changes 28-09-2026 - was positional after org_id, now primary param
+    organization_id: Optional[str] = None,  #changes 28-09-2026 - was mandatory `str`, now Optional
 ):
+    user_id_str = str(current_user_id)  #changes 28-09-2026 - ensure string type
+
+    # #changes_05_10_2026 - start: Previous code that fetched assigned roadmaps, exams, and hiring manager projects (commented for backtracking)
+    # from modules.roadmap.model import Roadmap, UserRoadmap
+    # from modules.assessment.model import ProjectAssessmentMap
+    # from modules.assessment_attempt.model import AllocatedExams
+    # from modules.project.model import ProjectHiringManager
+    #
+    # # 1. Projects with roadmaps assigned to user by ID
+    # rm_proj_subq = (
+    #     select(Roadmap.project_id)
+    #     .join(UserRoadmap, Roadmap.roadmap_id == UserRoadmap.roadmap_id)
+    #     .where(UserRoadmap.user_id == user_id_str)
+    # )
+    #
+    # # 2. Projects with assessments allocated to user by ID via AllocatedExams
+    # pa_alloc_subq = (
+    #     select(ProjectAssessmentMap.project_id)
+    #     .join(AllocatedExams, ProjectAssessmentMap.assessment_formation_id == AllocatedExams.exam_id)
+    #     .where(AllocatedExams.user_id == user_id_str)
+    # )
+    #
+    # # 3. Projects with user as hiring manager by ID
+    # hm_proj_subq = (
+    #     select(ProjectHiringManager.project_id)
+    #     .where(ProjectHiringManager.user_id == user_id_str)
+    # )
+    #
+    # assigned_conditions = [
+    #     Project.created_by == user_id_str,
+    #     Project.project_id.in_(rm_proj_subq),
+    #     Project.project_id.in_(pa_alloc_subq),
+    #     Project.project_id.in_(hm_proj_subq),
+    # ]
+    #
+    # where_clauses = [or_(*assigned_conditions)]
+    # if organization_id:
+    #     where_clauses.append(Project.organization_id == organization_id)
+    # #changes_05_10_2026 - end
+
+    # #changes_05_10_2026: Only show data available in his project table (created by him for himself / his team / his org)
+    where_clauses = [Project.created_by == user_id_str]
+    if organization_id:
+        where_clauses.append(Project.organization_id == organization_id)
+
     stmt = (
         select(
             Project,
@@ -1043,15 +1290,23 @@ async def get_all_projects_async(
         .outerjoin(Organization, Project.organization_id == Organization.organization_id)
         .outerjoin(Function, Project.function_id == Function.function_id)
         .outerjoin(Designation, Project.designation_id == Designation.designation_id)
-        .where(Project.created_by==current_user_id,Project.organization_id==organization_id)
-        .order_by(Project.created_at.desc())  # #change_by_rohan (Order by latest first)
-    )   
-    
+        .where(*where_clauses)
+        .order_by(Project.created_at.desc())
+    )
     result = await db.execute(stmt)
     projects_data = []
+    seen_project_keys = set()  #changes 28-09-2026 - dedup tracker
     for row in result.all():
         project, org_name, func_name, desig_name = row 
-        project_details={k: v for k, v in project.project_details.items() if k not in ['jd_data']}
+        project_details={k: v for k, v in (project.project_details or {}).items() if k not in ['jd_data']}  #changes 28-09-2026 - safe `.get` for None project_details
+
+        # Deduplicate projects with same name and mandate, keeping the latest one  #changes 28-09-2026
+        mandate = (project_details.get("project_mandate") or "default").lower().strip()  #changes 28-09-2026
+        clean_name = (project.project_name or "").strip().lower()  #changes 28-09-2026
+        key = (clean_name, mandate)  #changes 28-09-2026
+        if key in seen_project_keys:  #changes 28-09-2026
+            continue
+        seen_project_keys.add(key)  #changes 28-09-2026
 
         projects_data.append({
             "project_id": project.project_id,
@@ -1070,6 +1325,7 @@ async def get_all_projects_async(
             "shortlisted_count": None
         })
     return projects_data
+# #changes 28-09-2026 - end
 
 async def update_project_status_async(
     db: AsyncSession, project_id: UUID, status_in: ProjectStatus

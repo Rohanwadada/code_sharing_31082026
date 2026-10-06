@@ -46,10 +46,18 @@ const fallbackQuestions = [
 
 const QuestionsStructure = ({ projectId, assessmentId }) => {
   const projectName = useProjectStore((s) => s.currentProjectName);
+  const fetchProjectDetails = useProjectStore((s) => s.fetchProjectDetails);
+
+  useEffect(() => {
+    if (projectId) {
+      fetchProjectDetails(projectId);
+    }
+  }, [projectId, fetchProjectDetails]);
 
   const assessmentFormationId = useAssessmentFormationStore(
     (s) => s.assessmentFormationId,
   );
+
   const assessmentFormationDetails = useAssessmentFormationStore(
     (s) => s.assessmentFormationDetails,
   );

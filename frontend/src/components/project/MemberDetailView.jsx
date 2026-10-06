@@ -5,6 +5,34 @@ import styles from './MemberDetailView.module.css';
 import ShifuSkillGapAnalysis from '@/components/assessment-attempt/SkillGapAnalysis';
 import { getExamResult } from '@/service/assessmentAttempt.service';
 
+// --- Helper to format ISO submission timestamps cleanly ---
+const formatSubmissionTime = (ts) => {
+  if (!ts) return null;
+  try {
+    if (typeof ts === 'string') {
+      const clean = ts.split('.')[0].replace('T', ' ');
+      return clean;
+    }
+    return String(ts);
+  } catch (e) {
+    return String(ts);
+  }
+};
+
+// --- Helper to strip leading numbers from chapter/module names ---
+const cleanTitle = (str) => {
+  if (!str || typeof str !== 'string') return '';
+  return str.replace(/^\d+[\.\s\-]+/, '').trim();
+};
+
+// --- Lock Icon SVG for Locked/Coming Soon Features ---
+const LockIcon = () => (
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, opacity: 0.75 }}>
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </svg>
+);
+
 // --- Gauge SVG Component (Matching Figma & SkillGapAnalysis specs) ---
 const GaugeSVG = ({ score = 70 }) => {
   const W = 680, H = 340;
@@ -137,13 +165,24 @@ const MemberDetailView = ({ member, projectData, onBack }) => {
     { id: 10, title: 'Milestone Quiz', score: 85, correctText: '17/20 correct' },
   ];
 
+  const projectType = (projectData?.project_details?.project_type || projectData?.project_type || '').toLowerCase();
+  const isSkillGapOnly = projectType === 'skill_gap_assessment';
+  const isRoadmapOnly = projectType === 'roadmap';
+  const isBoth = !isSkillGapOnly && !isRoadmapOnly;
+
   // Derive skill-gap specific allocation ID from user_quizzes (assessment_type === 'skill_gap_assessment')
-  const skillGapQuiz = member?.user_quizzes?.find(q => q.assessment_type === 'skill_gap_assessment');
-  const isSkillGapCompleted = skillGapQuiz?.status === 'Completed';
-  const skillGapAllocationId = isSkillGapCompleted ? (skillGapQuiz?.allocation_id || null) : null;
+  const skillGapQuiz = member?.user_quizzes?.find(
+    q => q.assessment_type === 'skill_gap_assessment' && (q.status === 'Completed' || q.score !== null || q.score !== undefined || q.submission_time)
+  );
+  const isSkillGapCompleted = Boolean(
+    skillGapQuiz?.status === 'Completed' || 
+    (skillGapQuiz?.score !== null && skillGapQuiz?.score !== undefined) || 
+    (member?.assessmentStatus || '').toLowerCase() === 'completed'
+  );
+  const skillGapAllocationId = (skillGapQuiz?.allocation_id || null);
 
   // Generic (most recent) allocation — only use if assessment is completed
-  const effectiveAllocationId = isSkillGapCompleted ? (member?.allocationId || member?.allocation_id || member?.assignment_id || member?.access_id) : null;
+  const effectiveAllocationId = (member?.allocationId || member?.allocation_id || member?.assignment_id || member?.access_id);
 
   useEffect(() => {
     if (skillGapAllocationId) {
@@ -158,7 +197,7 @@ const MemberDetailView = ({ member, projectData, onBack }) => {
   }, [skillGapAllocationId, effectiveAllocationId]);
 
   const memberName = member?.name || member?.user_name || 'Team Member';
-  const memberRole = member?.role || member?.designation || 'Software Developer';
+  const memberRole = member?.designation || projectData?.designation_name || member?.role || 'Learner';
   const memberInitials = memberName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
   const submission = examResultData?.submission || {};
@@ -228,44 +267,110 @@ const MemberDetailView = ({ member, projectData, onBack }) => {
     ? member.roadmap_chapters
     : defaultChapters;
 
-  // Real Dynamic Quiz List directly from member.user_quizzes
+  // Real Dynamic Quiz List directly from member.user_quizzes (excluding baseline skill-gap assessment & dummy un-taken placeholders)
   const dynamicQuizList = useMemo(() => {
     if (member?.user_quizzes && member.user_quizzes.length > 0) {
-      return member.user_quizzes.map((uq, idx) => ({
-        id: uq.id || idx + 1,
-        title: uq.title || `Quiz ${idx + 1}`,
-        chapter_name: uq.chapter_name || 'General',
-        module_name: uq.module_name || 'General',
-        assessment_type: uq.assessment_type || 'roadmap_learning_assessment',
-        status: uq.status || (uq.score > 0 ? 'Completed' : 'Not Started'),
-        score: uq.score || 0,
-        correctText: uq.correctText || `${uq.correct_answers || 0}/${uq.total_questions || 5} correct`,
-        totalQuestions: uq.total_questions || 5,
-        correctQuestions: uq.correct_answers || 0,
-        allocation_id: uq.allocation_id || null,
-        submission_time: uq.submission_time || null,
-        node_id: uq.node_id || null,
-        questions: uq.questions || [],
-      }));
-    }
-    return defaultQuizList.map(q => ({
-      ...q,
-      chapter_name: 'Roadmap Quizzes',
-      module_name: q.title.includes('Crack') ? 'Module 1' : 'Module 2',
-      status: q.score > 0 ? 'Completed' : 'Not Started',
-      totalQuestions: 10,
-      correctQuestions: Math.round((q.score / 100) * 10),
-    }));
-  }, [member?.user_quizzes]);
+      // Map node_id and chapter submodule indices from activeChapters
+      const nodeToSubmodule = {};
+      const chapterIndexToSubmodule = {};
 
-  const totalQuizzesCount = member?.total_quizzes_count || dynamicQuizList.length;
+      activeChapters.forEach((ch, chIdx) => {
+        const subMods = ch.subModules || ch.sub_modules || [];
+        subMods.forEach((sm, smIdx) => {
+          const sName = sm.name || sm.title || 'Module';
+          if (sm.id) nodeToSubmodule[sm.id] = sName;
+          if (sm.name) nodeToSubmodule[sm.name] = sName;
+          if (sm.quiz?.id) nodeToSubmodule[sm.quiz.id] = sName;
+          if (sm.quiz?.node_id) nodeToSubmodule[sm.quiz.node_id] = sName;
+          chapterIndexToSubmodule[`${chIdx}_${smIdx}`] = sName;
+          chapterIndexToSubmodule[`${ch.id || (chIdx + 1)}_${smIdx + 1}`] = sName;
+        });
+      });
+
+      return member.user_quizzes
+        .filter((uq) => {
+          if (uq.assessment_type === 'skill_gap_assessment') return false;
+          if (uq.title === 'Skill-Gap Baseline Assessment' || uq.chapter_name === 'Baseline Assessment') return false;
+          if (uq.status === 'Not Started' && !uq.allocation_id && uq.correctText === '0/10 correct') return false;
+          return true;
+        })
+        .map((uq, idx) => {
+          // Resolve submodule name:
+          let resolvedModuleName = null;
+
+          // 1. Direct node match
+          if (uq.node_id && nodeToSubmodule[uq.node_id]) {
+            resolvedModuleName = nodeToSubmodule[uq.node_id];
+          }
+
+          // 2. Pattern match in title like "Crack it - 1.2" or "Quiz 1.2"
+          if (!resolvedModuleName && uq.title) {
+            const m = uq.title.match(/(\d+)\.(\d+)/);
+            if (m) {
+              const chNum = parseInt(m[1], 10);
+              const modNum = parseInt(m[2], 10);
+              resolvedModuleName = chapterIndexToSubmodule[`${chNum}_${modNum}`];
+              if (!resolvedModuleName) {
+                const ch = activeChapters.find(c => c.id === chNum) || activeChapters[chNum - 1];
+                const subMods = ch?.subModules || ch?.sub_modules || [];
+                const targetMod = subMods[modNum - 1];
+                if (targetMod && (targetMod.name || targetMod.title)) {
+                  resolvedModuleName = targetMod.name || targetMod.title;
+                }
+              }
+            }
+          }
+
+          // 3. If module_name exists and is valid (not same as chapter or generic)
+          if (!resolvedModuleName && uq.module_name && uq.module_name !== uq.chapter_name && !['general', 'roadmap module', 'roadmap quizzes'].includes(uq.module_name.toLowerCase())) {
+            resolvedModuleName = uq.module_name;
+          }
+
+          // 4. Fallback by index within matching chapter's subModules
+          if (!resolvedModuleName && uq.chapter_name) {
+            const ch = activeChapters.find(
+              c => cleanTitle(c.title).toLowerCase() === cleanTitle(uq.chapter_name).toLowerCase() ||
+                   cleanTitle(c.title).toLowerCase().includes(cleanTitle(uq.chapter_name).toLowerCase()) ||
+                   cleanTitle(uq.chapter_name).toLowerCase().includes(cleanTitle(c.title).toLowerCase())
+            );
+            if (ch) {
+              const subMods = ch.subModules || ch.sub_modules || [];
+              const sm = subMods[idx % (subMods.length || 1)];
+              if (sm && (sm.name || sm.title)) {
+                resolvedModuleName = sm.name || sm.title;
+              }
+            }
+          }
+
+          const finalModuleName = resolvedModuleName || uq.module_name || uq.chapter_name || 'General';
+
+          return {
+            id: uq.id || idx + 1,
+            title: uq.title || `Quiz ${idx + 1}`,
+            chapter_name: uq.chapter_name || 'General',
+            module_name: finalModuleName,
+            assessment_type: uq.assessment_type || 'roadmap_learning_assessment',
+            status: uq.status || (uq.score > 0 ? 'Completed' : 'Not Started'),
+            score: uq.score || 0,
+            correctText: uq.correctText || `${uq.correct_answers || 0}/${uq.total_questions || 5} correct`,
+            totalQuestions: uq.total_questions || 5,
+            correctQuestions: uq.correct_answers || 0,
+            allocation_id: uq.allocation_id || null,
+            submission_time: uq.submission_time || null,
+            node_id: uq.node_id || null,
+            questions: uq.questions || [],
+          };
+        });
+    }
+    return [];
+  }, [member?.user_quizzes, activeChapters]);
+
+  const totalQuizzesCount = dynamicQuizList.length;
   const takenQuizzesList = dynamicQuizList.filter(q => q.status === 'Completed' || q.score > 0);
-  const takenQuizzesCount = member?.taken_quizzes_count !== undefined 
-    ? member.taken_quizzes_count 
-    : takenQuizzesList.length;
-  const avgQuizScore = member?.avg_quiz_score !== undefined 
-    ? member.avg_quiz_score 
-    : (takenQuizzesCount > 0 ? Math.round(takenQuizzesList.reduce((acc, q) => acc + q.score, 0) / takenQuizzesCount) : 0);
+  const takenQuizzesCount = takenQuizzesList.length;
+  const avgQuizScore = takenQuizzesCount > 0 
+    ? Math.round(takenQuizzesList.reduce((acc, q) => acc + q.score, 0) / takenQuizzesCount) 
+    : 0;
 
   const [quizViewMode, setQuizViewMode] = useState('grouped'); // 'grouped' | 'table'
 
@@ -356,38 +461,46 @@ const MemberDetailView = ({ member, projectData, onBack }) => {
           >
             Overview
           </button>
-          <button
-            className={`${styles.subTabBtn} ${activeTab === 'skill_gap' ? styles.subTabBtnActive : ''}`}
-            onClick={() => setActiveTab('skill_gap')}
-          >
-            Skill – gap analysis{' '}
-            <span className={styles.badgePill}>
-              {skillGapScore !== null ? `${skillGapScore}%` : 'Not started'}
-            </span>
-          </button>
-          <button
-            className={`${styles.subTabBtn} ${activeTab === 'roadmap' ? styles.subTabBtnActive : ''}`}
-            onClick={() => setActiveTab('roadmap')}
-          >
-            Learning roadmap{' '}
-            <span className={styles.badgePill}>{roadmapPct}%</span>
-          </button>
-          <button
-            className={`${styles.subTabBtn} ${activeTab === 'quizzes' ? styles.subTabBtnActive : ''}`}
-            onClick={() => setActiveTab('quizzes')}
-          >
-            Quizzes{' '}
-            <span className={styles.badgePill}>{`${takenQuizzesCount}/${totalQuizzesCount}`}</span>
-          </button>
-          <button
-            className={`${styles.subTabBtn} ${activeTab === 'capstone' ? styles.subTabBtnActive : ''}`}
-            onClick={() => setActiveTab('capstone')}
-          >
-            Capstone project{' '}
-            <span className={styles.badgePill}>
-              {capstoneStatusStr === 'Completed' ? 'Done' : (capstoneStatusStr === 'In Progress' ? `${capstonePercent}%` : 'Not started')}
-            </span>
-          </button>
+          {(isSkillGapOnly || isBoth) && (
+            <button
+              className={`${styles.subTabBtn} ${activeTab === 'skill_gap' ? styles.subTabBtnActive : ''}`}
+              onClick={() => setActiveTab('skill_gap')}
+            >
+              Skill – gap analysis{' '}
+              <span className={styles.badgePill}>
+                {skillGapScore !== null ? `${skillGapScore}%` : 'Not started'}
+              </span>
+            </button>
+          )}
+          {(isRoadmapOnly || isBoth) && (
+            <button
+              className={`${styles.subTabBtn} ${activeTab === 'roadmap' ? styles.subTabBtnActive : ''}`}
+              onClick={() => setActiveTab('roadmap')}
+            >
+              Learning roadmap{' '}
+              <span className={styles.badgePill}>{roadmapPct}%</span>
+            </button>
+          )}
+          {(isRoadmapOnly || isBoth) && (
+            <button
+              className={`${styles.subTabBtn} ${activeTab === 'quizzes' ? styles.subTabBtnActive : ''}`}
+              onClick={() => setActiveTab('quizzes')}
+            >
+              Quizzes{' '}
+              <span className={styles.badgePill}>{`${takenQuizzesCount}/${totalQuizzesCount}`}</span>
+            </button>
+          )}
+          {(isRoadmapOnly || isBoth) && (
+            <button
+              className={`${styles.subTabBtn} ${activeTab === 'capstone' ? styles.subTabBtnActive : ''}`}
+              onClick={() => setActiveTab('capstone')}
+            >
+              Capstone project{' '}
+              <span className={styles.badgePill}>
+                {capstoneStatusStr === 'Completed' ? 'Done' : (capstoneStatusStr === 'In Progress' ? `${capstonePercent}%` : 'Not started')}
+              </span>
+            </button>
+          )}
         </div>
 
         {/* ── OVERVIEW SUB-TAB (Growth & Progress Timeline) ── */}
@@ -397,67 +510,75 @@ const MemberDetailView = ({ member, projectData, onBack }) => {
             <p className={styles.cardSubtitle}>Where this journey stands, stage by stage.</p>
 
             <div className={styles.stageList}>
-              {/* Stage 1 */}
-              <div className={styles.stageItem}>
-                <div className={skillGapScore !== null && skillGapScore > 0 ? styles.stageIconCompleted : styles.stageIconActive}>
-                  {skillGapScore !== null && skillGapScore > 0 ? '✓' : '●'}
-                </div>
-                <div className={styles.stageInfo}>
-                  <div className={styles.stageName}>Skill-gap Assessment</div>
-                  <div className={styles.stageSubtext}>{skillGapScore !== null ? `Assessed ${skillGapScore}%` : 'Not started'}</div>
-                </div>
-                <div className={styles.stageProgressTrack}>
-                  <div className={styles.stageProgressFill} style={{ width: `${skillGapScore || 0}%` }}></div>
-                </div>
-                <span className={styles.stagePctText}>{skillGapScore !== null ? `${skillGapScore}%` : '0%'}</span>
-              </div>
-
-              {/* Stage 2 */}
-              <div className={styles.stageItem}>
-                <div className={roadmapPct >= 100 ? styles.stageIconCompleted : styles.stageIconActive}>
-                  {roadmapPct >= 100 ? '✓' : '●'}
-                </div>
-                <div className={styles.stageInfo}>
-                  <div className={styles.stageName}>Learning Roadmap</div>
-                  <div className={styles.stageSubtext}>{roadmapPct}% done ({completedNodes}/{totalNodes} nodes)</div>
-                </div>
-                <div className={styles.stageProgressTrack}>
-                  <div className={styles.stageProgressFill} style={{ width: `${roadmapPct}%` }}></div>
-                </div>
-                <span className={styles.stagePctText}>{roadmapPct}%</span>
-              </div>
-
-              {/* Stage 3 */}
-              <div className={styles.stageItem}>
-                <div className={takenQuizzesCount > 0 ? (avgQuizScore >= 80 ? styles.stageIconCompleted : styles.stageIconActive) : styles.stageIconEmpty}>
-                  {takenQuizzesCount > 0 ? (avgQuizScore >= 80 ? '✓' : '●') : '○'}
-                </div>
-                <div className={styles.stageInfo}>
-                  <div className={styles.stageName}>Quizzes</div>
-                  <div className={styles.stageSubtext}>
-                    {takenQuizzesCount > 0 ? `${takenQuizzesCount}/${totalQuizzesCount} taken · avg ${avgQuizScore}%` : '0 taken'}
+              {/* Stage 1: Skill Gap */}
+              {(isSkillGapOnly || isBoth) && (
+                <div className={styles.stageItem}>
+                  <div className={skillGapScore !== null && skillGapScore > 0 ? styles.stageIconCompleted : styles.stageIconActive}>
+                    {skillGapScore !== null && skillGapScore > 0 ? '✓' : '●'}
                   </div>
+                  <div className={styles.stageInfo}>
+                    <div className={styles.stageName}>Skill-gap Assessment</div>
+                    <div className={styles.stageSubtext}>{skillGapScore !== null ? `Assessed ${skillGapScore}%` : 'Not started'}</div>
+                  </div>
+                  <div className={styles.stageProgressTrack}>
+                    <div className={styles.stageProgressFill} style={{ width: `${skillGapScore || 0}%` }}></div>
+                  </div>
+                  <span className={styles.stagePctText}>{skillGapScore !== null ? `${skillGapScore}%` : '0%'}</span>
                 </div>
-                <div className={styles.stageProgressTrack}>
-                  <div className={styles.stageProgressFill} style={{ width: `${avgQuizScore}%` }}></div>
-                </div>
-                <span className={styles.stagePctText}>{avgQuizScore}%</span>
-              </div>
+              )}
 
-              {/* Stage 4 */}
-              <div className={styles.stageItem}>
-                <div className={capstonePercent >= 100 ? styles.stageIconCompleted : styles.stageIconEmpty}>
-                  {capstonePercent >= 100 ? '✓' : '○'}
+              {/* Stage 2: Roadmap */}
+              {(isRoadmapOnly || isBoth) && (
+                <div className={styles.stageItem}>
+                  <div className={roadmapPct >= 100 ? styles.stageIconCompleted : styles.stageIconActive}>
+                    {roadmapPct >= 100 ? '✓' : '●'}
+                  </div>
+                  <div className={styles.stageInfo}>
+                    <div className={styles.stageName}>Learning Roadmap</div>
+                    <div className={styles.stageSubtext}>{roadmapPct}% done ({completedNodes}/{totalNodes} nodes)</div>
+                  </div>
+                  <div className={styles.stageProgressTrack}>
+                    <div className={styles.stageProgressFill} style={{ width: `${roadmapPct}%` }}></div>
+                  </div>
+                  <span className={styles.stagePctText}>{roadmapPct}%</span>
                 </div>
-                <div className={styles.stageInfo}>
-                  <div className={styles.stageName}>Capstone Project</div>
-                  <div className={styles.stageSubtext}>{capstoneStatusStr}</div>
+              )}
+
+              {/* Stage 3: Quizzes */}
+              {(isRoadmapOnly || isBoth) && (
+                <div className={styles.stageItem}>
+                  <div className={takenQuizzesCount > 0 ? (avgQuizScore >= 80 ? styles.stageIconCompleted : styles.stageIconActive) : styles.stageIconEmpty}>
+                    {takenQuizzesCount > 0 ? (avgQuizScore >= 80 ? '✓' : '●') : '○'}
+                  </div>
+                  <div className={styles.stageInfo}>
+                    <div className={styles.stageName}>Quizzes</div>
+                    <div className={styles.stageSubtext}>
+                      {takenQuizzesCount > 0 ? `${takenQuizzesCount}/${totalQuizzesCount} taken · avg ${avgQuizScore}%` : '0 taken'}
+                    </div>
+                  </div>
+                  <div className={styles.stageProgressTrack}>
+                    <div className={styles.stageProgressFill} style={{ width: `${avgQuizScore}%` }}></div>
+                  </div>
+                  <span className={styles.stagePctText}>{avgQuizScore}%</span>
                 </div>
-                <div className={styles.stageProgressTrack}>
-                  <div className={styles.stageProgressFill} style={{ width: `${capstonePercent}%` }}></div>
+              )}
+
+              {/* Stage 4: Capstone */}
+              {(isRoadmapOnly || isBoth) && (
+                <div className={styles.stageItem}>
+                  <div className={capstonePercent >= 100 ? styles.stageIconCompleted : styles.stageIconEmpty}>
+                    {capstonePercent >= 100 ? '✓' : '○'}
+                  </div>
+                  <div className={styles.stageInfo}>
+                    <div className={styles.stageName}>Capstone Project</div>
+                    <div className={styles.stageSubtext}>{capstoneStatusStr}</div>
+                  </div>
+                  <div className={styles.stageProgressTrack}>
+                    <div className={styles.stageProgressFill} style={{ width: `${capstonePercent}%` }}></div>
+                  </div>
+                  <span className={styles.stagePctText}>{capstonePercent}%</span>
                 </div>
-                <span className={styles.stagePctText}>{capstonePercent}%</span>
-              </div>
+              )}
             </div>
           </div>
         )}
@@ -538,7 +659,7 @@ const MemberDetailView = ({ member, projectData, onBack }) => {
                     color: '#0F1117',
                     marginBottom: '12px',
                   }}>
-                    {ch.title}
+                    {cleanTitle(ch.title)}
                   </div>
 
                   {/* Chapter rows inside the module */}
@@ -619,7 +740,7 @@ const MemberDetailView = ({ member, projectData, onBack }) => {
                           color: '#0F1117',
                           flex: 1,
                         }}>
-                          {ch.title}
+                          {cleanTitle(ch.title)}
                         </span>
                         <span style={{
                           fontFamily: 'DM Sans, sans-serif',
@@ -802,7 +923,7 @@ const MemberDetailView = ({ member, projectData, onBack }) => {
 
             {/* Grouped by Chapter & Module View */}
             {quizViewMode === 'grouped' ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
                 {Object.keys(groupedQuizzes).length > 0 ? (
                   Object.entries(groupedQuizzes).map(([chapterName, quizzes], gIdx) => {
                     const chTaken = quizzes.filter(q => q.status === 'Completed' || q.score > 0).length;
@@ -816,10 +937,10 @@ const MemberDetailView = ({ member, projectData, onBack }) => {
                         <div className={styles.quizChapterHeader}>
                           <div className={styles.quizChapterTitleGroup}>
                             <div className={styles.quizChapterIcon}>
-                              {chTaken === chTotal && chTotal > 0 ? '✓' : (gIdx + 1)}
+                              {chTaken === chTotal && chTotal > 0 ? '✓' : (chTaken > 0 ? '⚡' : '📖')}
                             </div>
                             <div>
-                              <h4 className={styles.quizChapterTitle}>{chapterName}</h4>
+                              <h4 className={styles.quizChapterTitle}>{cleanTitle(chapterName)}</h4>
                               <span className={styles.quizChapterStats}>
                                 {chTotal} {chTotal === 1 ? 'assessment' : 'assessments'} · {chTaken} completed
                                 {chTaken > 0 ? ` · avg ${chAvg}%` : ''}
@@ -884,8 +1005,8 @@ const MemberDetailView = ({ member, projectData, onBack }) => {
                             <thead>
                               <tr className={styles.quizTheadRow}>
                                 <th className={styles.quizTh} style={{ width: '45px' }}>#</th>
-                                <th className={styles.quizTh}>Quiz / Assessment</th>
-                                <th className={styles.quizTh} style={{ width: '180px' }}>Module / Subtopic</th>
+                                <th className={styles.quizTh}>Quiz</th>
+                                <th className={styles.quizTh} style={{ width: '180px' }}>Module</th>
                                 <th className={styles.quizTh} style={{ width: '90px' }}>Score</th>
                                 <th className={styles.quizTh} style={{ width: '120px' }}>Result</th>
                                 <th className={styles.quizTh} style={{ width: '110px' }}>Status</th>
@@ -906,18 +1027,11 @@ const MemberDetailView = ({ member, projectData, onBack }) => {
                                       <span className={styles.quizIndexText}>{idx + 1}</span>
                                     </td>
                                     <td className={styles.quizTd}>
-                                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                        <span className={styles.quizTitleText}>{q.title}</span>
-                                        {q.submission_time && (
-                                          <span style={{ fontSize: '11px', color: '#9AA0B4', fontFamily: 'DM Sans' }}>
-                                            Submitted {q.submission_time}
-                                          </span>
-                                        )}
-                                      </div>
+                                      <span className={styles.quizTitleText}>{q.title}</span>
                                     </td>
                                     <td className={styles.quizTd}>
                                       <span style={{ fontSize: '12px', color: '#5C6070', fontFamily: 'DM Sans' }}>
-                                        {q.module_name || '—'}
+                                        {cleanTitle(q.module_name) || '—'}
                                       </span>
                                     </td>
                                     <td className={styles.quizTd}>
@@ -944,16 +1058,20 @@ const MemberDetailView = ({ member, projectData, onBack }) => {
                                     <td className={styles.quizTd} style={{ textAlign: 'right', paddingRight: '14px' }}>
                                       <div className={styles.quizActionBtnGroup}>
                                         <button
-                                          className={styles.quizActionBtn}
-                                          onClick={() => handleReviewClick(q)}
+                                          className={styles.quizActionBtnLocked}
+                                          disabled
+                                          title="Review feature is coming soon"
                                         >
-                                          Review
+                                          <LockIcon />
+                                          <span>Review</span>
                                         </button>
                                         <button
-                                          className={styles.quizActionBtn}
-                                          onClick={() => alert(`Retake initiated for: ${q.title}`)}
+                                          className={styles.quizActionBtnLocked}
+                                          disabled
+                                          title="Retake feature is coming soon"
                                         >
-                                          Retake
+                                          <LockIcon />
+                                          <span>Retake</span>
                                         </button>
                                       </div>
                                     </td>
@@ -981,7 +1099,7 @@ const MemberDetailView = ({ member, projectData, onBack }) => {
                       <tr className={styles.quizTheadRow}>
                         <th className={styles.quizTh} style={{ width: '45px' }}>#</th>
                         <th className={styles.quizTh}>Quiz</th>
-                        <th className={styles.quizTh} style={{ width: '180px' }}>Chapter / Module</th>
+                        <th className={styles.quizTh} style={{ width: '180px' }}>Module</th>
                         <th className={styles.quizTh} style={{ width: '90px' }}>Score</th>
                         <th className={styles.quizTh} style={{ width: '120px' }}>Result</th>
                         <th className={styles.quizTh} style={{ width: '110px' }}>Status</th>
@@ -1012,18 +1130,11 @@ const MemberDetailView = ({ member, projectData, onBack }) => {
                                 <span className={styles.quizIndexText}>{idx + 1}</span>
                               </td>
                               <td className={styles.quizTd}>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                  <span className={styles.quizTitleText}>{q.title}</span>
-                                  {q.submission_time && (
-                                    <span style={{ fontSize: '11px', color: '#9AA0B4', fontFamily: 'DM Sans' }}>
-                                      Submitted {q.submission_time}
-                                    </span>
-                                  )}
-                                </div>
+                                <span className={styles.quizTitleText}>{q.title}</span>
                               </td>
                               <td className={styles.quizTd}>
                                 <span style={{ fontSize: '12px', color: '#5C6070', fontFamily: 'DM Sans' }}>
-                                  {q.chapter_name || q.module_name || '—'}
+                                  {cleanTitle(q.module_name) || '—'}
                                 </span>
                               </td>
                               <td className={styles.quizTd}>
@@ -1050,16 +1161,20 @@ const MemberDetailView = ({ member, projectData, onBack }) => {
                               <td className={styles.quizTd} style={{ textAlign: 'right', paddingRight: '14px' }}>
                                 <div className={styles.quizActionBtnGroup}>
                                   <button
-                                    className={styles.quizActionBtn}
-                                    onClick={() => handleReviewClick(q)}
+                                    className={styles.quizActionBtnLocked}
+                                    disabled
+                                    title="Review feature is coming soon"
                                   >
-                                    Review
+                                    <LockIcon />
+                                    <span>Review</span>
                                   </button>
                                   <button
-                                    className={styles.quizActionBtn}
-                                    onClick={() => alert(`Retake initiated for: ${q.title}`)}
+                                    className={styles.quizActionBtnLocked}
+                                    disabled
+                                    title="Retake feature is coming soon"
                                   >
-                                    Retake
+                                    <LockIcon />
+                                    <span>Retake</span>
                                   </button>
                                 </div>
                               </td>

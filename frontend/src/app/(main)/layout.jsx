@@ -6,7 +6,9 @@ import { PromptSharingProvider } from '@/context/PromptSharingContext';
 
 export default function layout({ children }) {
   return (
-    <ProtectedRoute allowedRoles={['learner', 'admin']}>
+    // #changes 28-09-2026 - start: Support all authenticated roles in layout ProtectedRoute
+    <ProtectedRoute allowedRoles={['learner', 'admin', 'superadmin', 'organization_admin', 'employee', 'user']}>
+    {/* #changes 28-09-2026 - end */}
       <PromptSharingProvider>
         <div className={styles['layout-container']} id="layout-container">
           <Sidebar />

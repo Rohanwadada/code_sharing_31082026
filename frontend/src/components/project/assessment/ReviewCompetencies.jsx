@@ -33,6 +33,13 @@ const InfoIcon = () => (
 
 const ReviewCompetencies = ({ projectId }) => {
   const projectName = useProjectStore((s) => s.currentProjectName);
+  const fetchProjectDetails = useProjectStore((s) => s.fetchProjectDetails);
+
+  useEffect(() => {
+    if (projectId) {
+      fetchProjectDetails(projectId);
+    }
+  }, [projectId, fetchProjectDetails]);
 
   const setAssessmentFormationId = useAssessmentFormationStore(
     (s) => s.setAssessmentFormationId,
@@ -43,6 +50,7 @@ const ReviewCompetencies = ({ projectId }) => {
   const setAssessmentFormationDetails = useAssessmentFormationStore(
     (s) => s.setAssessmentFormationDetails,
   );
+
   const assessmentFormationSource = useAssessmentFormationStore(
     (s) => s.assessmentFormationSource,
   );

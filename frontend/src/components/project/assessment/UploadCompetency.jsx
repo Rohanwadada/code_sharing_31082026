@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import classes from './UploadCompetency.module.css';
 import sampleFormat from '@/assets/assessment/sample-format.svg';
 import dropdownCollapse from '@/assets/assessment/dropdown-collapse.svg';
@@ -14,6 +14,13 @@ import { useProjectStore } from '@/store/projectStore';
 
 const UploadCompetency = ({ projectId }) => {
   const currentProjectName = useProjectStore((s) => s.currentProjectName);
+  const fetchProjectDetails = useProjectStore((s) => s.fetchProjectDetails);
+
+  useEffect(() => {
+    if (projectId) {
+      fetchProjectDetails(projectId);
+    }
+  }, [projectId, fetchProjectDetails]);
 
   const router = useRouter();
   const project = null;
@@ -22,6 +29,7 @@ const UploadCompetency = ({ projectId }) => {
   const setAssessmentFormationDetails = useAssessmentFormationStore(
     (state) => state.setAssessmentFormationDetails,
   );
+
 
   // States: 'idle' | 'attached' | 'analyzing' | 'complete' | 'error'
   const [uploadState, setUploadState] = useState('idle');

@@ -2,7 +2,20 @@ import sys
 import asyncio
 
 if sys.platform == "win32":
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    try:
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    except Exception:
+        pass
+    try:
+        import uvicorn.loops.asyncio
+        uvicorn.loops.asyncio.asyncio_loop_factory = lambda use_subprocess=False: asyncio.SelectorEventLoop
+    except Exception:
+        pass
+    try:
+        import uvicorn.loops.auto
+        uvicorn.loops.auto.auto_loop_factory = lambda use_subprocess=False: asyncio.SelectorEventLoop
+    except Exception:
+        pass
 
 from contextlib import asynccontextmanager
 
@@ -42,6 +55,7 @@ from modules.project.router import router as project_router
 from modules.roadmap_learning_assessment.router import router as roadmap_learning_assessment_router
 from modules.assessment_attempt.router import router as assessment_attempt_router
 from modules.prompt_sharing.router import router as prompt_sharing_router
+from modules.project_wizard.router import router as project_wizard_router
 
 
 
@@ -68,20 +82,25 @@ setup_logging()
 
 origins = [
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 
 app.add_middleware(
     CSRFMiddleware,
     exempt_paths={"/api/v1/auth/login-request", "/api/v1/auth/verify-login"},
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_origin_regex=".*",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -116,6 +135,20 @@ api_v1.include_router(course_recommendation_router)
 api_v1.include_router(roadmap_learning_assessment_router)
 api_v1.include_router(assessment_attempt_router)
 api_v1.include_router(prompt_sharing_router)
+api_v1.include_router(project_wizard_router)
+
+# Real-time LLM Token Telemetry endpoints
+@api_v1.get("/telemetry/tokens")
+async def get_token_telemetry_logs():
+    """Returns actual real-time token telemetry logged across all backend endpoints."""
+    from shared.llm.gemini import get_all_token_logs
+    return get_all_token_logs()
+
+@api_v1.delete("/telemetry/tokens")
+async def clear_token_telemetry_logs():
+    """Clears stored token telemetry logs."""
+    from shared.llm.gemini import clear_token_logs
+    return clear_token_logs()
 
 
 app.include_router(api_v1)
@@ -123,5 +156,6 @@ app.include_router(api_v1)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False)
+    loop_arg = "asyncio:SelectorEventLoop" if sys.platform == "win32" else "auto"
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False, loop=loop_arg)
 

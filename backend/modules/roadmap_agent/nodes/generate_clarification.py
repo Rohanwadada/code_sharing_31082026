@@ -1,4 +1,5 @@
 import logging
+import time
 from typing import Any, Dict
 
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -17,7 +18,7 @@ from modules.roadmap_agent.utils import (
     pseudo_stream_text,
 )
 from modules.thread.schema import ThreadUpdate
-from shared.llm.gemini import get_gemini_instance
+from shared.llm.gemini import get_gemini_instance, log_token_usage
 from shared.pii_analyzer import pii_analyzer
 from shared.sse_stream import publish_content_block
 
@@ -66,7 +67,7 @@ async def generate_clarification(
 
         # LLM call
         llm = get_gemini_instance(temperature=0.6)
-        structured_llm = llm.with_structured_output(ClarificationQuestion, strict=True)
+        structured_llm = llm.with_structured_output(ClarificationQuestion, strict=True, include_raw=True)
 
         prompt = [
             SystemMessage(content=ASK_CLARIFICATION_SYSTEM_INSTRUCTION),
@@ -79,7 +80,19 @@ User last message: {anonymized_user_msg}
             ),
         ]
 
-        result = structured_llm.invoke(prompt)
+        t0 = time.time()
+        res_output = structured_llm.invoke(prompt)
+        raw_msg = res_output.get("raw") if isinstance(res_output, dict) else None
+        result = res_output.get("parsed") if isinstance(res_output, dict) else res_output
+
+        if raw_msg:
+            field_name = getattr(result, "field", "question") or "question"
+            log_token_usage(
+                raw_msg,
+                feature_name=f"Roadmap Clarification: {field_name}",
+                model_name="gemini-2.5-flash",
+                latency=f"{time.time() - t0:.2f}s",
+            )
 
         # de-anonymize the result
         result = pii_analyzer.deanonymize_value(result, pii_mapping)

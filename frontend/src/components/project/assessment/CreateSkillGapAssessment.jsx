@@ -418,7 +418,6 @@ const CreateSkillGapAssessment = () => {
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      autoSaveDraftOnLeave();
     };
   }, []);
 
